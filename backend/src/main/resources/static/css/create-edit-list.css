@@ -2,20 +2,20 @@
    create-edit-list.css — styles for the Create/Edit List page
    ========================================================= */
 
-.form-group {
+.editor-container .form-group {
     margin-bottom: 1.5rem;
 }
 
-label {
+.editor-container label {
     display: block;
     margin-bottom: 0.5rem;
     color: var(--text-secondary);
     font-weight: 500;
 }
 
-input[type="text"],
-textarea,
-select {
+.editor-container input[type="text"],
+.editor-container textarea,
+.editor-container select {
     width: 100%;
     padding: 0.8rem 1rem;
     background: rgba(0, 0, 0, 0.2);
@@ -26,9 +26,9 @@ select {
     transition: all 0.3s ease;
 }
 
-input[type="text"]:focus,
-textarea:focus,
-select:focus {
+.editor-container input[type="text"]:focus,
+.editor-container textarea:focus,
+.editor-container select:focus {
     outline: none;
     border-color: var(--accent-color);
     box-shadow: 0 0 0 2px var(--accent-glow);

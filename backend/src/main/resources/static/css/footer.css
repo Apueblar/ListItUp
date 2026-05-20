@@ -1,0 +1,13 @@
+/* =========================================================
+   footer.css — Styles for the global footer
+   ========================================================= */
+
+/* Footer */
+.site-footer {
+    text-align: center;
+    padding: 2rem;
+    margin-top: 4rem;
+    color: var(--text-secondary);
+    border-top: 1px solid var(--glass-border);
+    font-size: 0.9rem;
+}
