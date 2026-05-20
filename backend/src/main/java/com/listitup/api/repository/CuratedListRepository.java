@@ -11,4 +11,5 @@ import java.util.UUID;
 @Repository
 public interface CuratedListRepository extends JpaRepository<CuratedList, UUID> {
     List<CuratedList> findByCreatorOrderByCreatedAtDesc(User creator);
+    List<CuratedList> findByTitleContainingIgnoreCase(String title);
 }
