@@ -4,11 +4,11 @@ import com.listitup.api.model.User;
 import com.listitup.api.repository.UserRepository;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
-import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
+import org.springframework.security.oauth2.client.oidc.userinfo.OidcUserRequest;
+import org.springframework.security.oauth2.client.oidc.userinfo.OidcUserService;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
-import org.springframework.security.oauth2.core.user.DefaultOAuth2User;
-import org.springframework.security.oauth2.core.user.OAuth2User;
+import org.springframework.security.oauth2.core.oidc.user.DefaultOidcUser;
+import org.springframework.security.oauth2.core.oidc.user.OidcUser;
 import org.springframework.stereotype.Service;
 
 import java.util.HashSet;
@@ -16,23 +16,22 @@ import java.util.Optional;
 import java.util.Set;
 
 @Service
-public class CustomOAuth2UserService extends DefaultOAuth2UserService {
+public class CustomOidcUserService extends OidcUserService {
 
     private final UserRepository userRepository;
 
-    public CustomOAuth2UserService(UserRepository userRepository) {
+    public CustomOidcUserService(UserRepository userRepository) {
         this.userRepository = userRepository;
     }
 
     @Override
-    public OAuth2User loadUser(OAuth2UserRequest userRequest) throws OAuth2AuthenticationException {
-        OAuth2User oAuth2User = super.loadUser(userRequest);
+    public OidcUser loadUser(OidcUserRequest userRequest) throws OAuth2AuthenticationException {
+        OidcUser oidcUser = super.loadUser(userRequest);
 
-        String registrationId = userRequest.getClientRegistration().getRegistrationId();
-        String email = oAuth2User.getAttribute("email");
-        String username = oAuth2User.getAttribute("name");
-        if (username == null) {
-            username = oAuth2User.getAttribute("login"); // GitHub uses 'login' sometimes
+        String email = oidcUser.getEmail();
+        String username = oidcUser.getFullName();
+        if (username == null && email != null) {
+            username = email.split("@")[0];
         }
 
         if (email == null) {
@@ -41,13 +40,13 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
 
         User dbUser;
         Optional<User> userOptional = userRepository.findByEmail(email);
-        
+
         if (userOptional.isEmpty()) {
             dbUser = new User();
             dbUser.setEmail(email);
-            dbUser.setUsername(username != null ? username : email.split("@")[0]);
-            dbUser.setAuthProvider(registrationId.toUpperCase());
-            
+            dbUser.setUsername(username);
+            dbUser.setAuthProvider("GOOGLE");
+
             // Promote specific user to Admin automatically
             if (email.equalsIgnoreCase("alvaropueblaruisanchez@gmail.com")) {
                 dbUser.setRole("ADMIN");
@@ -58,7 +57,7 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
             if (Boolean.TRUE.equals(dbUser.getIsBlocked())) {
                 throw new OAuth2AuthenticationException("account_blocked");
             }
-            
+
             // Ensure specific user is Admin even if they existed as Standard
             if (email.equalsIgnoreCase("alvaropueblaruisanchez@gmail.com") && !"ADMIN".equals(dbUser.getRole())) {
                 dbUser.setRole("ADMIN");
@@ -66,13 +65,9 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
             }
         }
 
-        Set<GrantedAuthority> authorities = new HashSet<>();
-        authorities.addAll(oAuth2User.getAuthorities());
+        Set<GrantedAuthority> authorities = new HashSet<>(oidcUser.getAuthorities());
         authorities.add(new SimpleGrantedAuthority("ROLE_" + dbUser.getRole()));
 
-        String userNameAttributeName = userRequest.getClientRegistration()
-                .getProviderDetails().getUserInfoEndpoint().getUserNameAttributeName();
-
-        return new DefaultOAuth2User(authorities, oAuth2User.getAttributes(), userNameAttributeName);
+        return new DefaultOidcUser(authorities, oidcUser.getIdToken(), oidcUser.getUserInfo());
     }
 }
