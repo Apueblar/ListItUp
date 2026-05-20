@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${user.username + ' - Profile'}">Profile</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&family=Outfit:wght@500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+
+    <nav>
+        <a href="/feed" class="nav-brand">List<span>It</span>Up</a>
+        <div class="nav-links">
+            <a href="/feed" style="color:var(--text-secondary); text-decoration:none;">Feed</a>
+            <a href="/lists/new" class="btn-primary">+ Create List</a>
+            <a href="/logout" style="color:var(--text-secondary); text-decoration:none;">Logout</a>
+        </div>
+    </nav>
+
+    <main class="animate-in">
+        <header style="text-align: center; margin-bottom: 3rem; padding-bottom: 2rem; border-bottom: 1px solid var(--glass-border);">
+            <div style="width: 80px; height: 80px; border-radius: 50%; background: linear-gradient(135deg, var(--accent-color), #8b5cf6); margin: 0 auto 1rem; display: flex; align-items: center; justify-content: center; font-size: 2rem; font-weight: bold;">
+                <span th:text="${#strings.substring(user.username,0,1).toUpperCase()}">U</span>
+            </div>
+            <h1 th:text="${user.username}" style="margin-bottom: 0.5rem;">Username</h1>
+            <p style="color: var(--text-secondary);" th:text="${'Role: ' + user.role}">Role</p>
+        </header>
+
+        <section style="margin-bottom: 4rem;">
+            <h2 style="margin-bottom: 2rem;">My Created Lists</h2>
+            <div class="grid">
+                <a th:each="list : ${myLists}" th:href="@{/lists/{id}(id=${list.listId})}" class="list-card">
+                    <div><span class="category-pill" th:text="${list.category.name}">Category</span></div>
+                    <h3 th:text="${list.title}">Title</h3>
+                    <p th:text="${list.description}" style="color: var(--text-secondary); font-size: 0.95rem;">Desc</p>
+                    <div style="margin-top: auto; display: flex; justify-content: space-between; font-size: 0.85rem; color: var(--text-secondary);">
+                        <span th:text="${list.viewCount + ' views'}">0 views</span>
+                        <span th:text="${#temporals.format(list.createdAt, 'dd MMM yyyy')}">Date</span>
+                    </div>
+                </a>
+                <div th:if="${#lists.isEmpty(myLists)}" style="color: var(--text-secondary); grid-column: 1 / -1;">You haven't created any lists yet.</div>
+            </div>
+        </section>
+
+        <section>
+            <h2 style="margin-bottom: 2rem;">My Saved Lists</h2>
+            <div class="grid">
+                <a th:each="list : ${savedLists}" th:href="@{/lists/{id}(id=${list.listId})}" class="list-card">
+                    <div><span class="category-pill" th:text="${list.category.name}">Category</span></div>
+                    <h3 th:text="${list.title}">Title</h3>
+                    <p th:text="${list.description}" style="color: var(--text-secondary); font-size: 0.95rem;">Desc</p>
+                    <div style="margin-top: auto; display: flex; justify-content: space-between; font-size: 0.85rem; color: var(--text-secondary);">
+                        <span th:text="${'By ' + list.creator.username}">Creator</span>
+                    </div>
+                </a>
+                <div th:if="${#lists.isEmpty(savedLists)}" style="color: var(--text-secondary); grid-column: 1 / -1;">No saved lists. Go explore!</div>
+            </div>
+        </section>
+    </main>
+
+</body>
+</html>

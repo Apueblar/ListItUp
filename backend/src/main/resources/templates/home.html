@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ListItUp - Curated Social Lists</title>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&family=Outfit:wght@500;700&display=swap" rel="stylesheet">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+
+    <nav>
+        <a href="/feed" class="nav-brand">List<span>It</span>Up</a>
+        <div class="nav-links">
+            <a href="/search" style="color:var(--text-secondary); text-decoration:none;">Search</a>
+            <!-- Displayed if authenticated -->
+            <a th:if="${#authorization.expression('isAuthenticated()')}" href="/lists/new" class="btn-primary">+ Create List</a>
+            <a th:if="${#authorization.expression('isAuthenticated()')}" href="/logout" style="color:var(--text-secondary); text-decoration:none;">Logout</a>
+            <!-- Displayed if NOT authenticated -->
+            <a th:unless="${#authorization.expression('isAuthenticated()')}" href="/oauth2/authorization/google" class="btn-primary">Sign In</a>
+        </div>
+    </nav>
+
+    <main class="animate-in">
+        <header style="text-align: center; margin-bottom: 3rem;">
+            <h1>Discover the Best of Everything.</h1>
+            <p style="color: var(--text-secondary); max-width: 600px; margin: 0 auto;">
+                Explore hand-curated, trustworthy lists from verified creators and everyday experts. Say goodbye to algorithmic noise.
+            </p>
+        </header>
+
+        <section class="grid">
+            <!-- Iterate over lists passed from controller -->
+            <a th:each="list : ${lists}" th:href="@{/lists/{id}(id=${list.listId})}" class="list-card">
+                <div>
+                    <span class="category-pill" th:text="${list.category.name}">Category</span>
+                </div>
+                <h3 th:text="${list.title}" style="font-size: 1.25rem;">Top 10 Sci-Fi Movies</h3>
+                <p th:text="${list.description}" style="color: var(--text-secondary); font-size: 0.95rem;">
+                    A brief description goes here...
+                </p>
+                <div style="margin-top: auto; display: flex; justify-content: space-between; font-size: 0.85rem; color: var(--text-secondary);">
+                    <span th:text="${'Views: ' + list.viewCount}">Views: 1.2k</span>
+                    <span th:text="${#temporals.format(list.createdAt, 'dd MMM yyyy')}">Date</span>
+                </div>
+            </a>
+            
+            <!-- Placeholder Card if DB is empty -->
+            <div th:if="${#lists.isEmpty(lists)}" style="text-align: center; grid-column: 1 / -1; padding: 4rem;">
+                <p style="color: var(--text-secondary);">No lists found. Be the first to create one!</p>
+            </div>
+        </section>
+    </main>
+
+</body>
+</html>
