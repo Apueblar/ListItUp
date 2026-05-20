@@ -85,4 +85,31 @@ public class InteractionController {
             return ResponseEntity.ok(Map.of("status", "saved"));
         }
     }
+
+    @PostMapping("/lists/{id}/pin")
+    @Transactional
+    public ResponseEntity<?> togglePin(@PathVariable UUID id, @AuthenticationPrincipal OAuth2User oauthUser) {
+        if (oauthUser == null) {
+            return ResponseEntity.status(401).body(Map.of("error", "Unauthorized"));
+        }
+        String email = oauthUser.getAttribute("email");
+        User user = userRepository.findByEmail(email).orElseThrow();
+        CuratedList list = listRepository.findById(id).orElseThrow();
+
+        // Only the creator can pin/unpin their list
+        if (!list.getCreator().getUserId().equals(user.getUserId())) {
+            return ResponseEntity.status(403).body(Map.of("error", "Forbidden: You are not the owner of this list"));
+        }
+
+        // Only verified creators can pin lists
+        if (!Boolean.TRUE.equals(user.getCanPinLists())) {
+            return ResponseEntity.status(403).body(Map.of("error", "Forbidden: Only verified creators can pin lists"));
+        }
+
+        boolean nextPin = !Boolean.TRUE.equals(list.getIsPinned());
+        list.setIsPinned(nextPin);
+        listRepository.save(list);
+
+        return ResponseEntity.ok(Map.of("status", nextPin ? "pinned" : "unpinned"));
+    }
 }

@@ -2,122 +2,16 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
     <th:block th:replace="~{fragments/layout :: head('Admin Dashboard - ListItUp')}"></th:block>
-    <style>
-        .admin-table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 2rem;
-            background: var(--card-bg);
-            border: 1px solid var(--card-border);
-            border-radius: 12px;
-            overflow: hidden;
-            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
-            backdrop-filter: blur(5px);
-        }
-        
-        .admin-table th, .admin-table td {
-            padding: 1rem;
-            text-align: left;
-            border-bottom: 1px solid var(--card-border);
-        }
-
-        .admin-table th {
-            background-color: rgba(255, 255, 255, 0.05);
-            font-weight: 600;
-            color: var(--text-primary);
-        }
-
-        .admin-table tr:last-child td {
-            border-bottom: none;
-        }
-
-        .badge-verified {
-            background: rgba(16, 185, 129, 0.2);
-            color: #10b981;
-            padding: 0.25rem 0.5rem;
-            border-radius: 6px;
-            font-size: 0.8rem;
-            font-weight: 600;
-        }
-
-        .badge-blocked {
-            background: rgba(239, 68, 68, 0.2);
-            color: #ef4444;
-            padding: 0.25rem 0.5rem;
-            border-radius: 6px;
-            font-size: 0.8rem;
-            font-weight: 600;
-        }
-
-        .badge-admin {
-            background: rgba(99, 102, 241, 0.2);
-            color: #6366f1;
-            padding: 0.25rem 0.5rem;
-            border-radius: 6px;
-            font-size: 0.8rem;
-            font-weight: 600;
-        }
-
-        select.admin-select {
-            background: #111827;
-            color: var(--text-primary);
-            border: 1px solid var(--card-border);
-            padding: 0.4rem 0.8rem;
-            border-radius: 8px;
-            outline: none;
-            cursor: pointer;
-            font-family: inherit;
-        }
-
-        .btn-action {
-            padding: 0.4rem 0.8rem;
-            border-radius: 8px;
-            border: none;
-            cursor: pointer;
-            font-weight: 600;
-            font-size: 0.85rem;
-            transition: all 0.2s;
-        }
-
-        .btn-block {
-            background-color: rgba(239, 68, 68, 0.2);
-            color: #fca5a5;
-            border: 1px solid rgba(239, 68, 68, 0.4);
-        }
-
-        .btn-block:hover {
-            background-color: rgba(239, 68, 68, 0.4);
-        }
-
-        .btn-unblock {
-            background-color: rgba(16, 185, 129, 0.2);
-            color: #a7f3d0;
-            border: 1px solid rgba(16, 185, 129, 0.4);
-        }
-
-        .btn-unblock:hover {
-            background-color: rgba(16, 185, 129, 0.4);
-        }
-
-        .btn-badge {
-            background-color: rgba(245, 158, 11, 0.2);
-            color: #fef08a;
-            border: 1px solid rgba(245, 158, 11, 0.4);
-        }
-
-        .btn-badge:hover {
-            background-color: rgba(245, 158, 11, 0.4);
-        }
-    </style>
+    <link rel="stylesheet" th:href="@{/css/admin.css}">
 </head>
 <body>
 
     <nav th:replace="~{fragments/layout :: navbar}"></nav>
 
-    <main class="animate-in" style="max-width: 1000px; margin: 2rem auto; padding: 0 1rem;">
-        <header style="margin-bottom: 2rem;">
+    <main class="animate-in admin-main">
+        <header class="admin-header">
             <h1>Administration Panel</h1>
-            <p style="color: var(--text-secondary);">Manage users, toggle verification badges, assign administrative privileges, or block accounts.</p>
+            <p>Manage users, toggle verification badges, assign administrative privileges, or block accounts.</p>
         </header>
 
         <table class="admin-table">
@@ -133,10 +27,10 @@
             </thead>
             <tbody>
                 <tr th:each="user : ${users}">
-                    <td th:text="${user.username}" style="font-weight: 500;">Username</td>
-                    <td th:text="${user.email}" style="color: var(--text-secondary);">user@email.com</td>
+                    <td th:text="${user.username}" class="td-username">Username</td>
+                    <td th:text="${user.email}" class="td-email">user@email.com</td>
                     <td>
-                        <form th:action="@{/admin/users/role}" method="post" style="display: inline-block;">
+                        <form th:action="@{/admin/users/role}" method="post" class="form-inline">
                             <input type="hidden" name="userId" th:value="${user.userId}"/>
                             <select name="role" class="admin-select" onchange="this.form.submit()" 
                                     th:disabled="${user.email == 'alvaropueblaruisanchez@gmail.com'}">
@@ -148,16 +42,16 @@
                     </td>
                     <td>
                         <span th:if="${user.hasBadge}" class="badge-verified">Verified Badge</span>
-                        <span th:unless="${user.hasBadge}" style="color: var(--text-secondary); font-size: 0.9rem;">None</span>
+                        <span th:unless="${user.hasBadge}" class="td-email" style="font-size: 0.9rem;">None</span>
                     </td>
                     <td>
                         <span th:if="${user.isBlocked}" class="badge-blocked">Blocked</span>
-                        <span th:unless="${user.isBlocked}" class="badge-verified" style="background: rgba(16, 185, 129, 0.1); color: #34d399;">Active</span>
+                        <span th:unless="${user.isBlocked}" class="badge-active">Active</span>
                     </td>
                     <td>
-                        <div style="display: flex; gap: 0.5rem;">
+                        <div class="td-actions">
                             <!-- Block/Unblock Form -->
-                            <form th:action="@{/admin/users/toggle-block}" method="post" style="display: inline-block;"
+                            <form th:action="@{/admin/users/toggle-block}" method="post" class="form-inline"
                                   th:if="${user.email != 'alvaropueblaruisanchez@gmail.com'}">
                                 <input type="hidden" name="userId" th:value="${user.userId}"/>
                                 <button type="submit" class="btn-action" 
@@ -168,7 +62,7 @@
                             </form>
                             
                             <!-- Toggle Badge Form -->
-                            <form th:action="@{/admin/users/toggle-badge}" method="post" style="display: inline-block;">
+                            <form th:action="@{/admin/users/toggle-badge}" method="post" class="form-inline">
                                 <input type="hidden" name="userId" th:value="${user.userId}"/>
                                 <button type="submit" class="btn-action btn-badge" 
                                         th:text="${user.hasBadge} ? 'Remove Badge' : 'Give Badge'">

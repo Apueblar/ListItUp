@@ -34,6 +34,11 @@
     min-width: 100px;
 }
 
+.btn-interaction--active {
+    background: var(--accent-color);
+    border-color: var(--accent-color);
+}
+
 /* ---------- Item Cards ---------- */
 .item-card {
     background: var(--glass-bg);

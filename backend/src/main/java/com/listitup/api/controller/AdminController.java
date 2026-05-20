@@ -36,6 +36,7 @@ public class AdminController {
             // Restrict modifying the main admin's role to prevent lockouts
             if (!user.getEmail().equalsIgnoreCase("alvaropueblaruisanchez@gmail.com")) {
                 user.setRole(role);
+                syncPrivileges(user);
                 userRepository.save(user);
             }
         }
@@ -68,8 +69,32 @@ public class AdminController {
             } else if (!Boolean.TRUE.equals(user.getHasBadge()) && "VERIFIED".equals(user.getRole())) {
                 user.setRole("STANDARD");
             }
+            syncPrivileges(user);
             userRepository.save(user);
         }
         return "redirect:/admin";
+    }
+
+    private void syncPrivileges(User user) {
+        String role = user.getRole();
+        if ("VERIFIED".equals(role)) {
+            user.setHasBadge(true);
+            user.setCanPinLists(true);
+            user.setHasAnalyticsAccess(true);
+            user.setCanModerateContent(false);
+            user.setCanDeleteAny(false);
+        } else if ("ADMIN".equals(role)) {
+            user.setHasBadge(false);
+            user.setCanPinLists(false);
+            user.setHasAnalyticsAccess(false);
+            user.setCanModerateContent(true);
+            user.setCanDeleteAny(true);
+        } else { // STANDARD
+            user.setHasBadge(false);
+            user.setCanPinLists(false);
+            user.setHasAnalyticsAccess(false);
+            user.setCanModerateContent(false);
+            user.setCanDeleteAny(false);
+        }
     }
 }

@@ -43,6 +43,9 @@ public class User {
     @Column(name = "can_delete_any")
     private Boolean canDeleteAny = false;
 
+    @Column(name = "has_completed_setup")
+    private Boolean hasCompletedSetup = false;
+
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt = LocalDateTime.now();
 
@@ -69,6 +72,8 @@ public class User {
     public void setCanModerateContent(Boolean canModerateContent) { this.canModerateContent = canModerateContent; }
     public Boolean getCanDeleteAny() { return canDeleteAny; }
     public void setCanDeleteAny(Boolean canDeleteAny) { this.canDeleteAny = canDeleteAny; }
+    public Boolean getHasCompletedSetup() { return hasCompletedSetup; }
+    public void setHasCompletedSetup(Boolean hasCompletedSetup) { this.hasCompletedSetup = hasCompletedSetup; }
     public LocalDateTime getCreatedAt() { return createdAt; }
     public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
 }

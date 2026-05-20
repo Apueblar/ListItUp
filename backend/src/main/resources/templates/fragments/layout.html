@@ -14,6 +14,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&family=Outfit:wght@500;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" th:href="@{/css/style.css}">
+    <script th:src="@{/js/app.js}" defer></script>
 </head>
 
 <body>
@@ -36,7 +37,7 @@
 
         <!-- Authenticated: show user avatar dropdown -->
         <div th:if="${currentUser != null}" class="user-dropdown">
-            <button class="avatar-btn" id="avatarDropdownBtn" onclick="toggleDropdown()">
+            <button class="avatar-btn" id="avatarDropdownBtn">
                 <span th:text="${#strings.substring(currentUser.username, 0, 1).toUpperCase()}">U</span>
             </button>
             <div class="dropdown-menu" id="avatarDropdownMenu">
@@ -66,26 +67,6 @@
         <a th:unless="${currentUser != null}"
            th:href="@{/oauth2/authorization/google}" class="btn-primary">Sign In</a>
     </div>
-
-    <script th:inline="javascript">
-        function toggleDropdown() {
-            const menu = document.getElementById('avatarDropdownMenu');
-            if (menu) {
-                menu.classList.toggle('show');
-            }
-        }
-        
-        // Close the dropdown if the user clicks outside of it
-        window.addEventListener('click', function(event) {
-            const dropdown = document.querySelector('.user-dropdown');
-            if (dropdown && !dropdown.contains(event.target)) {
-                const menu = document.getElementById('avatarDropdownMenu');
-                if (menu) {
-                    menu.classList.remove('show');
-                }
-            }
-        });
-    </script>
 </nav>
 
 <!-- =====================================================

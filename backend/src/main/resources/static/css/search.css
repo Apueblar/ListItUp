@@ -1,0 +1,76 @@
+/* =========================================================
+   search.css — Styles for the Search page
+   ========================================================= */
+
+/* ---------- Header ---------- */
+.search-header {
+    text-align: center;
+    margin-bottom: 3rem;
+}
+
+.search-form-wrapper {
+    max-width: 600px;
+    margin: 1.5rem auto 0 auto;
+}
+
+.search-form {
+    display: flex;
+    gap: 0.5rem;
+    justify-content: center;
+}
+
+.search-input {
+    flex: 1;
+    padding: 0.75rem 1rem;
+    border-radius: 8px;
+    border: 1px solid var(--glass-border);
+    background: var(--glass-bg);
+    color: var(--text-primary);
+    font-family: var(--font-family);
+    font-size: 1rem;
+    outline: none;
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.search-input:focus {
+    border-color: var(--accent-color);
+    box-shadow: 0 0 0 2px var(--accent-glow);
+}
+
+.btn-search {
+    border: none;
+    cursor: pointer;
+    font-size: 1rem;
+    padding: 0 1.5rem;
+}
+
+/* ---------- Card utilities ---------- */
+.card-title-lg {
+    font-size: 1.25rem;
+    margin-bottom: 0.5rem;
+}
+
+.card-desc {
+    color: var(--text-secondary);
+    font-size: 0.95rem;
+    margin-bottom: 1rem;
+}
+
+.card-footer-row {
+    margin-top: auto;
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+}
+
+/* ---------- Empty grid placeholder ---------- */
+.empty-grid-msg {
+    text-align: center;
+    grid-column: 1 / -1;
+    padding: 4rem;
+}
+
+.empty-grid-msg p {
+    color: var(--text-secondary);
+}

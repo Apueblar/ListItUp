@@ -23,8 +23,8 @@ public class SecurityConfig {
         http
             .authorizeHttpRequests(authorize -> authorize
                 // Specific list creation/edit endpoints
-                .requestMatchers("/lists/new").hasAnyRole("ADMIN", "VERIFIED")
-                .requestMatchers(org.springframework.http.HttpMethod.POST, "/lists").hasAnyRole("ADMIN", "VERIFIED")
+                .requestMatchers("/lists/new").authenticated()
+                .requestMatchers(org.springframework.http.HttpMethod.POST, "/lists").authenticated()
                 // Public endpoints
                 .requestMatchers("/", "/feed", "/search", "/categories", "/lists/**", "/users/**", "/css/**", "/js/**", "/images/**", "/error", "/logout", "/actuator/health").permitAll()
                 // Admin endpoints

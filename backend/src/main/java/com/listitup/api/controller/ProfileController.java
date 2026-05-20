@@ -36,7 +36,8 @@ public class ProfileController {
         String email = oauthUser.getAttribute("email");
         User user = userRepository.findByEmail(email).orElseThrow();
 
-        List<CuratedList> myLists = listRepository.findByCreatorOrderByCreatedAtDesc(user);
+        // Sort by Pinned status first
+        List<CuratedList> myLists = listRepository.findByCreatorOrderByIsPinnedDescCreatedAtDesc(user);
         
         List<CuratedList> savedLists = savedListRepository.findByUserOrderBySavedAtDesc(user)
                 .stream()
@@ -55,7 +56,8 @@ public class ProfileController {
         User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new IllegalArgumentException("User not found: " + username));
 
-        List<CuratedList> myLists = listRepository.findByCreatorOrderByCreatedAtDesc(user);
+        // Sort by Pinned status first
+        List<CuratedList> myLists = listRepository.findByCreatorOrderByIsPinnedDescCreatedAtDesc(user);
 
         model.addAttribute("profileUser", user);
         model.addAttribute("myLists", myLists);
@@ -64,21 +66,105 @@ public class ProfileController {
     }
 
     @PostMapping("/profile/update-username")
-    public String updateUsername(@AuthenticationPrincipal OAuth2User oauthUser, @RequestParam String username) {
+    public String updateUsername(@AuthenticationPrincipal OAuth2User oauthUser, 
+                                 @RequestParam String username,
+                                 org.springframework.web.servlet.mvc.support.RedirectAttributes redirectAttributes) {
         if (oauthUser == null) {
             return "redirect:/feed";
         }
         String email = oauthUser.getAttribute("email");
         User user = userRepository.findByEmail(email).orElseThrow();
 
-        if (username != null && !username.trim().isEmpty()) {
-            String newUsername = username.trim();
-            // Optional: check if username is already taken by another user
-            if (userRepository.findByUsername(newUsername).isEmpty() || newUsername.equals(user.getUsername())) {
-                user.setUsername(newUsername);
-                userRepository.save(user);
-            }
+        if (username == null || username.trim().isEmpty()) {
+            redirectAttributes.addFlashAttribute("usernameError", "Username cannot be empty.");
+            return "redirect:/profile";
         }
-        return "redirect:/users/" + user.getUsername();
+
+        String newUsername = username.trim();
+
+        // Enforce no spaces and pattern match
+        if (newUsername.contains(" ") || !newUsername.matches("^[a-zA-Z0-9_.]+$")) {
+            redirectAttributes.addFlashAttribute("usernameError", "Username must not contain spaces and can only include alphanumeric characters, underscores, and periods.");
+            return "redirect:/profile";
+        }
+
+        // Check if username is already in use
+        java.util.Optional<User> existingUser = userRepository.findByUsername(newUsername);
+        if (existingUser.isPresent() && !existingUser.get().getUserId().equals(user.getUserId())) {
+            redirectAttributes.addFlashAttribute("usernameError", "Username is already in use!");
+            return "redirect:/profile";
+        }
+
+        user.setUsername(newUsername);
+        userRepository.save(user);
+        redirectAttributes.addFlashAttribute("usernameSuccess", "Username successfully updated to " + newUsername + "!");
+        return "redirect:/profile";
+    }
+
+    @GetMapping("/setup-username")
+    public String showSetupUsername(@AuthenticationPrincipal OAuth2User oauthUser, Model model) {
+        if (oauthUser == null) {
+            return "redirect:/";
+        }
+        String email = oauthUser.getAttribute("email");
+        User user = userRepository.findByEmail(email).orElseThrow();
+
+        if (Boolean.TRUE.equals(user.getHasCompletedSetup())) {
+            return "redirect:/feed";
+        }
+
+        // Derive clean suggested username (remove spaces/invalid chars)
+        String suggested = user.getUsername();
+        if (suggested != null) {
+            suggested = suggested.replaceAll("\\s+", "").replaceAll("[^a-zA-Z0-9_.]", "");
+        } else {
+            suggested = email.split("@")[0].replaceAll("[^a-zA-Z0-9_.]", "");
+        }
+
+        model.addAttribute("suggestedUsername", suggested);
+        model.addAttribute("placeholderUsername", suggested);
+        return "setup-username";
+    }
+
+    @PostMapping("/setup-username")
+    public String setupUsername(@AuthenticationPrincipal OAuth2User oauthUser, 
+                                @RequestParam String username, 
+                                Model model) {
+        if (oauthUser == null) {
+            return "redirect:/";
+        }
+        String email = oauthUser.getAttribute("email");
+        User user = userRepository.findByEmail(email).orElseThrow();
+
+        if (Boolean.TRUE.equals(user.getHasCompletedSetup())) {
+            return "redirect:/feed";
+        }
+
+        if (username == null || username.trim().isEmpty()) {
+            model.addAttribute("error", "Username cannot be empty.");
+            model.addAttribute("suggestedUsername", username);
+            return "setup-username";
+        }
+
+        String cleanedUsername = username.trim();
+
+        if (cleanedUsername.contains(" ") || !cleanedUsername.matches("^[a-zA-Z0-9_.]+$")) {
+            model.addAttribute("error", "Username must not contain spaces and can only include alphanumeric characters, underscores, and periods.");
+            model.addAttribute("suggestedUsername", cleanedUsername);
+            return "setup-username";
+        }
+
+        java.util.Optional<User> existingUser = userRepository.findByUsername(cleanedUsername);
+        if (existingUser.isPresent() && !existingUser.get().getUserId().equals(user.getUserId())) {
+            model.addAttribute("error", "Username is already in use! Please try another one.");
+            model.addAttribute("suggestedUsername", cleanedUsername);
+            return "setup-username";
+        }
+
+        user.setUsername(cleanedUsername);
+        user.setHasCompletedSetup(true);
+        userRepository.save(user);
+
+        return "redirect:/feed";
     }
 }

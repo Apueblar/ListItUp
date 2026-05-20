@@ -85,3 +85,37 @@
     font-size: 1.5rem;
     font-weight: 600;
 }
+
+/* ---------- Card utilities ---------- */
+.card-desc {
+    color: var(--text-secondary);
+    font-size: 0.95rem;
+}
+
+.card-footer-row {
+    margin-top: auto;
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+}
+
+.empty-grid-msg {
+    color: var(--text-secondary);
+    text-align: center;
+    padding: 3rem;
+    grid-column: 1 / -1;
+}
+
+.pinned-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    background: rgba(245, 158, 11, 0.18);
+    color: #fbbf24;
+    padding: 0.2rem 0.6rem;
+    border-radius: 20px;
+    font-size: 0.78rem;
+    font-weight: 600;
+    border: 1px solid rgba(245, 158, 11, 0.4);
+}

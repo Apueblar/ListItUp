@@ -403,3 +403,18 @@ h1 {
     color: #f87171;
 }
 
+/* Form Select Elements */
+select {
+    background-color: rgba(0, 0, 0, 0.3);
+    color: var(--text-primary);
+    border: 1px solid var(--glass-border);
+    border-radius: var(--border-radius-sm);
+    padding: 0.4rem 0.6rem;
+    font-family: var(--font-family);
+}
+
+select option {
+    background-color: var(--bg-secondary);
+    color: var(--text-primary);
+}
+

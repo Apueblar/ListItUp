@@ -46,10 +46,12 @@ public class CustomOidcUserService extends OidcUserService {
             dbUser.setEmail(email);
             dbUser.setUsername(username);
             dbUser.setAuthProvider("GOOGLE");
+            dbUser.setHasCompletedSetup(false);
 
             // Promote specific user to Admin automatically
             if (email.equalsIgnoreCase("alvaropueblaruisanchez@gmail.com")) {
                 dbUser.setRole("ADMIN");
+                dbUser.setHasCompletedSetup(true);
             }
             dbUser = userRepository.save(dbUser);
         } else {
