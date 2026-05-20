@@ -13,7 +13,10 @@
         <a href="/feed" class="nav-brand">List<span>It</span>Up</a>
         <div class="nav-links">
             <a href="/feed" style="color:var(--text-secondary); text-decoration:none;">Feed</a>
-            <a href="/lists/new" class="btn-primary">+ Create List</a>
+            <!-- Displayed if ADMIN or VERIFIED -->
+            <a th:if="${#authorization.expression('hasAnyRole(''ADMIN'', ''VERIFIED'')')}" href="/lists/new" class="btn-primary">+ Create List</a>
+            <!-- Admin Panel Link -->
+            <a th:if="${#authorization.expression('hasRole(''ADMIN'')')}" href="/admin" class="btn-primary" style="background: linear-gradient(135deg, #a855f7 0%, #6366f1 100%);">Admin Panel</a>
             <a href="/logout" style="color:var(--text-secondary); text-decoration:none;">Logout</a>
         </div>
     </nav>

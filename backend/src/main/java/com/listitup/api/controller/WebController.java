@@ -32,9 +32,23 @@ public class WebController {
     }
 
     @GetMapping("/feed")
-    public String feed(Model model) {
+    public String feed(Model model, jakarta.servlet.http.HttpServletRequest request) {
         List<CuratedList> lists = listService.getAllLists();
         model.addAttribute("lists", lists);
+        
+        jakarta.servlet.http.HttpSession session = request.getSession(false);
+        if (session != null) {
+            Object exception = session.getAttribute("SPRING_SECURITY_LAST_EXCEPTION");
+            if (exception instanceof org.springframework.security.core.AuthenticationException) {
+                String msg = ((org.springframework.security.core.AuthenticationException) exception).getMessage();
+                if ("account_blocked".equals(msg)) {
+                    model.addAttribute("errorMessage", "Your account has been blocked by an administrator.");
+                } else {
+                    model.addAttribute("errorMessage", "Authentication failed: " + msg);
+                }
+                session.removeAttribute("SPRING_SECURITY_LAST_EXCEPTION");
+            }
+        }
         return "home"; // renders home.html
     }
 

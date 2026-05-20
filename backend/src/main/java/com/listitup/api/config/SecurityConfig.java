@@ -22,6 +22,9 @@ public class SecurityConfig {
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
             .authorizeHttpRequests(authorize -> authorize
+                // Specific list creation/edit endpoints
+                .requestMatchers("/lists/new").hasAnyRole("ADMIN", "VERIFIED")
+                .requestMatchers(org.springframework.http.HttpMethod.POST, "/lists").hasAnyRole("ADMIN", "VERIFIED")
                 // Public endpoints
                 .requestMatchers("/", "/feed", "/search", "/categories", "/lists/**", "/css/**", "/js/**", "/images/**", "/error").permitAll()
                 // Admin endpoints
@@ -34,6 +37,7 @@ public class SecurityConfig {
             .oauth2Login(oauth2 -> oauth2
                 .userInfoEndpoint(userInfo -> userInfo.userService(customOAuth2UserService))
                 .defaultSuccessUrl("/feed", true)
+                .failureUrl("/feed?error=true")
             )
             .logout(logout -> logout
                 .logoutSuccessUrl("/")

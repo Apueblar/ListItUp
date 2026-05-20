@@ -28,6 +28,9 @@ public class User {
     @Column(name = "has_badge")
     private Boolean hasBadge = false;
 
+    @Column(name = "is_blocked")
+    private Boolean isBlocked = false;
+
     @Column(name = "can_pin_lists")
     private Boolean canPinLists = false;
 
@@ -56,6 +59,8 @@ public class User {
     public void setRole(String role) { this.role = role; }
     public Boolean getHasBadge() { return hasBadge; }
     public void setHasBadge(Boolean hasBadge) { this.hasBadge = hasBadge; }
+    public Boolean getIsBlocked() { return isBlocked; }
+    public void setIsBlocked(Boolean isBlocked) { this.isBlocked = isBlocked; }
     public Boolean getCanPinLists() { return canPinLists; }
     public void setCanPinLists(Boolean canPinLists) { this.canPinLists = canPinLists; }
     public Boolean getHasAnalyticsAccess() { return hasAnalyticsAccess; }
