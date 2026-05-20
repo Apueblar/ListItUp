@@ -12,7 +12,7 @@
         <div class="editor-container">
             <h1 class="editor-title">Create a New List</h1>
             
-            <form action="/lists" method="POST">
+            <form th:action="@{/lists}" method="POST">
                 <div class="form-group">
                     <label for="title">List Title</label>
                     <input type="text" id="title" name="title" placeholder="e.g. My Favorite Sci-Fi Novels" required>

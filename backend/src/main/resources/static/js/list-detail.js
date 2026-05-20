@@ -13,15 +13,27 @@
  * @param {string} activeText    Text to show when the action is active
  * @param {string} inactiveText  Text to show when the action is inactive
  */
+/** Helper to get a cookie value by name */
+function getCookie(name) {
+    var value = "; " + document.cookie;
+    var parts = value.split("; " + name + "=");
+    if (parts.length === 2) return parts.pop().split(";").shift();
+}
+
 async function toggleInteraction(endpoint, btnId, activeText, inactiveText) {
     var main   = document.querySelector('main[data-list-id]');
     var listId = main ? main.getAttribute('data-list-id') : null;
     if (!listId) return;
 
+    var xsrfToken = getCookie('XSRF-TOKEN');
+
     try {
         var response = await fetch('/lists/' + listId + '/' + endpoint, {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' }
+            headers: { 
+                'Content-Type': 'application/json',
+                'X-XSRF-TOKEN': xsrfToken || ''
+            }
         });
 
         if (response.ok) {
