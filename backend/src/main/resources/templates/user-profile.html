@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head(${profileUser.username + ' - Profile'}, 'user-profile.css')}"></head>
+<body>
+
+    <nav th:replace="~{fragments/layout :: navbar}"></nav>
+
+    <main class="animate-in profile-container">
+        <header class="profile-header">
+            <div class="profile-avatar-wrapper">
+                <div class="profile-avatar">
+                    <span th:text="${#strings.substring(profileUser.username, 0, 1).toUpperCase()}">U</span>
+                </div>
+                <!-- Verification badge inside the avatar wrapper if user is verified -->
+                <div th:if="${profileUser.hasBadge}" class="badge-verified-icon" title="Verified Creator">✓</div>
+            </div>
+            
+            <h1 class="profile-username">
+                <span th:text="${profileUser.username}">Username</span>
+            </h1>
+            <div>
+                <span class="profile-role-pill" th:text="${profileUser.role}">STANDARD</span>
+            </div>
+            <p class="profile-joined" th:text="${'Joined ' + #temporals.format(profileUser.createdAt, 'MMMM yyyy')}">Joined May 2026</p>
+        </header>
+
+        <section class="profile-lists-section">
+            <h2 th:text="${profileUser.username + '’s Lists'}">Lists</h2>
+            
+            <div class="grid">
+                <a th:each="list : ${myLists}" th:href="@{/lists/{id}(id=${list.listId})}" class="list-card">
+                    <div>
+                        <span class="category-pill" th:text="${list.category.name}">Category</span>
+                    </div>
+                    <h3 th:text="${list.title}">Title</h3>
+                    <p th:text="${list.description}" style="color: var(--text-secondary); font-size: 0.95rem;">Desc</p>
+                    <div style="margin-top: auto; display: flex; justify-content: space-between; font-size: 0.85rem; color: var(--text-secondary);">
+                        <span th:text="${list.viewCount + ' views'}">0 views</span>
+                        <span th:text="${#temporals.format(list.createdAt, 'dd MMM yyyy')}">Date</span>
+                    </div>
+                </a>
+            </div>
+            
+            <div th:if="${#lists.isEmpty(myLists)}" style="color: var(--text-secondary); text-align: center; padding: 3rem;">
+                This user has not created any lists yet.
+            </div>
+        </section>
+    </main>
+
+    <footer th:replace="~{fragments/layout :: footer}"></footer>
+</body>
+</html>

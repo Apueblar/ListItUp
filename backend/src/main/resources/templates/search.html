@@ -1,29 +1,9 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Search Lists - ListItUp</title>
-    <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&family=Outfit:wght@500;700&display=swap" rel="stylesheet">
-    <!-- Custom CSS -->
-    <link rel="stylesheet" th:href="@{/css/style.css}">
-</head>
+<head th:replace="~{fragments/layout :: head('Search Lists - ListItUp')}"></head>
 <body>
 
-    <nav>
-        <a href="/" class="nav-brand">List<span>It</span>Up</a>
-        <div class="nav-links">
-            <a href="/search" style="color:var(--text-secondary); text-decoration:none;">Search</a>
-            <!-- Displayed if ADMIN or VERIFIED -->
-            <a th:if="${#authorization.expression('hasAnyRole(''ADMIN'', ''VERIFIED'')')}" href="/lists/new" class="btn-primary">+ Create List</a>
-            <!-- Admin Panel Link -->
-            <a th:if="${#authorization.expression('hasRole(''ADMIN'')')}" href="/admin" class="btn-primary" style="background: linear-gradient(135deg, #a855f7 0%, #6366f1 100%);">Admin Panel</a>
-            <a th:if="${#authorization.expression('isAuthenticated()')}" href="/logout" style="color:var(--text-secondary); text-decoration:none;">Logout</a>
-            <!-- Displayed if NOT authenticated -->
-            <a th:unless="${#authorization.expression('isAuthenticated()')}" href="/oauth2/authorization/google" class="btn-primary">Sign In</a>
-        </div>
-    </nav>
+    <nav th:replace="~{fragments/layout :: navbar}"></nav>
 
     <main class="animate-in">
         <header style="text-align: center; margin-bottom: 3rem;">
@@ -65,5 +45,6 @@
         </section>
     </main>
 
+    <footer th:replace="~{fragments/layout :: footer}"></footer>
 </body>
 </html>

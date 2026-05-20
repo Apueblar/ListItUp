@@ -8,6 +8,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import java.util.List;
 import java.util.Optional;
@@ -32,9 +33,17 @@ public class WebController {
     }
 
     @GetMapping("/feed")
-    public String feed(Model model, jakarta.servlet.http.HttpServletRequest request) {
-        List<CuratedList> lists = listService.getAllLists();
+    public String feed(@RequestParam(required = false) String category, Model model, jakarta.servlet.http.HttpServletRequest request) {
+        List<CuratedList> lists;
+        if (category != null && !category.trim().isEmpty() && !category.equalsIgnoreCase("All")) {
+            lists = listService.getListsByCategory(category);
+            model.addAttribute("selectedCategory", category);
+        } else {
+            lists = listService.getAllLists();
+            model.addAttribute("selectedCategory", "All");
+        }
         model.addAttribute("lists", lists);
+        model.addAttribute("categories", categoryRepository.findAll());
         
         jakarta.servlet.http.HttpSession session = request.getSession(false);
         if (session != null) {
@@ -67,10 +76,5 @@ public class WebController {
     public String createList(Model model) {
         model.addAttribute("categories", categoryRepository.findAll());
         return "create-edit-list"; // renders create-edit-list.html
-    }
-
-    @GetMapping("/logout")
-    public String logoutPage() {
-        return "logout"; // renders logout.html
     }
 }

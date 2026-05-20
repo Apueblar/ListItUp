@@ -1,57 +1,54 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ListItUp - Curated Social Lists</title>
-    <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&family=Outfit:wght@500;700&display=swap" rel="stylesheet">
-    <!-- Custom CSS -->
-    <link rel="stylesheet" th:href="@{/css/style.css}">
-</head>
+<head th:replace="~{fragments/layout :: head('ListItUp - Curated Social Lists')}"></head>
 <body>
 
-    <nav>
-        <a href="/feed" class="nav-brand">List<span>It</span>Up</a>
-        <div class="nav-links">
-            <a href="/search" style="color:var(--text-secondary); text-decoration:none;">Search</a>
-            <!-- Displayed if ADMIN or VERIFIED -->
-            <a th:if="${#authorization.expression('hasAnyRole(''ADMIN'', ''VERIFIED'')')}" href="/lists/new" class="btn-primary">+ Create List</a>
-            <!-- Admin Panel Link -->
-            <a th:if="${#authorization.expression('hasRole(''ADMIN'')')}" href="/admin" class="btn-primary" style="background: linear-gradient(135deg, #a855f7 0%, #6366f1 100%);">Admin Panel</a>
-            <a th:if="${#authorization.expression('isAuthenticated()')}" href="/logout" style="color:var(--text-secondary); text-decoration:none;">Logout</a>
-            <!-- Displayed if NOT authenticated -->
-            <a th:unless="${#authorization.expression('isAuthenticated()')}" href="/oauth2/authorization/google" class="btn-primary">Sign In</a>
-        </div>
-    </nav>
+    <nav th:replace="~{fragments/layout :: navbar}"></nav>
 
     <main class="animate-in">
         <!-- Error Alert -->
         <div th:if="${errorMessage}" style="background-color: rgba(239, 68, 68, 0.2); border: 1px solid rgb(239, 68, 68); color: #fca5a5; padding: 1rem; border-radius: 8px; margin: 0 auto 2rem auto; text-align: center; max-width: 600px;">
             <p th:text="${errorMessage}"></p>
         </div>
-        <header style="text-align: center; margin-bottom: 3rem;">
+        <header style="text-align: center; margin-bottom: 2rem;">
             <h1>Discover the Best of Everything.</h1>
             <p style="color: var(--text-secondary); max-width: 600px; margin: 0 auto;">
                 Explore hand-curated, trustworthy lists from verified creators and everyday experts. Say goodbye to algorithmic noise.
             </p>
         </header>
 
+        <!-- Category Filters -->
+        <div class="category-filters">
+            <a th:href="@{/feed(category='All')}" 
+               class="filter-pill" 
+               th:classappend="${selectedCategory == 'All'} ? 'active' : ''">All</a>
+            <a th:each="cat : ${categories}" 
+               th:href="@{/feed(category=${cat.name})}" 
+               class="filter-pill" 
+               th:classappend="${selectedCategory == cat.name} ? 'active' : ''"
+               th:text="${cat.name}">Category</a>
+        </div>
+
         <section class="grid">
             <!-- Iterate over lists passed from controller -->
-            <a th:each="list : ${lists}" th:href="@{/lists/{id}(id=${list.listId})}" class="list-card">
-                <div>
+            <div th:each="list : ${lists}" class="list-card">
+                <div style="display: flex; justify-content: space-between; align-items: center;">
                     <span class="category-pill" th:text="${list.category.name}">Category</span>
+                    <span th:text="${#temporals.format(list.createdAt, 'dd MMM yyyy')}" style="font-size: 0.85rem; color: var(--text-secondary);">Date</span>
                 </div>
-                <h3 th:text="${list.title}" style="font-size: 1.25rem;">Top 10 Sci-Fi Movies</h3>
-                <p th:text="${list.description}" style="color: var(--text-secondary); font-size: 0.95rem;">
+                <h3>
+                    <a th:href="@{/lists/{id}(id=${list.listId})}" th:text="${list.title}" class="list-card-link">Top 10 Sci-Fi Movies</a>
+                </h3>
+                <p th:text="${list.description}" style="color: var(--text-secondary); font-size: 0.95rem; margin: 0.5rem 0;">
                     A brief description goes here...
                 </p>
-                <div style="margin-top: auto; display: flex; justify-content: space-between; font-size: 0.85rem; color: var(--text-secondary);">
-                    <span th:text="${'Views: ' + list.viewCount}">Views: 1.2k</span>
-                    <span th:text="${#temporals.format(list.createdAt, 'dd MMM yyyy')}">Date</span>
+                <div style="margin-top: auto; display: flex; justify-content: space-between; font-size: 0.85rem; color: var(--text-secondary); align-items: center;">
+                    <span>
+                        by <a th:href="@{/users/{username}(username=${list.creator.username})}" th:text="${list.creator.username}" style="color: var(--accent-color); text-decoration: none; font-weight: 500;">creator</a>
+                    </span>
+                    <span th:text="${list.viewCount + ' views'}">1.2k views</span>
                 </div>
-            </a>
+            </div>
             
             <!-- Placeholder Card if DB is empty -->
             <div th:if="${#lists.isEmpty(lists)}" style="text-align: center; grid-column: 1 / -1; padding: 4rem;">
@@ -60,5 +57,6 @@
         </section>
     </main>
 
+    <footer th:replace="~{fragments/layout :: footer}"></footer>
 </body>
 </html>

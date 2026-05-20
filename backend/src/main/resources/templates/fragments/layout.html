@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<!-- =====================================================
+     head fragment
+     Usage: th:replace="~{fragments/layout :: head('Page Title', 'page.css')}"
+     Pass null as second arg for pages with no extra CSS.
+     ===================================================== -->
+<head th:fragment="head(title, extraCss)">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${title}">ListItUp</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&family=Outfit:wght@500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <link th:if="${extraCss != null}" rel="stylesheet" th:href="@{/css/{file}(file=${extraCss})}">
+</head>
+
+<body>
+
+<!-- =====================================================
+     navbar fragment
+     ===================================================== -->
+<nav th:fragment="navbar">
+    <a th:href="@{/feed}" class="nav-brand">List<span>It</span>Up</a>
+    <div class="nav-links">
+        <a th:href="@{/search}" class="nav-link">Search</a>
+
+        <!-- ADMIN or VERIFIED: show create list button -->
+        <a th:if="${#authorization.expression('hasAnyRole(''ADMIN'', ''VERIFIED'')')}"
+           th:href="@{/lists/new}" class="btn-primary">+ Create List</a>
+
+        <!-- ADMIN: show admin panel -->
+        <a th:if="${#authorization.expression('hasRole(''ADMIN'')')}"
+           th:href="@{/admin}" class="btn-primary btn-admin">Admin Panel</a>
+
+        <!-- Authenticated: show user avatar dropdown -->
+        <div th:if="${currentUser != null}" class="user-dropdown">
+            <button class="avatar-btn" id="avatarDropdownBtn" onclick="toggleDropdown()">
+                <span th:text="${#strings.substring(currentUser.username, 0, 1).toUpperCase()}">U</span>
+            </button>
+            <div class="dropdown-menu" id="avatarDropdownMenu">
+                <div class="dropdown-header">
+                    <span class="user-name" th:text="${currentUser.username}">Username</span>
+                    <span class="user-email" th:text="${currentUser.email}">user@example.com</span>
+                </div>
+                <div class="dropdown-divider"></div>
+                <a th:href="@{/users/{username}(username=${currentUser.username})}" class="dropdown-item">My Profile</a>
+                <div class="dropdown-divider"></div>
+                <form th:action="@{/profile/update-username}" method="post" class="username-update-form">
+                    <!-- Include CSRF token explicitly for non-thymeleaf generated raw form elements if needed, but th:action handles it! -->
+                    <label class="form-label">Change Username</label>
+                    <div class="input-group">
+                        <input type="text" name="username" th:value="${currentUser.username}" required placeholder="New username">
+                        <button type="submit" class="btn-save-username">Save</button>
+                    </div>
+                </form>
+                <div class="dropdown-divider"></div>
+                <form th:action="@{/logout}" method="post" class="logout-form">
+                    <button type="submit" class="dropdown-item btn-logout-direct">Logout</button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Guest: show sign in -->
+        <a th:unless="${currentUser != null}"
+           th:href="@{/oauth2/authorization/google}" class="btn-primary">Sign In</a>
+    </div>
+
+    <script th:inline="javascript">
+        function toggleDropdown() {
+            const menu = document.getElementById('avatarDropdownMenu');
+            if (menu) {
+                menu.classList.toggle('show');
+            }
+        }
+        
+        // Close the dropdown if the user clicks outside of it
+        window.addEventListener('click', function(event) {
+            const dropdown = document.querySelector('.user-dropdown');
+            if (dropdown && !dropdown.contains(event.target)) {
+                const menu = document.getElementById('avatarDropdownMenu');
+                if (menu) {
+                    menu.classList.remove('show');
+                }
+            }
+        });
+    </script>
+</nav>
+
+<!-- =====================================================
+     footer fragment
+     ===================================================== -->
+<footer th:fragment="footer" class="site-footer">
+    <p>&copy; 2026 ListItUp &mdash; Curated lists, shared with the world.</p>
+</footer>
+
+</body>
+</html>

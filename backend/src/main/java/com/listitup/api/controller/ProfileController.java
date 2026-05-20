@@ -11,6 +11,9 @@ import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -45,5 +48,37 @@ public class ProfileController {
         model.addAttribute("savedLists", savedLists);
 
         return "profile";
+    }
+
+    @GetMapping("/users/{username}")
+    public String viewPublicProfile(@PathVariable String username, Model model) {
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new IllegalArgumentException("User not found: " + username));
+
+        List<CuratedList> myLists = listRepository.findByCreatorOrderByCreatedAtDesc(user);
+
+        model.addAttribute("profileUser", user);
+        model.addAttribute("myLists", myLists);
+
+        return "user-profile";
+    }
+
+    @PostMapping("/profile/update-username")
+    public String updateUsername(@AuthenticationPrincipal OAuth2User oauthUser, @RequestParam String username) {
+        if (oauthUser == null) {
+            return "redirect:/feed";
+        }
+        String email = oauthUser.getAttribute("email");
+        User user = userRepository.findByEmail(email).orElseThrow();
+
+        if (username != null && !username.trim().isEmpty()) {
+            String newUsername = username.trim();
+            // Optional: check if username is already taken by another user
+            if (userRepository.findByUsername(newUsername).isEmpty() || newUsername.equals(user.getUsername())) {
+                user.setUsername(newUsername);
+                userRepository.save(user);
+            }
+        }
+        return "redirect:/users/" + user.getUsername();
     }
 }

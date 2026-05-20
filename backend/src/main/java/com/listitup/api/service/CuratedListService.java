@@ -33,6 +33,11 @@ public class CuratedListService {
         return listRepository.save(list);
     }
     
+    @Transactional(readOnly = true)
+    public List<CuratedList> getListsByCategory(String categoryName) {
+        return listRepository.findByCategoryNameIgnoreCaseOrderByCreatedAtDesc(categoryName);
+    }
+
     @Transactional
     public void deleteList(UUID id) {
         listRepository.deleteById(id);
