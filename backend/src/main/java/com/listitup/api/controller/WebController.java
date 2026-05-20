@@ -68,4 +68,9 @@ public class WebController {
         model.addAttribute("categories", categoryRepository.findAll());
         return "create-edit-list"; // renders create-edit-list.html
     }
+
+    @GetMapping("/logout")
+    public String logoutPage() {
+        return "logout"; // renders logout.html
+    }
 }
