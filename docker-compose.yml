@@ -28,6 +28,8 @@ services:
       context: ./backend
       dockerfile: Dockerfile
     container_name: listitup_backend
+    ports:
+      - "8082:8080"
     environment:
       - JAVA_OPTS=-Xmx256m -Xms256m
       - SPRING_DATASOURCE_URL=jdbc:postgresql://db:5432/listitup
@@ -42,38 +44,14 @@ services:
         condition: service_healthy
     networks:
       - listitup_net
-    expose:
-      - "8080"
     deploy:
       resources:
         limits:
           cpus: '1.0'
           memory: 512M
 
-  proxy:
-    image: caddy:alpine
-    container_name: listitup_proxy
-    ports:
-      - "80:80"
-      - "443:443"
-    volumes:
-      - ./proxy/Caddyfile:/etc/caddy/Caddyfile:ro
-      - caddy_data:/data
-      - caddy_config:/config
-    depends_on:
-      - backend
-    networks:
-      - listitup_net
-    deploy:
-      resources:
-        limits:
-          cpus: '0.2'
-          memory: 64M
-
 volumes:
   pgdata:
-  caddy_data:
-  caddy_config:
 
 networks:
   listitup_net:
