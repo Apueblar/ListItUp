@@ -26,7 +26,7 @@ public class SecurityConfig {
                 .requestMatchers("/lists/new").hasAnyRole("ADMIN", "VERIFIED")
                 .requestMatchers(org.springframework.http.HttpMethod.POST, "/lists").hasAnyRole("ADMIN", "VERIFIED")
                 // Public endpoints
-                .requestMatchers("/", "/feed", "/search", "/categories", "/lists/**", "/users/**", "/css/**", "/js/**", "/images/**", "/error", "/logout").permitAll()
+                .requestMatchers("/", "/feed", "/search", "/categories", "/lists/**", "/users/**", "/css/**", "/js/**", "/images/**", "/error", "/logout", "/actuator/health").permitAll()
                 // Admin endpoints
                 .requestMatchers("/admin/**").hasRole("ADMIN")
                 // Analytics endpoints
