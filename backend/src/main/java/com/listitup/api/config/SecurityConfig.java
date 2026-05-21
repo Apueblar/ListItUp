@@ -25,6 +25,11 @@ public class SecurityConfig {
                 // Specific list creation/edit endpoints
                 .requestMatchers("/lists/new").authenticated()
                 .requestMatchers(org.springframework.http.HttpMethod.POST, "/lists").authenticated()
+                // List interaction endpoints require authentication (must be before the broad /lists/** permitAll)
+                .requestMatchers(org.springframework.http.HttpMethod.POST, "/lists/*/like").authenticated()
+                .requestMatchers(org.springframework.http.HttpMethod.POST, "/lists/*/save").authenticated()
+                .requestMatchers(org.springframework.http.HttpMethod.POST, "/lists/*/pin").authenticated()
+                .requestMatchers(org.springframework.http.HttpMethod.POST, "/lists/*/comments").authenticated()
                 // Public endpoints
                 .requestMatchers("/", "/feed", "/search", "/categories", "/lists/**", "/users/**", "/css/**", "/js/**", "/images/**", "/error", "/logout", "/actuator/health").permitAll()
                 // Admin endpoints
@@ -51,4 +56,3 @@ public class SecurityConfig {
         return http.build();
     }
 }
-
