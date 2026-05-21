@@ -24,7 +24,7 @@
                 <button id="btn-save" class="btn-primary btn-interaction">🔖 Save</button>
                 
                 <!-- Pin action (only for verified list creators) -->
-                <button th:if="${currentUser != null and currentUser.userId == list.creator.userId and currentUser.role.name() == 'VERIFIED'}" 
+                <button th:if="${currentUser != null and currentUser.userId == list.creator.userId and currentUser.role == 'VERIFIED'}" 
                         id="btn-pin" class="btn-primary btn-interaction"
                         th:classappend="${list.isPinned ? 'btn-interaction--active' : ''}"
                         th:text="${list.isPinned ? '📌 Pinned' : '📌 Pin'}">📌 Pin</button>
