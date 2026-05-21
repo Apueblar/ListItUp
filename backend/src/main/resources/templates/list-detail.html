@@ -3,7 +3,7 @@
       xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <head>
     <th:block th:replace="~{fragments/layout :: head(${list.title + ' - ListItUp'})}"></th:block>
-    <link rel="stylesheet" th:href="@{/css/list-detail.css}">
+    <link rel="stylesheet" th:href="@{/css/list-detail.css}"/>
 </head>
 <body>
 
@@ -52,7 +52,7 @@
             
             <div th:if="${#authorization.expression('isAuthenticated()')}">
                 <form th:action="@{/lists/{id}/comments(id=${list.listId})}" method="POST" class="comment-form">
-                    <input type="text" name="text" placeholder="Add a comment..." required class="comment-input">
+                    <input type="text" name="text" placeholder="Add a comment..." required="required" class="comment-input"/>
                     <button type="submit" class="btn-primary">Post</button>
                 </form>
             </div>

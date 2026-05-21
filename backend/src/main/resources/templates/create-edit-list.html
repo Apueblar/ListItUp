@@ -1,8 +1,9 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <head>
     <th:block th:replace="~{fragments/layout :: head('Create List - ListItUp')}"></th:block>
-    <link rel="stylesheet" th:href="@{/css/create-edit-list.css}">
+    <link rel="stylesheet" th:href="@{/css/create-edit-list.css}"/>
 </head>
 <body>
 
@@ -15,7 +16,7 @@
             <form th:action="@{/lists}" method="POST">
                 <div class="form-group">
                     <label for="title">List Title</label>
-                    <input type="text" id="title" name="title" placeholder="e.g. My Favorite Sci-Fi Novels" required>
+                    <input type="text" id="title" name="title" placeholder="e.g. My Favorite Sci-Fi Novels" required/>
                 </div>
                 
                 <div class="form-group">
