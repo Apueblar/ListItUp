@@ -1,9 +1,13 @@
 package com.listitup.api.controller;
 
 import com.listitup.api.model.CuratedList;
+import com.listitup.api.model.User;
 import com.listitup.api.repository.CategoryRepository;
 import com.listitup.api.repository.CommentRepository;
+import com.listitup.api.repository.UserRepository;
 import com.listitup.api.service.CuratedListService;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -20,11 +24,13 @@ public class WebController {
     private final CuratedListService listService;
     private final CategoryRepository categoryRepository;
     private final CommentRepository commentRepository;
+    private final UserRepository userRepository;
 
-    public WebController(CuratedListService listService, CategoryRepository categoryRepository, CommentRepository commentRepository) {
+    public WebController(CuratedListService listService, CategoryRepository categoryRepository, CommentRepository commentRepository, UserRepository userRepository) {
         this.listService = listService;
         this.categoryRepository = categoryRepository;
         this.commentRepository = commentRepository;
+        this.userRepository = userRepository;
     }
 
     @GetMapping("/")
@@ -62,11 +68,19 @@ public class WebController {
     }
 
     @GetMapping("/lists/{id}")
-    public String listDetail(@PathVariable UUID id, Model model) {
+    public String listDetail(@PathVariable UUID id, Model model, @AuthenticationPrincipal OAuth2User oauthUser) {
         Optional<CuratedList> list = listService.getListById(id);
         if (list.isPresent()) {
             model.addAttribute("list", list.get());
             model.addAttribute("comments", commentRepository.findByListOrderByCreatedAtDesc(list.get()));
+            
+            // Add currentUser if logged in
+            if (oauthUser != null) {
+                String email = oauthUser.getAttribute("email");
+                Optional<User> currentUser = userRepository.findByEmail(email);
+                currentUser.ifPresent(user -> model.addAttribute("currentUser", user));
+            }
+            
             return "list-detail"; // renders list-detail.html
         }
         return "redirect:/feed";
