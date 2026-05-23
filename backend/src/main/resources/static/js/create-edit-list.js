@@ -161,4 +161,59 @@ document.addEventListener('DOMContentLoaded', function () {
     } else {
         createItemRow();
     }
+
+    // Category Proposal logic
+    var proposeLink = document.getElementById('propose-category-link');
+    var proposeContainer = document.getElementById('propose-category-container');
+    var submitProposalBtn = document.getElementById('submit-proposal-btn');
+    var proposedCategoryName = document.getElementById('proposedCategoryName');
+    var proposalFeedback = document.getElementById('proposal-feedback');
+
+    if (proposeLink && proposeContainer) {
+        proposeLink.addEventListener('click', function() {
+            if (proposeContainer.style.display === 'none') {
+                proposeContainer.style.display = 'block';
+            } else {
+                proposeContainer.style.display = 'none';
+            }
+        });
+    }
+
+    if (submitProposalBtn) {
+        submitProposalBtn.addEventListener('click', function() {
+            var name = proposedCategoryName.value.trim();
+            if (!name) return;
+
+            var xsrfToken = getCookie('XSRF-TOKEN');
+            var formData = new URLSearchParams();
+            formData.append('proposedName', name);
+
+            fetch('/api/categories/propose', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                    'X-XSRF-TOKEN': xsrfToken || ''
+                },
+                body: formData.toString()
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.message) {
+                    proposalFeedback.style.display = 'block';
+                    proposalFeedback.style.color = 'var(--success-color, #10b981)';
+                    proposalFeedback.innerText = data.message;
+                    proposedCategoryName.value = '';
+                } else if (data.error) {
+                    proposalFeedback.style.display = 'block';
+                    proposalFeedback.style.color = 'var(--danger-color, #ef4444)';
+                    proposalFeedback.innerText = data.error;
+                }
+            })
+            .catch(err => {
+                proposalFeedback.style.display = 'block';
+                proposalFeedback.style.color = 'var(--danger-color, #ef4444)';
+                proposalFeedback.innerText = "Error submitting proposal";
+            });
+        });
+    }
 });

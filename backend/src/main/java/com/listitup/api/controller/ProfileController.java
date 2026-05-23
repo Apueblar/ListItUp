@@ -61,7 +61,7 @@ public class ProfileController {
         // Sort by Pinned status first
         List<CuratedList> myLists = listRepository.findByCreatorOrderByIsPinnedDescCreatedAtDesc(user);
 
-        long followersCount = (long) entityManager.createQuery("SELECT COUNT(uf) FROM UserFollow uf WHERE uf.followed = :user")
+        long followersCount = (long) entityManager.createQuery("SELECT COUNT(uf) FROM Follow uf WHERE uf.followee = :user")
                 .setParameter("user", user).getSingleResult();
 
         boolean isFollowing = false;
@@ -73,9 +73,9 @@ public class ProfileController {
                 model.addAttribute("currentUser", currentUser);
                 
                 if (!currentUser.getUserId().equals(user.getUserId())) {
-                    long followCount = (long) entityManager.createQuery("SELECT COUNT(uf) FROM UserFollow uf WHERE uf.follower = :follower AND uf.followed = :followed")
+                    long followCount = (long) entityManager.createQuery("SELECT COUNT(uf) FROM Follow uf WHERE uf.follower = :follower AND uf.followee = :followee")
                             .setParameter("follower", currentUser)
-                            .setParameter("followed", user)
+                            .setParameter("followee", user)
                             .getSingleResult();
                     isFollowing = followCount > 0;
                 }

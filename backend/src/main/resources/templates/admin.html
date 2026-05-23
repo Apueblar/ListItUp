@@ -13,8 +13,14 @@
         <header class="admin-header">
             <h1>Administration Panel</h1>
             <p>Manage users, toggle verification badges, assign administrative privileges, or block accounts.</p>
-            <a th:href="@{/admin/lists}" class="btn-primary" style="margin-top: 1rem; display: inline-block;">Manage Lists</a>
         </header>
+
+        <div style="margin-bottom: 2rem; display: flex; gap: 1rem;">
+            <a href="/admin" class="btn-primary btn-interaction--active" style="text-decoration:none;">Users</a>
+            <a href="/admin/lists" class="btn-primary" style="text-decoration:none; background-color: var(--surface-color); color: var(--text-color); border: 1px solid var(--border-color);">Lists</a>
+            <a href="/admin/reports" class="btn-primary" style="text-decoration:none; background-color: var(--surface-color); color: var(--text-color); border: 1px solid var(--border-color);">Reports</a>
+            <a href="/admin/categories" class="btn-primary" style="text-decoration:none; background-color: var(--surface-color); color: var(--text-color); border: 1px solid var(--border-color);">Categories</a>
+        </div>
 
         <div style="overflow-x: auto;">
             <table class="admin-table">

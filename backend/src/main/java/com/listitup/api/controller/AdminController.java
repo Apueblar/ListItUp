@@ -3,6 +3,10 @@ package com.listitup.api.controller;
 import com.listitup.api.model.User;
 import com.listitup.api.repository.UserRepository;
 import com.listitup.api.service.CuratedListService;
+import com.listitup.api.repository.CategoryRepository;
+import com.listitup.api.model.Category;
+import com.listitup.api.repository.CategoryProposalRepository;
+import com.listitup.api.model.CategoryProposal;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -20,11 +24,15 @@ public class AdminController {
     private final UserRepository userRepository;
     private final CuratedListService listService;
     private final com.listitup.api.repository.ReportRepository reportRepository;
+    private final CategoryRepository categoryRepository;
+    private final CategoryProposalRepository categoryProposalRepository;
 
-    public AdminController(UserRepository userRepository, CuratedListService listService, com.listitup.api.repository.ReportRepository reportRepository) {
+    public AdminController(UserRepository userRepository, CuratedListService listService, com.listitup.api.repository.ReportRepository reportRepository, CategoryRepository categoryRepository, CategoryProposalRepository categoryProposalRepository) {
         this.userRepository = userRepository;
         this.listService = listService;
         this.reportRepository = reportRepository;
+        this.categoryRepository = categoryRepository;
+        this.categoryProposalRepository = categoryProposalRepository;
     }
 
     @GetMapping("/admin")
@@ -145,5 +153,44 @@ public class AdminController {
             reportRepository.save(report);
         });
         return "redirect:/admin/reports";
+    }
+
+    @GetMapping("/admin/categories")
+    public String adminCategoriesPanel(Model model) {
+        model.addAttribute("categories", categoryRepository.findAll());
+        model.addAttribute("pendingProposals", categoryProposalRepository.findByStatusOrderByCreatedAtDesc("PENDING"));
+        return "admin-categories";
+    }
+
+    @PostMapping("/admin/categories")
+    public String createCategory(@RequestParam String name, @RequestParam(required = false) String icon) {
+        Category category = new Category();
+        category.setName(name);
+        category.setIcon(icon);
+        categoryRepository.save(category);
+        return "redirect:/admin/categories";
+    }
+
+    @PostMapping("/admin/categories/proposals/{id}/approve")
+    public String approveProposal(@PathVariable UUID id, @RequestParam(required = false) String icon) {
+        categoryProposalRepository.findById(id).ifPresent(proposal -> {
+            proposal.setStatus("APPROVED");
+            categoryProposalRepository.save(proposal);
+
+            Category category = new Category();
+            category.setName(proposal.getProposedName());
+            category.setIcon(icon);
+            categoryRepository.save(category);
+        });
+        return "redirect:/admin/categories";
+    }
+
+    @PostMapping("/admin/categories/proposals/{id}/reject")
+    public String rejectProposal(@PathVariable UUID id) {
+        categoryProposalRepository.findById(id).ifPresent(proposal -> {
+            proposal.setStatus("REJECTED");
+            categoryProposalRepository.save(proposal);
+        });
+        return "redirect:/admin/categories";
     }
 }

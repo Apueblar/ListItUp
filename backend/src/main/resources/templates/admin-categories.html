@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <th:block th:replace="~{fragments/layout :: head('Admin Categories - ListItUp')}"></th:block>
+</head>
+<body>
+
+    <nav th:replace="~{fragments/layout :: navbar}"></nav>
+
+    <main class="animate-in" style="max-width: 1000px; margin: 2rem auto; padding: 0 1rem;">
+        <h1>Admin - Categories</h1>
+
+        <div style="margin-bottom: 2rem; display: flex; gap: 1rem;">
+            <a href="/admin" class="btn-primary" style="text-decoration:none; background-color: var(--surface-color); color: var(--text-color); border: 1px solid var(--border-color);">Users</a>
+            <a href="/admin/lists" class="btn-primary" style="text-decoration:none; background-color: var(--surface-color); color: var(--text-color); border: 1px solid var(--border-color);">Lists</a>
+            <a href="/admin/reports" class="btn-primary" style="text-decoration:none; background-color: var(--surface-color); color: var(--text-color); border: 1px solid var(--border-color);">Reports</a>
+            <a href="/admin/categories" class="btn-primary btn-interaction--active" style="text-decoration:none;">Categories</a>
+        </div>
+
+        <section style="margin-bottom: 3rem;">
+            <h2>Create New Category</h2>
+            <form th:action="@{/admin/categories}" method="post" style="display: flex; gap: 1rem; align-items: flex-end; background: var(--surface-color); padding: 1.5rem; border-radius: 12px; border: 1px solid var(--border-color);">
+                <div style="flex: 1;">
+                    <label for="name" style="display: block; margin-bottom: 0.5rem; font-weight: bold;">Category Name</label>
+                    <input type="text" id="name" name="name" required style="width: 100%; padding: 0.75rem; border: 1px solid var(--border-color); border-radius: 8px; background: var(--bg-color); color: var(--text-color);">
+                </div>
+                <div style="flex: 0 0 100px;">
+                    <label for="icon" style="display: block; margin-bottom: 0.5rem; font-weight: bold;">Icon Emoji</label>
+                    <input type="text" id="icon" name="icon" placeholder="e.g. 🚀" style="width: 100%; padding: 0.75rem; border: 1px solid var(--border-color); border-radius: 8px; background: var(--bg-color); color: var(--text-color);">
+                </div>
+                <button type="submit" class="btn-primary" style="padding: 0.75rem 1.5rem;">Create</button>
+            </form>
+        </section>
+
+        <section style="margin-bottom: 3rem;">
+            <h2>Pending Proposals</h2>
+            <div th:if="${#lists.isEmpty(pendingProposals)}">No pending proposals.</div>
+            <table th:unless="${#lists.isEmpty(pendingProposals)}" style="width: 100%; border-collapse: collapse; background: var(--surface-color); border-radius: 12px; overflow: hidden; border: 1px solid var(--border-color);">
+                <thead>
+                    <tr style="border-bottom: 2px solid var(--border-color); text-align: left; background: rgba(0,0,0,0.2);">
+                        <th style="padding: 1rem;">Date</th>
+                        <th style="padding: 1rem;">Proposed Name</th>
+                        <th style="padding: 1rem;">Proposer</th>
+                        <th style="padding: 1rem;">Set Icon & Approve</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="proposal : ${pendingProposals}" style="border-bottom: 1px solid var(--border-color);">
+                        <td style="padding: 1rem;" th:text="${#temporals.format(proposal.createdAt, 'dd MMM yyyy')}">Date</td>
+                        <td style="padding: 1rem; font-weight: bold;" th:text="${proposal.proposedName}">Name</td>
+                        <td style="padding: 1rem;" th:text="${proposal.proposer.username}">User</td>
+                        <td style="padding: 1rem;">
+                            <div style="display: flex; gap: 0.5rem; align-items: center;">
+                                <form th:action="@{/admin/categories/proposals/{id}/approve(id=${proposal.proposalId})}" method="post" style="display: flex; gap: 0.5rem;">
+                                    <input type="text" name="icon" placeholder="Emoji" required style="width: 60px; padding: 0.5rem; border: 1px solid var(--border-color); border-radius: 6px; background: var(--bg-color); color: var(--text-color);">
+                                    <button type="submit" class="btn-primary" style="padding: 0.5rem 1rem; font-size: 0.8rem; background-color: var(--success-color, #10b981);">Approve</button>
+                                </form>
+                                <form th:action="@{/admin/categories/proposals/{id}/reject(id=${proposal.proposalId})}" method="post">
+                                    <button type="submit" class="btn-primary" style="padding: 0.5rem 1rem; font-size: 0.8rem; background-color: var(--danger-color, #ef4444);">Reject</button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+
+        <section>
+            <h2>Existing Categories</h2>
+            <div style="display: flex; flex-wrap: wrap; gap: 1rem;">
+                <div th:each="category : ${categories}" style="padding: 1rem; border: 1px solid var(--border-color); border-radius: 12px; background: var(--surface-color); display: flex; align-items: center; gap: 0.75rem;">
+                    <span style="font-size: 1.5rem;" th:text="${category.icon}">icon</span>
+                    <span style="font-weight: bold;" th:text="${category.name}">name</span>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <footer th:replace="~{fragments/layout :: footer}"></footer>
+</body>
+</html>
