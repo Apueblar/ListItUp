@@ -4,6 +4,7 @@ import com.listitup.api.model.CuratedList;
 import com.listitup.api.model.User;
 import com.listitup.api.repository.CategoryRepository;
 import com.listitup.api.repository.CommentRepository;
+import com.listitup.api.repository.CuratedListRepository;
 import com.listitup.api.repository.UserRepository;
 import com.listitup.api.service.CuratedListService;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
