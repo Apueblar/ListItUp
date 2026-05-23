@@ -46,9 +46,15 @@ public class ProfileController {
                 .map(SavedList::getList)
                 .collect(Collectors.toList());
 
+        List<CuratedList> likedLists = entityManager.createQuery(
+                "SELECT l.list FROM Like l WHERE l.user = :user ORDER BY l.createdAt DESC", CuratedList.class)
+                .setParameter("user", user)
+                .getResultList();
+
         model.addAttribute("user", user);
         model.addAttribute("myLists", myLists);
         model.addAttribute("savedLists", savedLists);
+        model.addAttribute("likedLists", likedLists);
 
         return "profile";
     }
