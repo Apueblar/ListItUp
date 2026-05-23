@@ -79,8 +79,8 @@
                             <span style="font-weight: bold; font-size: 1.1rem;" th:text="${category.name}">name</span>
                         </div>
                         <div style="display: flex; gap: 0.5rem;">
-                            <button th:onclick="'toggleEditForm(\'' + ${category.categoryId} + '\')'" class="btn-primary" style="padding: 0.4rem 0.8rem; font-size: 0.8rem; background-color: var(--surface-color); border: 1px solid var(--border-color); color: var(--text-color);">Edit</button>
-                            <button th:onclick="'toggleDeleteForm(\'' + ${category.categoryId} + '\')'" class="btn-primary" style="padding: 0.4rem 0.8rem; font-size: 0.8rem; background-color: var(--danger-color, #ef4444); color: white; border: none;">Delete</button>
+                            <button th:onclick="|toggleEditForm('${category.categoryId}')|" class="btn-primary" style="padding: 0.4rem 0.8rem; font-size: 0.8rem; background-color: var(--surface-color); border: 1px solid var(--border-color); color: var(--text-color);">Edit</button>
+                            <button th:onclick="|toggleDeleteForm('${category.categoryId}')|" class="btn-primary" style="padding: 0.4rem 0.8rem; font-size: 0.8rem; background-color: var(--danger-color, #ef4444); color: white; border: none;">Delete</button>
                         </div>
                     </div>
 
@@ -99,7 +99,7 @@
                                 </div>
                             </div>
                             <div style="display: flex; justify-content: flex-end; gap: 0.5rem;">
-                                <button type="button" th:onclick="'toggleEditForm(\'' + ${category.categoryId} + '\')'" class="btn-primary" style="padding: 0.4rem 0.8rem; font-size: 0.8rem; background-color: transparent; border: 1px solid var(--border-color); color: var(--text-color);">Cancel</button>
+                                <button type="button" th:onclick="|toggleEditForm('${category.categoryId}')|" class="btn-primary" style="padding: 0.4rem 0.8rem; font-size: 0.8rem; background-color: transparent; border: 1px solid var(--border-color); color: var(--text-color);">Cancel</button>
                                 <button type="submit" class="btn-primary" style="padding: 0.4rem 0.8rem; font-size: 0.8rem;">Save</button>
                             </div>
                         </form>
@@ -116,11 +116,11 @@
                                 <label style="display: block; font-size: 0.8rem; margin-bottom: 0.25rem; font-weight: bold;">Replacement Category</label>
                                 <select name="replacementCategoryId" style="width: 100%; padding: 0.5rem; border: 1px solid var(--border-color); border-radius: 6px; background: var(--bg-color); color: var(--text-color); font-size: 0.9rem;">
                                     <option value="" selected>No replacement (only if category has no lists)</option>
-                                    <option th:each="otherCat : ${categories}" th:if="${otherCat.categoryId != category.categoryId}" th:value="${otherCat.categoryId}" th:text="${otherCat.icon + ' ' + otherCat.name}">Category</option>
+                                    <option th:each="otherCat : ${categories}" th:if="${otherCat.categoryId != category.categoryId}" th:value="${otherCat.categoryId}" th:text="${otherCat.icon != null ? otherCat.icon + ' ' + otherCat.name : otherCat.name}">Category</option>
                                 </select>
                             </div>
                             <div style="display: flex; justify-content: flex-end; gap: 0.5rem;">
-                                <button type="button" th:onclick="'toggleDeleteForm(\'' + ${category.categoryId} + '\')'" class="btn-primary" style="padding: 0.4rem 0.8rem; font-size: 0.8rem; background-color: transparent; border: 1px solid var(--border-color); color: var(--text-color);">Cancel</button>
+                                <button type="button" th:onclick="|toggleDeleteForm('${category.categoryId}')|" class="btn-primary" style="padding: 0.4rem 0.8rem; font-size: 0.8rem; background-color: transparent; border: 1px solid var(--border-color); color: var(--text-color);">Cancel</button>
                                 <button type="submit" class="btn-primary" style="padding: 0.4rem 0.8rem; font-size: 0.8rem; background-color: var(--danger-color, #ef4444); color: white; border: none;">Confirm Delete</button>
                             </div>
                         </form>
