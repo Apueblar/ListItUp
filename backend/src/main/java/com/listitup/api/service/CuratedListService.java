@@ -42,4 +42,9 @@ public class CuratedListService {
     public void deleteList(UUID id) {
         listRepository.deleteById(id);
     }
+
+    @Transactional
+    public void updateCategoryForAll(com.listitup.api.model.Category oldCategory, com.listitup.api.model.Category newCategory) {
+        listRepository.updateCategoryForAll(oldCategory, newCategory);
+    }
 }

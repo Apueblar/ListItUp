@@ -89,12 +89,15 @@
     <footer th:replace="~{fragments/layout :: footer}"></footer>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            function getCookie(name) {
+            function getCsrfToken() {
+                var meta = document.querySelector('meta[name="_csrf"]');
+                if (meta && meta.content) return meta.content;
                 var value = "; " + document.cookie;
-                var parts = value.split("; " + name + "=");
+                var parts = value.split("; XSRF-TOKEN=");
                 if (parts.length === 2) return parts.pop().split(";").shift();
+                return '';
             }
-            var xsrfToken = getCookie('XSRF-TOKEN');
+            var xsrfToken = getCsrfToken();
             var btns = document.querySelectorAll('.btn-like-feed');
             btns.forEach(function(btn) {
                 btn.addEventListener('click', async function(e) {

@@ -15,6 +15,10 @@
  */
 /** Helper to get a cookie value by name */
 function getCookie(name) {
+    if (name === 'XSRF-TOKEN') {
+        var meta = document.querySelector('meta[name="_csrf"]');
+        if (meta && meta.content) return meta.content;
+    }
     var value = "; " + document.cookie;
     var parts = value.split("; " + name + "=");
     if (parts.length === 2) return parts.pop().split(";").shift();

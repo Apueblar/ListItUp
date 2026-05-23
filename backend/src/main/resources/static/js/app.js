@@ -162,6 +162,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
 /** Read CSRF token from cookie (used for POST requests). */
 function getCsrfToken() {
+    var meta = document.querySelector('meta[name="_csrf"]');
+    if (meta && meta.content) return meta.content;
     var value = '; ' + document.cookie;
     var parts = value.split('; XSRF-TOKEN=');
     if (parts.length === 2) return parts.pop().split(';').shift();

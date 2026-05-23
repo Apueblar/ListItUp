@@ -33,4 +33,9 @@ public interface CuratedListRepository extends JpaRepository<CuratedList, UUID> 
 
     @org.springframework.data.jpa.repository.Query("SELECT l FROM CuratedList l WHERE LOWER(l.category.name) = LOWER(:category) AND (LOWER(l.title) LIKE LOWER(CONCAT('%', :query, '%')) OR LOWER(l.description) LIKE LOWER(CONCAT('%', :query, '%')))")
     org.springframework.data.domain.Page<CuratedList> searchListsByCategory(@org.springframework.data.repository.query.Param("query") String query, @org.springframework.data.repository.query.Param("category") String category, org.springframework.data.domain.Pageable pageable);
+
+    @org.springframework.data.jpa.repository.Modifying
+    @org.springframework.transaction.annotation.Transactional
+    @org.springframework.data.jpa.repository.Query("UPDATE CuratedList l SET l.category = :newCategory WHERE l.category = :oldCategory")
+    void updateCategoryForAll(@org.springframework.data.repository.query.Param("oldCategory") com.listitup.api.model.Category oldCategory, @org.springframework.data.repository.query.Param("newCategory") com.listitup.api.model.Category newCategory);
 }

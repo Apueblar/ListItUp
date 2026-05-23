@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.util.List;
 import java.util.Optional;
@@ -98,13 +99,11 @@ public class AdminController {
             user.setCanModerateContent(false);
             user.setCanDeleteAny(false);
         } else if ("ADMIN".equals(role)) {
-            user.setHasBadge(false);
             user.setCanPinLists(false);
             user.setHasAnalyticsAccess(false);
             user.setCanModerateContent(true);
             user.setCanDeleteAny(true);
         } else { // STANDARD
-            user.setHasBadge(false);
             user.setCanPinLists(false);
             user.setHasAnalyticsAccess(false);
             user.setCanModerateContent(false);
@@ -168,6 +167,53 @@ public class AdminController {
         category.setName(name);
         category.setIcon(icon);
         categoryRepository.save(category);
+        return "redirect:/admin/categories";
+    }
+
+    @PostMapping("/admin/categories/{id}/edit")
+    public String editCategory(@PathVariable UUID id, @RequestParam String name, @RequestParam(required = false) String icon) {
+        Optional<Category> categoryOpt = categoryRepository.findById(id);
+        if (categoryOpt.isPresent()) {
+            Category category = categoryOpt.get();
+            category.setName(name);
+            category.setIcon(icon);
+            categoryRepository.save(category);
+        }
+        return "redirect:/admin/categories";
+    }
+
+    @PostMapping("/admin/categories/{id}/delete")
+    public String deleteCategory(@PathVariable UUID id, 
+                                 @RequestParam(required = false) UUID replacementCategoryId,
+                                 RedirectAttributes redirectAttributes) {
+        Optional<Category> categoryOpt = categoryRepository.findById(id);
+        if (categoryOpt.isPresent()) {
+            Category categoryToDelete = categoryOpt.get();
+            boolean hasLists = !listService.getListsByCategory(categoryToDelete.getName()).isEmpty();
+            
+            if (hasLists) {
+                if (replacementCategoryId == null || replacementCategoryId.equals(id)) {
+                    redirectAttributes.addFlashAttribute("error", "Cannot delete category '" + categoryToDelete.getName() + "' because it has associated lists and no replacement category was selected.");
+                    return "redirect:/admin/categories";
+                }
+                
+                Optional<Category> replacementOpt = categoryRepository.findById(replacementCategoryId);
+                if (replacementOpt.isEmpty()) {
+                    redirectAttributes.addFlashAttribute("error", "Replacement category not found.");
+                    return "redirect:/admin/categories";
+                }
+                
+                Category replacementCategory = replacementOpt.get();
+                listService.updateCategoryForAll(categoryToDelete, replacementCategory);
+            }
+            
+            try {
+                categoryRepository.delete(categoryToDelete);
+                redirectAttributes.addFlashAttribute("success", "Category '" + categoryToDelete.getName() + "' deleted successfully.");
+            } catch (Exception e) {
+                redirectAttributes.addFlashAttribute("error", "Could not delete category: " + e.getMessage());
+            }
+        }
         return "redirect:/admin/categories";
     }
 
