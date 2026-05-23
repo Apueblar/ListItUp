@@ -31,6 +31,9 @@ public class Item {
     @Column(name = "position_index", nullable = false)
     private Integer positionIndex;
 
+    @Column(name = "click_count", nullable = false)
+    private Integer clickCount = 0;
+
     // Getters and Setters
     public UUID getItemId() { return itemId; }
     public void setItemId(UUID itemId) { this.itemId = itemId; }
@@ -46,4 +49,6 @@ public class Item {
     public void setPhoto(String photo) { this.photo = photo; }
     public Integer getPositionIndex() { return positionIndex; }
     public void setPositionIndex(Integer positionIndex) { this.positionIndex = positionIndex; }
+    public Integer getClickCount() { return clickCount; }
+    public void setClickCount(Integer clickCount) { this.clickCount = clickCount; }
 }

@@ -24,11 +24,13 @@ public class ProfileController {
     private final UserRepository userRepository;
     private final CuratedListRepository listRepository;
     private final SavedListRepository savedListRepository;
+    private final jakarta.persistence.EntityManager entityManager;
 
-    public ProfileController(UserRepository userRepository, CuratedListRepository listRepository, SavedListRepository savedListRepository) {
+    public ProfileController(UserRepository userRepository, CuratedListRepository listRepository, SavedListRepository savedListRepository, jakarta.persistence.EntityManager entityManager) {
         this.userRepository = userRepository;
         this.listRepository = listRepository;
         this.savedListRepository = savedListRepository;
+        this.entityManager = entityManager;
     }
 
     @GetMapping("/profile")
@@ -52,15 +54,38 @@ public class ProfileController {
     }
 
     @GetMapping("/users/{username}")
-    public String viewPublicProfile(@PathVariable String username, Model model) {
+    public String viewPublicProfile(@PathVariable String username, Model model, @AuthenticationPrincipal OAuth2User oauthUser) {
         User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new IllegalArgumentException("User not found: " + username));
 
         // Sort by Pinned status first
         List<CuratedList> myLists = listRepository.findByCreatorOrderByIsPinnedDescCreatedAtDesc(user);
 
+        long followersCount = (long) entityManager.createQuery("SELECT COUNT(uf) FROM UserFollow uf WHERE uf.followed = :user")
+                .setParameter("user", user).getSingleResult();
+
+        boolean isFollowing = false;
+        if (oauthUser != null) {
+            String email = oauthUser.getAttribute("email");
+            java.util.Optional<User> currentUserOpt = userRepository.findByEmail(email);
+            if (currentUserOpt.isPresent()) {
+                User currentUser = currentUserOpt.get();
+                model.addAttribute("currentUser", currentUser);
+                
+                if (!currentUser.getUserId().equals(user.getUserId())) {
+                    long followCount = (long) entityManager.createQuery("SELECT COUNT(uf) FROM UserFollow uf WHERE uf.follower = :follower AND uf.followed = :followed")
+                            .setParameter("follower", currentUser)
+                            .setParameter("followed", user)
+                            .getSingleResult();
+                    isFollowing = followCount > 0;
+                }
+            }
+        }
+
         model.addAttribute("profileUser", user);
         model.addAttribute("myLists", myLists);
+        model.addAttribute("followersCount", followersCount);
+        model.addAttribute("isFollowing", isFollowing);
 
         return "user-profile";
     }
@@ -98,6 +123,32 @@ public class ProfileController {
         user.setUsername(newUsername);
         userRepository.save(user);
         redirectAttributes.addFlashAttribute("usernameSuccess", "Username successfully updated to " + newUsername + "!");
+        return "redirect:/profile";
+    }
+
+    @PostMapping("/profile/update-avatar")
+    public String updateAvatar(@AuthenticationPrincipal OAuth2User oauthUser, 
+                               @RequestParam String profilePicture,
+                               org.springframework.web.servlet.mvc.support.RedirectAttributes redirectAttributes) {
+        if (oauthUser == null) return "redirect:/feed";
+        User user = userRepository.findByEmail(oauthUser.getAttribute("email")).orElseThrow();
+        
+        user.setProfilePicture(profilePicture.trim());
+        userRepository.save(user);
+        redirectAttributes.addFlashAttribute("profileSuccess", "Profile picture updated successfully!");
+        return "redirect:/profile";
+    }
+
+    @PostMapping("/profile/update-bio")
+    public String updateBio(@AuthenticationPrincipal OAuth2User oauthUser, 
+                            @RequestParam String bio,
+                            org.springframework.web.servlet.mvc.support.RedirectAttributes redirectAttributes) {
+        if (oauthUser == null) return "redirect:/feed";
+        User user = userRepository.findByEmail(oauthUser.getAttribute("email")).orElseThrow();
+        
+        user.setBio(bio.trim());
+        userRepository.save(user);
+        redirectAttributes.addFlashAttribute("profileSuccess", "Bio updated successfully!");
         return "redirect:/profile";
     }
 

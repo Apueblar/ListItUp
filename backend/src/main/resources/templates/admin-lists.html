@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <th:block th:replace="~{fragments/layout :: head('Admin Lists Panel - ListItUp')}"></th:block>
+    <link rel="stylesheet" th:href="@{/css/admin.css}">
+</head>
+<body>
+
+    <nav th:replace="~{fragments/layout :: navbar}"></nav>
+
+    <main class="animate-in admin-main">
+        <header class="admin-header">
+            <h1>List Management</h1>
+            <p>Manage all curated lists across the platform. You can delete any list here.</p>
+            <a th:href="@{/admin}" class="btn-primary" style="margin-top: 1rem; display: inline-block;">Back to Users</a>
+        </header>
+
+        <div style="overflow-x: auto;">
+            <table class="admin-table">
+                <thead>
+                    <tr>
+                        <th>Title</th>
+                        <th>Creator</th>
+                        <th>Category</th>
+                        <th>Views</th>
+                        <th>Pinned?</th>
+                        <th>Date</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="list : ${lists}">
+                        <td><a th:href="@{/lists/{id}(id=${list.listId})}" th:text="${list.title}" style="color:var(--text-primary);">Title</a></td>
+                        <td th:text="${list.creator.username}">Creator</td>
+                        <td th:text="${list.category.name}">Category</td>
+                        <td th:text="${list.viewCount}">0</td>
+                        <td th:text="${list.isPinned ? 'Yes' : 'No'}">No</td>
+                        <td th:text="${#temporals.format(list.createdAt, 'dd MMM yyyy')}">Date</td>
+                        <td>
+                            <div class="td-actions">
+                                <form th:action="@{/admin/lists/{id}/delete(id=${list.listId})}" method="post" class="form-inline">
+                                    <button type="submit" class="btn-action btn-block" onclick="return confirm('Are you sure you want to completely delete this list?');">
+                                        Delete
+                                    </button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr th:if="${#lists.isEmpty(lists)}">
+                        <td colspan="7" style="text-align:center; padding: 2rem;">No lists found.</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </main>
+
+    <footer th:replace="~{fragments/layout :: footer}"></footer>
+</body>
+</html>

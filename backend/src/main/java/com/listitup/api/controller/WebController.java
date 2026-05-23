@@ -22,15 +22,19 @@ import java.util.UUID;
 public class WebController {
 
     private final CuratedListService listService;
+    private final CuratedListRepository listRepository;
     private final CategoryRepository categoryRepository;
     private final CommentRepository commentRepository;
     private final UserRepository userRepository;
+    private final jakarta.persistence.EntityManager entityManager;
 
-    public WebController(CuratedListService listService, CategoryRepository categoryRepository, CommentRepository commentRepository, UserRepository userRepository) {
+    public WebController(CuratedListService listService, CuratedListRepository listRepository, CategoryRepository categoryRepository, CommentRepository commentRepository, UserRepository userRepository, jakarta.persistence.EntityManager entityManager) {
         this.listService = listService;
+        this.listRepository = listRepository;
         this.categoryRepository = categoryRepository;
         this.commentRepository = commentRepository;
         this.userRepository = userRepository;
+        this.entityManager = entityManager;
     }
 
     @GetMapping("/")
@@ -39,18 +43,52 @@ public class WebController {
     }
 
     @GetMapping("/feed")
-    public String feed(@RequestParam(required = false) String category, Model model, jakarta.servlet.http.HttpServletRequest request) {
-        List<CuratedList> lists;
-        if (category != null && !category.trim().isEmpty() && !category.equalsIgnoreCase("All")) {
-            lists = listService.getListsByCategory(category);
-            model.addAttribute("selectedCategory", category);
-        } else {
-            lists = listService.getAllLists();
-            model.addAttribute("selectedCategory", "All");
+    public String feed(@RequestParam(required = false) String category, 
+                       @RequestParam(required = false, defaultValue = "recent") String sort,
+                       Model model, jakarta.servlet.http.HttpServletRequest request) {
+        
+        User currentUser = null;
+        if (request.getUserPrincipal() instanceof OAuth2User) {
+            String email = ((OAuth2User) request.getUserPrincipal()).getAttribute("email");
+            currentUser = userRepository.findByEmail(email).orElse(null);
         }
+
+        if ("following".equalsIgnoreCase(sort) && currentUser == null) {
+            return "redirect:/oauth2/authorization/google";
+        }
+
+        List<CuratedList> lists;
+        boolean hasCategory = category != null && !category.trim().isEmpty() && !category.equalsIgnoreCase("All");
+        
+        if ("trending".equalsIgnoreCase(sort)) {
+            if (hasCategory) lists = listRepository.findByCategoryNameIgnoreCaseOrderByViewCountDesc(category);
+            else lists = listRepository.findAllByOrderByViewCountDesc();
+        } else if ("following".equalsIgnoreCase(sort) && currentUser != null) {
+            if (hasCategory) lists = listRepository.findListsFromFollowedUsersByCategoryOrderByCreatedAtDesc(currentUser, category);
+            else lists = listRepository.findListsFromFollowedUsersOrderByCreatedAtDesc(currentUser);
+        } else {
+            if (hasCategory) lists = listRepository.findByCategoryNameIgnoreCaseOrderByCreatedAtDesc(category);
+            else lists = listRepository.findAllByOrderByCreatedAtDesc();
+        }
+
+        model.addAttribute("selectedCategory", hasCategory ? category : "All");
+        model.addAttribute("selectedSort", sort.toLowerCase());
         model.addAttribute("lists", lists);
         model.addAttribute("categories", categoryRepository.findAll());
         
+        if (request.getUserPrincipal() instanceof OAuth2User) {
+            OAuth2User oauthUser = (OAuth2User) request.getUserPrincipal();
+            String email = oauthUser.getAttribute("email");
+            Optional<User> currentUserOpt = userRepository.findByEmail(email);
+            currentUserOpt.ifPresent(user -> {
+                model.addAttribute("currentUser", user);
+                List<UUID> likedListIds = entityManager.createQuery("SELECT l.list.listId FROM Like l WHERE l.user = :u", UUID.class)
+                        .setParameter("u", user)
+                        .getResultList();
+                model.addAttribute("likedListIds", likedListIds);
+            });
+        }
+
         jakarta.servlet.http.HttpSession session = request.getSession(false);
         if (session != null) {
             Object exception = session.getAttribute("SPRING_SECURITY_LAST_EXCEPTION");
@@ -78,7 +116,21 @@ public class WebController {
             if (oauthUser != null) {
                 String email = oauthUser.getAttribute("email");
                 Optional<User> currentUser = userRepository.findByEmail(email);
-                currentUser.ifPresent(user -> model.addAttribute("currentUser", user));
+                currentUser.ifPresent(user -> {
+                    model.addAttribute("currentUser", user);
+                    
+                    long likeCount = (long) entityManager.createQuery("SELECT COUNT(l) FROM Like l WHERE l.user = :u AND l.list = :list")
+                            .setParameter("u", user)
+                            .setParameter("list", list.get())
+                            .getSingleResult();
+                    model.addAttribute("isLiked", likeCount > 0);
+
+                    long saveCount = (long) entityManager.createQuery("SELECT COUNT(s) FROM SavedList s WHERE s.user = :u AND s.list = :list")
+                            .setParameter("u", user)
+                            .setParameter("list", list.get())
+                            .getSingleResult();
+                    model.addAttribute("isSaved", saveCount > 0);
+                });
             }
             
             return "list-detail"; // renders list-detail.html
@@ -90,5 +142,25 @@ public class WebController {
     public String createList(Model model) {
         model.addAttribute("categories", categoryRepository.findAll());
         return "create-edit-list"; // renders create-edit-list.html
+    }
+
+    @GetMapping("/lists/{id}/edit")
+    public String editList(@PathVariable UUID id, Model model, @AuthenticationPrincipal OAuth2User oauthUser) {
+        if (oauthUser == null) {
+            return "redirect:/oauth2/authorization/google";
+        }
+        String email = oauthUser.getAttribute("email");
+        Optional<User> currentUser = userRepository.findByEmail(email);
+        Optional<CuratedList> listOpt = listService.getListById(id);
+
+        if (currentUser.isPresent() && listOpt.isPresent()) {
+            CuratedList list = listOpt.get();
+            if (list.getCreator().getUserId().equals(currentUser.get().getUserId())) {
+                model.addAttribute("list", list);
+                model.addAttribute("categories", categoryRepository.findAll());
+                return "create-edit-list";
+            }
+        }
+        return "redirect:/lists/" + id;
     }
 }

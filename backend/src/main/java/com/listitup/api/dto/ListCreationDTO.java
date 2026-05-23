@@ -8,6 +8,7 @@ public class ListCreationDTO {
     private String title;
     private String description;
     private UUID categoryId;
+    private String coverPhoto;
     private List<ItemCreationDTO> items = new ArrayList<>();
 
     public String getTitle() { return title; }
@@ -18,6 +19,9 @@ public class ListCreationDTO {
     
     public UUID getCategoryId() { return categoryId; }
     public void setCategoryId(UUID categoryId) { this.categoryId = categoryId; }
+    
+    public String getCoverPhoto() { return coverPhoto; }
+    public void setCoverPhoto(String coverPhoto) { this.coverPhoto = coverPhoto; }
     
     public List<ItemCreationDTO> getItems() { return items; }
     public void setItems(List<ItemCreationDTO> items) { this.items = items; }

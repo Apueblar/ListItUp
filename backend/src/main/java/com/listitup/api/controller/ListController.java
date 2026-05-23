@@ -10,7 +10,10 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import java.util.UUID;
+import java.util.Optional;
 
 @Controller
 public class ListController {
@@ -41,6 +44,7 @@ public class ListController {
         newList.setDescription(dto.getDescription());
         newList.setCategory(category);
         newList.setCreator(creator);
+        newList.setCoverPhoto(dto.getCoverPhoto());
         
         java.util.List<com.listitup.api.model.Item> items = new java.util.ArrayList<>();
         int index = 1;
@@ -51,6 +55,7 @@ public class ListController {
                     item.setTitle(itemDto.getTitle());
                     item.setDescription(itemDto.getDescription());
                     item.setExternalUrl(itemDto.getExternalUrl());
+                    item.setPhoto(itemDto.getPhoto());
                     item.setPositionIndex(index++);
                     item.setList(newList);
                     items.add(item);
@@ -61,5 +66,59 @@ public class ListController {
         
         CuratedList savedList = listService.saveList(newList);
         return "redirect:/lists/" + savedList.getListId();
+    }
+
+    @PostMapping("/lists/{id}/edit")
+    public String editList(@PathVariable UUID id, @ModelAttribute com.listitup.api.dto.ListCreationDTO dto,
+                           @AuthenticationPrincipal OAuth2User oauthUser) {
+        String email = oauthUser.getAttribute("email");
+        User currentUser = userRepository.findByEmail(email).orElseThrow();
+        CuratedList list = listService.getListById(id).orElseThrow();
+
+        if (!list.getCreator().getUserId().equals(currentUser.getUserId())) {
+            return "redirect:/lists/" + id;
+        }
+
+        Category category = categoryRepository.findById(dto.getCategoryId()).orElseThrow();
+
+        list.setTitle(dto.getTitle());
+        list.setDescription(dto.getDescription());
+        list.setCategory(category);
+        list.setCoverPhoto(dto.getCoverPhoto());
+
+        list.getItems().clear();
+
+        int index = 1;
+        if (dto.getItems() != null) {
+            for (com.listitup.api.dto.ItemCreationDTO itemDto : dto.getItems()) {
+                if (itemDto.getTitle() != null && !itemDto.getTitle().trim().isEmpty()) {
+                    com.listitup.api.model.Item item = new com.listitup.api.model.Item();
+                    item.setTitle(itemDto.getTitle());
+                    item.setDescription(itemDto.getDescription());
+                    item.setExternalUrl(itemDto.getExternalUrl());
+                    item.setPhoto(itemDto.getPhoto());
+                    item.setPositionIndex(index++);
+                    item.setList(list);
+                    list.getItems().add(item);
+                }
+            }
+        }
+
+        listService.saveList(list);
+        return "redirect:/lists/" + list.getListId();
+    }
+
+    @PostMapping("/lists/{id}/delete")
+    public String deleteList(@PathVariable UUID id, @AuthenticationPrincipal OAuth2User oauthUser) {
+        String email = oauthUser.getAttribute("email");
+        User currentUser = userRepository.findByEmail(email).orElseThrow();
+        CuratedList list = listService.getListById(id).orElseThrow();
+
+        if (!list.getCreator().getUserId().equals(currentUser.getUserId())) {
+            return "redirect:/lists/" + id;
+        }
+
+        listService.deleteList(id);
+        return "redirect:/feed";
     }
 }

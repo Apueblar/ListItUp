@@ -14,4 +14,23 @@ public interface CuratedListRepository extends JpaRepository<CuratedList, UUID> 
     List<CuratedList> findByCreatorOrderByIsPinnedDescCreatedAtDesc(User creator);
     List<CuratedList> findByTitleContainingIgnoreCase(String title);
     List<CuratedList> findByCategoryNameIgnoreCaseOrderByCreatedAtDesc(String categoryName);
+    org.springframework.data.domain.Page<CuratedList> findByCategoryNameIgnoreCase(String categoryName, org.springframework.data.domain.Pageable pageable);
+
+    // Feed Queries
+    List<CuratedList> findAllByOrderByCreatedAtDesc();
+    List<CuratedList> findAllByOrderByViewCountDesc();
+    List<CuratedList> findByCategoryNameIgnoreCaseOrderByViewCountDesc(String categoryName);
+    
+    @org.springframework.data.jpa.repository.Query("SELECT l FROM CuratedList l WHERE l.creator IN (SELECT uf.followed FROM UserFollow uf WHERE uf.follower = :follower) ORDER BY l.createdAt DESC")
+    List<CuratedList> findListsFromFollowedUsersOrderByCreatedAtDesc(@org.springframework.data.repository.query.Param("follower") User follower);
+    
+    @org.springframework.data.jpa.repository.Query("SELECT l FROM CuratedList l WHERE l.category.name = :category AND l.creator IN (SELECT uf.followed FROM UserFollow uf WHERE uf.follower = :follower) ORDER BY l.createdAt DESC")
+    List<CuratedList> findListsFromFollowedUsersByCategoryOrderByCreatedAtDesc(@org.springframework.data.repository.query.Param("follower") User follower, @org.springframework.data.repository.query.Param("category") String category);
+
+    // Search Queries
+    @org.springframework.data.jpa.repository.Query("SELECT l FROM CuratedList l WHERE LOWER(l.title) LIKE LOWER(CONCAT('%', :query, '%')) OR LOWER(l.description) LIKE LOWER(CONCAT('%', :query, '%'))")
+    org.springframework.data.domain.Page<CuratedList> searchLists(@org.springframework.data.repository.query.Param("query") String query, org.springframework.data.domain.Pageable pageable);
+
+    @org.springframework.data.jpa.repository.Query("SELECT l FROM CuratedList l WHERE LOWER(l.category.name) = LOWER(:category) AND (LOWER(l.title) LIKE LOWER(CONCAT('%', :query, '%')) OR LOWER(l.description) LIKE LOWER(CONCAT('%', :query, '%')))")
+    org.springframework.data.domain.Page<CuratedList> searchListsByCategory(@org.springframework.data.repository.query.Param("query") String query, @org.springframework.data.repository.query.Param("category") String category, org.springframework.data.domain.Pageable pageable);
 }

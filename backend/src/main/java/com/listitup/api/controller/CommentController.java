@@ -9,10 +9,12 @@ import com.listitup.api.repository.UserRepository;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.http.ResponseEntity;
+import org.springframework.http.HttpStatus;
 
+import java.util.Map;
+import java.util.HashMap;
 import java.util.UUID;
 
 @Controller
@@ -29,10 +31,12 @@ public class CommentController {
     }
 
     @PostMapping("/lists/{id}/comments")
-    public String addComment(@PathVariable UUID id, 
-                             @RequestParam String text,
+    @ResponseBody
+    public ResponseEntity<?> addComment(@PathVariable UUID id, 
+                             @RequestBody Map<String, String> payload,
                              @AuthenticationPrincipal OAuth2User oauthUser) {
         
+        String text = payload.get("text");
         String email = oauthUser.getAttribute("email");
         User author = userRepository.findByEmail(email).orElseThrow();
         CuratedList list = listRepository.findById(id).orElseThrow();
@@ -41,8 +45,32 @@ public class CommentController {
         comment.setText(text);
         comment.setAuthor(author);
         comment.setList(list);
-        commentRepository.save(comment);
+        comment = commentRepository.save(comment);
 
-        return "redirect:/lists/" + id;
+        Map<String, Object> response = new HashMap<>();
+        response.put("commentId", comment.getCommentId());
+        response.put("text", comment.getText());
+        response.put("authorUsername", comment.getAuthor().getUsername());
+        response.put("authorId", comment.getAuthor().getUserId());
+        response.put("createdAt", comment.getCreatedAt().toString());
+        
+        return ResponseEntity.ok(response);
+    }
+
+    @DeleteMapping("/lists/{listId}/comments/{commentId}")
+    @ResponseBody
+    public ResponseEntity<?> deleteComment(@PathVariable UUID listId, @PathVariable UUID commentId, @AuthenticationPrincipal OAuth2User oauthUser) {
+        String email = oauthUser.getAttribute("email");
+        User user = userRepository.findByEmail(email).orElseThrow();
+        Comment comment = commentRepository.findById(commentId).orElseThrow();
+        
+        if (!comment.getAuthor().getUserId().equals(user.getUserId()) && 
+            !comment.getList().getCreator().getUserId().equals(user.getUserId()) &&
+            !"ADMIN".equals(user.getRole())) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        }
+        
+        commentRepository.delete(comment);
+        return ResponseEntity.ok(Map.of("success", true));
     }
 }

@@ -86,6 +86,19 @@ public class InteractionController {
         }
     }
 
+    @PostMapping("/lists/{id}/items/{itemId}/click")
+    @Transactional
+    public ResponseEntity<?> trackItemClick(@PathVariable UUID id, @PathVariable UUID itemId) {
+        int updated = entityManager.createQuery("UPDATE Item i SET i.clickCount = i.clickCount + 1 WHERE i.itemId = :itemId AND i.list.listId = :listId")
+                .setParameter("itemId", itemId)
+                .setParameter("listId", id)
+                .executeUpdate();
+        if (updated > 0) {
+            return ResponseEntity.ok(Map.of("status", "tracked"));
+        }
+        return ResponseEntity.notFound().build();
+    }
+
     @PostMapping("/lists/{id}/pin")
     @Transactional
     public ResponseEntity<?> togglePin(@PathVariable UUID id, @AuthenticationPrincipal OAuth2User oauthUser) {

@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <th:block th:replace="~{fragments/layout :: head('Platform Analytics - ListItUp')}"></th:block>
+</head>
+<body>
+
+    <nav th:replace="~{fragments/layout :: navbar}"></nav>
+
+    <main class="animate-in" style="max-width: 1000px; margin: 2rem auto; padding: 0 1rem;">
+        <h1 style="margin-bottom: 2rem;">Platform Analytics</h1>
+
+        <div th:if="${#lists.isEmpty(snapshots)}" style="text-align: center; color: var(--text-secondary);">
+            No analytics data available yet. Data is gathered nightly.
+        </div>
+
+        <div th:unless="${#lists.isEmpty(snapshots)}">
+            <table style="width: 100%; border-collapse: collapse; margin-bottom: 2rem; background: var(--surface-color); border-radius: 12px; overflow: hidden; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);">
+                <thead style="background: var(--background-color);">
+                    <tr style="border-bottom: 2px solid var(--border-color); text-align: left;">
+                        <th style="padding: 1rem;">Date</th>
+                        <th style="padding: 1rem;">Users</th>
+                        <th style="padding: 1rem;">Lists</th>
+                        <th style="padding: 1rem;">Total Views</th>
+                        <th style="padding: 1rem;">Total Likes</th>
+                        <th style="padding: 1rem;">Total Saves</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="snap : ${snapshots}" style="border-bottom: 1px solid var(--border-color);">
+                        <td style="padding: 1rem; font-weight: bold;" th:text="${#temporals.format(snap.snapshotDate, 'dd MMM yyyy')}">Date</td>
+                        <td style="padding: 1rem;" th:text="${snap.totalUsers}">0</td>
+                        <td style="padding: 1rem;" th:text="${snap.totalLists}">0</td>
+                        <td style="padding: 1rem;" th:text="${snap.totalViews}">0</td>
+                        <td style="padding: 1rem;" th:text="${snap.totalLikes}">0</td>
+                        <td style="padding: 1rem;" th:text="${snap.totalSaves}">0</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </main>
+
+    <footer th:replace="~{fragments/layout :: footer}"></footer>
+</body>
+</html>

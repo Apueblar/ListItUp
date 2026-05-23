@@ -11,25 +11,34 @@
 
     <main class="animate-in">
         <div class="editor-container">
-            <h1 class="editor-title">Create a New List</h1>
+            <h1 class="editor-title" th:text="${list != null} ? 'Edit List' : 'Create a New List'">Create a New List</h1>
             
-            <form th:action="@{/lists}" method="POST">
+            <form th:action="${list != null} ? @{/lists/{id}/edit(id=${list.listId})} : @{/lists}" method="POST">
                 <div class="form-group">
                     <label for="title">List Title</label>
-                    <input type="text" id="title" name="title" placeholder="e.g. My Favorite Sci-Fi Novels" required/>
+                    <input type="text" id="title" name="title" th:value="${list != null ? list.title : ''}" placeholder="e.g. My Favorite Sci-Fi Novels" required/>
                 </div>
                 
                 <div class="form-group">
                     <label for="description">Description</label>
-                    <textarea id="description" name="description" rows="3" placeholder="Tell people what this list is about..."></textarea>
+                    <textarea id="description" name="description" rows="3" th:text="${list != null ? list.description : ''}" placeholder="Tell people what this list is about..."></textarea>
                 </div>
 
                 <div class="form-group">
                     <label for="category">Category</label>
                     <select id="category" name="categoryId" required>
                         <option value="">Select a category</option>
-                        <option th:each="cat : ${categories}" th:value="${cat.categoryId}" th:text="${cat.name}"></option>
+                        <option th:each="cat : ${categories}" th:value="${cat.categoryId}" th:text="${cat.name}" th:selected="${list != null and list.category.categoryId == cat.categoryId}"></option>
                     </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="coverPhoto">Cover Photo (Optional)</label>
+                    <div style="display: flex; gap: 0.5rem; align-items: center;">
+                        <input type="text" id="coverPhoto" name="coverPhoto" th:value="${list != null ? list.coverPhoto : ''}" placeholder="https://..." style="flex: 1;" />
+                        <span style="font-weight: bold;">OR</span>
+                        <input type="file" id="coverPhotoFile" accept="image/*" class="file-upload-input" data-target="coverPhoto" />
+                    </div>
                 </div>
                 
                 <hr class="editor-divider">
@@ -41,9 +50,34 @@
                 
                 <div id="items-container">
                     <!-- Dynamic items will be appended here -->
+                    <th:block th:if="${list != null}">
+                        <div th:each="item, stat : ${list.items}" class="item-row">
+                            <button type="button" class="btn-remove-item" aria-label="Remove item" onclick="this.parentElement.remove();">&times;</button>
+                            <div class="item-row-field">
+                                <label>Item Title</label>
+                                <input type="text" th:name="'items[' + ${stat.index} + '].title'" th:value="${item.title}" required/>
+                            </div>
+                            <div class="item-row-field">
+                                <label>Description</label>
+                                <textarea th:name="'items[' + ${stat.index} + '].description'" rows="2" th:text="${item.description}"></textarea>
+                            </div>
+                            <div class="item-row-field">
+                                <label>Photo (Optional)</label>
+                                <div style="display: flex; gap: 0.5rem; align-items: center;">
+                                    <input type="text" th:name="'items[' + ${stat.index} + '].photo'" th:value="${item.photo}" th:id="'item-photo-' + ${stat.index}" style="flex: 1;" />
+                                    <span style="font-weight: bold;">OR</span>
+                                    <input type="file" accept="image/*" class="file-upload-input" th:attr="data-target='item-photo-' + ${stat.index}" />
+                                </div>
+                            </div>
+                            <div class="item-row-field">
+                                <label>External URL (Optional)</label>
+                                <input type="text" th:name="'items[' + ${stat.index} + '].externalUrl'" th:value="${item.externalUrl}" />
+                            </div>
+                        </div>
+                    </th:block>
                 </div>
 
-                <button type="submit" class="btn-primary btn-submit-list">Publish List</button>
+                <button type="submit" class="btn-primary btn-submit-list" th:text="${list != null} ? 'Save Changes' : 'Publish List'">Publish List</button>
             </form>
         </div>
     </main>

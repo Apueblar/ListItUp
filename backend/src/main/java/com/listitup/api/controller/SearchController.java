@@ -13,21 +13,48 @@ import java.util.List;
 public class SearchController {
 
     private final CuratedListRepository listRepository;
+    private final com.listitup.api.repository.CategoryRepository categoryRepository;
 
-    public SearchController(CuratedListRepository listRepository) {
+    public SearchController(CuratedListRepository listRepository, com.listitup.api.repository.CategoryRepository categoryRepository) {
         this.listRepository = listRepository;
+        this.categoryRepository = categoryRepository;
     }
 
     @GetMapping("/search")
-    public String search(@RequestParam(name = "q", required = false) String query, Model model) {
-        List<CuratedList> results;
-        if (query == null || query.isBlank()) {
-            results = List.of();
+    public String search(@RequestParam(required = false, defaultValue = "") String q,
+                         @RequestParam(required = false, defaultValue = "All") String category,
+                         @RequestParam(required = false, defaultValue = "relevance") String sort,
+                         @RequestParam(required = false, defaultValue = "0") int page,
+                         Model model) {
+        
+        org.springframework.data.domain.Pageable pageable;
+        if ("recency".equalsIgnoreCase(sort)) {
+            pageable = org.springframework.data.domain.PageRequest.of(page, 10, org.springframework.data.domain.Sort.by("createdAt").descending());
         } else {
-            results = listRepository.findByTitleContainingIgnoreCase(query);
+            pageable = org.springframework.data.domain.PageRequest.of(page, 10, org.springframework.data.domain.Sort.by("viewCount").descending());
         }
-        model.addAttribute("results", results);
-        model.addAttribute("query", query);
-        return "search"; // Thymeleaf template search.html
+
+        org.springframework.data.domain.Page<CuratedList> listsPage;
+        if (q == null || q.trim().isEmpty()) {
+            if ("All".equalsIgnoreCase(category)) {
+                listsPage = listRepository.findAll(pageable);
+            } else {
+                listsPage = listRepository.findByCategoryNameIgnoreCase(category, pageable);
+            }
+        } else {
+            if ("All".equalsIgnoreCase(category)) {
+                listsPage = listRepository.searchLists(q, pageable);
+            } else {
+                listsPage = listRepository.searchListsByCategory(q, category, pageable);
+            }
+        }
+
+        model.addAttribute("query", q);
+        model.addAttribute("selectedCategory", category);
+        model.addAttribute("selectedSort", sort);
+        model.addAttribute("listsPage", listsPage);
+        model.addAttribute("categories", categoryRepository.findAll());
+
+        return "search";
     }
 }

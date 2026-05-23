@@ -13,9 +13,11 @@
         <header class="admin-header">
             <h1>Administration Panel</h1>
             <p>Manage users, toggle verification badges, assign administrative privileges, or block accounts.</p>
+            <a th:href="@{/admin/lists}" class="btn-primary" style="margin-top: 1rem; display: inline-block;">Manage Lists</a>
         </header>
 
-        <table class="admin-table">
+        <div style="overflow-x: auto;">
+            <table class="admin-table">
             <thead>
                 <tr>
                     <th>Username</th>
@@ -75,6 +77,7 @@
                 </tr>
             </tbody>
         </table>
+        </div>
     </main>
 
     <footer th:replace="~{fragments/layout :: footer}"></footer>

@@ -20,9 +20,34 @@
             </div>
         </header>
 
+        <!-- Sort and Category Filters -->
+        <div class="filters-container" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; flex-wrap: wrap; gap: 1rem;">
+            <div class="sort-tabs" style="display: flex; gap: 1rem;">
+                <a th:href="@{/search(q=${query}, sort='relevance', category=${selectedCategory != 'All' ? selectedCategory : null})}" 
+                   th:classappend="${selectedSort == 'relevance'} ? 'active-tab' : ''"
+                   style="text-decoration: none; font-weight: bold; padding-bottom: 0.25rem; border-bottom: 2px solid transparent;"
+                   th:styleappend="${selectedSort == 'relevance'} ? 'border-bottom-color: var(--primary-color); color: var(--primary-color);' : 'color: var(--text-secondary);'">Relevance</a>
+                <a th:href="@{/search(q=${query}, sort='recency', category=${selectedCategory != 'All' ? selectedCategory : null})}" 
+                   th:classappend="${selectedSort == 'recency'} ? 'active-tab' : ''"
+                   style="text-decoration: none; font-weight: bold; padding-bottom: 0.25rem; border-bottom: 2px solid transparent;"
+                   th:styleappend="${selectedSort == 'recency'} ? 'border-bottom-color: var(--primary-color); color: var(--primary-color);' : 'color: var(--text-secondary);'">Recency</a>
+            </div>
+
+            <div class="category-filters" style="margin: 0;">
+                <a th:href="@{/search(q=${query}, category='All', sort=${selectedSort != 'relevance' ? selectedSort : null})}" 
+                   class="filter-pill" 
+                   th:classappend="${selectedCategory == 'All'} ? 'active' : ''">All</a>
+                <a th:each="cat : ${categories}" 
+                   th:href="@{/search(q=${query}, category=${cat.name}, sort=${selectedSort != 'relevance' ? selectedSort : null})}" 
+                   class="filter-pill" 
+                   th:classappend="${selectedCategory == cat.name} ? 'active' : ''"
+                   th:text="${cat.name}">Category</a>
+            </div>
+        </div>
+
         <section class="grid">
             <!-- Iterate over search results -->
-            <a th:each="list : ${results}" th:href="@{/lists/{id}(id=${list.listId})}" class="list-card">
+            <a th:each="list : ${listsPage.content}" th:href="@{/lists/{id}(id=${list.listId})}" class="list-card">
                 <div>
                     <span class="category-pill" th:text="${list.category.name}">Category</span>
                 </div>
@@ -37,7 +62,7 @@
             </a>
             
             <!-- Message if no results -->
-            <div th:if="${#lists.isEmpty(results) and query != null and !query.isEmpty()}" class="empty-grid-msg">
+            <div th:if="${listsPage.totalElements == 0 and query != null and !query.isEmpty()}" class="empty-grid-msg">
                 <p>No lists match your search query: <strong th:text="${query}"></strong></p>
             </div>
             
@@ -46,6 +71,19 @@
                 <p>Type a keyword above to find curated lists.</p>
             </div>
         </section>
+
+        <!-- Pagination -->
+        <div th:if="${listsPage.totalPages > 1}" class="pagination-container" style="display: flex; justify-content: center; gap: 1rem; margin-top: 2rem;">
+            <a th:if="${listsPage.hasPrevious()}" 
+               th:href="@{/search(q=${query}, category=${selectedCategory}, sort=${selectedSort}, page=${listsPage.number - 1})}" 
+               class="btn-primary" style="background-color: var(--surface-color); color: var(--text-color); border: 1px solid var(--border-color);">&laquo; Previous</a>
+               
+            <span style="align-self: center;" th:text="${'Page ' + (listsPage.number + 1) + ' of ' + listsPage.totalPages}">Page 1 of 5</span>
+            
+            <a th:if="${listsPage.hasNext()}" 
+               th:href="@{/search(q=${query}, category=${selectedCategory}, sort=${selectedSort}, page=${listsPage.number + 1})}" 
+               class="btn-primary" style="background-color: var(--surface-color); color: var(--text-color); border: 1px solid var(--border-color);">Next &raquo;</a>
+        </div>
     </main>
 
     <footer th:replace="~{fragments/layout :: footer}"></footer>

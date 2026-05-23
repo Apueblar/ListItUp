@@ -31,7 +31,7 @@ public class SecurityConfig {
                 .requestMatchers(org.springframework.http.HttpMethod.POST, "/lists/*/pin").authenticated()
                 .requestMatchers(org.springframework.http.HttpMethod.POST, "/lists/*/comments").authenticated()
                 // Public endpoints
-                .requestMatchers("/", "/feed", "/search", "/categories", "/lists/**", "/users/**", "/css/**", "/js/**", "/images/**", "/error", "/logout", "/actuator/health").permitAll()
+                .requestMatchers("/", "/feed", "/search", "/categories", "/lists/**", "/users/**", "/css/**", "/js/**", "/images/**", "/uploads/**", "/error", "/logout", "/actuator/health", "/og").permitAll()
                 // Admin endpoints
                 .requestMatchers("/admin/**").hasRole("ADMIN")
                 // Analytics endpoints

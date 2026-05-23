@@ -26,6 +26,17 @@ async function toggleInteraction(endpoint, btnId, activeText, inactiveText) {
     if (!listId) return;
 
     var xsrfToken = getCookie('XSRF-TOKEN');
+    var btn  = document.getElementById(btnId);
+    
+    // Optimistic toggle
+    var wasActive = btn.classList.contains('btn-interaction--active');
+    if (wasActive) {
+        btn.textContent = inactiveText;
+        btn.classList.remove('btn-interaction--active');
+    } else {
+        btn.textContent = activeText;
+        btn.classList.add('btn-interaction--active');
+    }
 
     try {
         var response = await fetch('/lists/' + listId + '/' + endpoint, {
@@ -36,21 +47,29 @@ async function toggleInteraction(endpoint, btnId, activeText, inactiveText) {
             }
         });
 
-        if (response.ok) {
-            var data = await response.json();
-            var btn  = document.getElementById(btnId);
-            if (data.status && data.status.indexOf('un') === 0) {
-                btn.textContent = inactiveText;
-                btn.classList.remove('btn-interaction--active');
-            } else {
+        if (!response.ok) {
+            // Revert on error
+            if (wasActive) {
                 btn.textContent = activeText;
                 btn.classList.add('btn-interaction--active');
+            } else {
+                btn.textContent = inactiveText;
+                btn.classList.remove('btn-interaction--active');
             }
-        } else if (response.status === 401 || response.status === 403) {
-            window.location.href = '/oauth2/authorization/google';
+            if (response.status === 401 || response.status === 403) {
+                window.location.href = '/oauth2/authorization/google';
+            }
         }
     } catch (err) {
         console.error('Interaction error:', err);
+        // Revert on error
+        if (wasActive) {
+            btn.textContent = activeText;
+            btn.classList.add('btn-interaction--active');
+        } else {
+            btn.textContent = inactiveText;
+            btn.classList.remove('btn-interaction--active');
+        }
     }
 }
 
@@ -75,5 +94,169 @@ document.addEventListener('DOMContentLoaded', function () {
         btnPin.addEventListener('click', function () {
             toggleInteraction('pin', 'btn-pin', '📌 Pinned', '📌 Pin');
         });
+    }
+
+    var commentForm = document.getElementById('comment-form');
+    if (commentForm) {
+        commentForm.addEventListener('submit', async function(e) {
+            e.preventDefault();
+            var input = document.getElementById('comment-input');
+            var text = input.value.trim();
+            if (!text) return;
+
+            var main   = document.querySelector('main[data-list-id]');
+            var listId = main ? main.getAttribute('data-list-id') : null;
+            var xsrfToken = getCookie('XSRF-TOKEN');
+
+            try {
+                var response = await fetch('/lists/' + listId + '/comments', {
+                    method: 'POST',
+                    headers: { 
+                        'Content-Type': 'application/json',
+                        'X-XSRF-TOKEN': xsrfToken || ''
+                    },
+                    body: JSON.stringify({ text: text })
+                });
+
+                if (response.ok) {
+                    var data = await response.json();
+                    input.value = '';
+                    
+                    var container = document.getElementById('comments-container');
+                    var emptyMsg = document.getElementById('empty-comments-msg');
+                    if (emptyMsg) emptyMsg.style.display = 'none';
+
+                    var dateStr = new Date(data.createdAt).toLocaleString('en-GB', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+
+                    var commentHtml = `
+                        <div class="comment-card" id="comment-${data.commentId}">
+                            <div class="comment-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                                <a class="comment-author" href="/users/${data.authorUsername}" style="text-decoration:none; font-weight: bold;">${data.authorUsername}</a>
+                                <button class="btn-delete-comment" data-comment-id="${data.commentId}" style="background: none; border: none; color: #f87171; cursor: pointer; padding: 0;">🗑️</button>
+                            </div>
+                            <div class="comment-text">${data.text}</div>
+                            <div class="comment-date">${dateStr}</div>
+                        </div>
+                    `;
+                    container.insertAdjacentHTML('beforeend', commentHtml);
+                } else if (response.status === 401 || response.status === 403) {
+                    window.location.href = '/oauth2/authorization/google';
+                }
+            } catch (err) {
+                console.error('Comment error:', err);
+            }
+        });
+    }
+
+    var commentsContainer = document.getElementById('comments-container');
+    if (commentsContainer) {
+        commentsContainer.addEventListener('click', async function(e) {
+            if (e.target.classList.contains('btn-delete-comment')) {
+                var commentId = e.target.getAttribute('data-comment-id');
+                if (!confirm('Delete this comment?')) return;
+
+                var main   = document.querySelector('main[data-list-id]');
+                var listId = main ? main.getAttribute('data-list-id') : null;
+                var xsrfToken = getCookie('XSRF-TOKEN');
+
+                try {
+                    var response = await fetch('/lists/' + listId + '/comments/' + commentId, {
+                        method: 'DELETE',
+                        headers: { 
+                            'X-XSRF-TOKEN': xsrfToken || ''
+                        }
+                    });
+
+                    if (response.ok) {
+                        var card = document.getElementById('comment-' + commentId);
+                        if (card) card.remove();
+                    } else {
+                        alert('Failed to delete comment.');
+                    }
+                } catch (err) {
+                    console.error('Delete comment error:', err);
+                }
+            }
+        });
+    }
+
+    // Track clicks on external links
+    document.querySelectorAll('.track-click').forEach(function(link) {
+        link.addEventListener('click', function(e) {
+            var main = document.querySelector('main[data-list-id]');
+            var listId = main ? main.getAttribute('data-list-id') : null;
+            var itemId = this.getAttribute('data-item-id');
+            var xsrfToken = getCookie('XSRF-TOKEN');
+            
+            if (listId && itemId) {
+                // Fire and forget
+                fetch('/lists/' + listId + '/items/' + itemId + '/click', {
+                    method: 'POST',
+                    headers: {
+                        'X-XSRF-TOKEN': xsrfToken || ''
+                    }
+                }).catch(err => console.error('Click tracking error:', err));
+            }
+        });
+    });
+
+    // Report logic
+    var btnReport = document.getElementById('btn-report-modal');
+    var reportModal = document.getElementById('report-modal');
+    var closeReportModal = document.querySelector('.close-modal');
+    var reportForm = document.getElementById('report-form');
+
+    if (btnReport && reportModal) {
+        btnReport.addEventListener('click', function() {
+            reportModal.style.display = 'flex';
+        });
+
+        if (closeReportModal) {
+            closeReportModal.addEventListener('click', function() {
+                reportModal.style.display = 'none';
+            });
+        }
+
+        window.addEventListener('click', function(e) {
+            if (e.target === reportModal) {
+                reportModal.style.display = 'none';
+            }
+        });
+
+        if (reportForm) {
+            reportForm.addEventListener('submit', async function(e) {
+                e.preventDefault();
+                var main = document.querySelector('main[data-list-id]');
+                var listId = main ? main.getAttribute('data-list-id') : null;
+                var xsrfToken = getCookie('XSRF-TOKEN');
+                
+                var reason = document.getElementById('report-reason').value;
+                var details = document.getElementById('report-details').value;
+
+                try {
+                    var response = await fetch('/lists/' + listId + '/report', {
+                        method: 'POST',
+                        headers: { 
+                            'Content-Type': 'application/json',
+                            'X-XSRF-TOKEN': xsrfToken || ''
+                        },
+                        body: JSON.stringify({ reason: reason, details: details })
+                    });
+
+                    if (response.ok) {
+                        alert('Report submitted successfully. Thank you.');
+                        reportModal.style.display = 'none';
+                        reportForm.reset();
+                    } else if (response.status === 401 || response.status === 403) {
+                        window.location.href = '/oauth2/authorization/google';
+                    } else {
+                        alert('Failed to submit report. Please try again.');
+                    }
+                } catch (err) {
+                    console.error('Report error:', err);
+                    alert('An error occurred. Please try again.');
+                }
+            });
+        }
     }
 });

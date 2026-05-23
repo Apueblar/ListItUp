@@ -11,6 +11,7 @@
 
     <main class="animate-in detail-main" th:data-list-id="${list.listId}">
         <header class="list-header">
+            <img th:if="${list.coverPhoto != null and !list.coverPhoto.isEmpty()}" th:src="${list.coverPhoto}" alt="Cover" class="list-cover-photo" style="max-width:100%; border-radius:12px; margin-bottom:1rem;" />
             <span class="category-pill category-pill-mb" th:text="${list.category.name}">Category</span>
             <h1 th:text="${list.title}">List Title</h1>
             <p th:text="${list.description}">List description</p>
@@ -20,14 +21,30 @@
             </div>
             
             <div class="list-actions">
-                <button id="btn-like" class="btn-primary btn-interaction">🤍 Like</button>
-                <button id="btn-save" class="btn-primary btn-interaction">🔖 Save</button>
+                <button id="btn-like" class="btn-primary btn-interaction"
+                        th:classappend="${isLiked != null and isLiked ? 'btn-interaction--active' : ''}"
+                        th:text="${isLiked != null and isLiked ? '❤️ Liked' : '🤍 Like'}">🤍 Like</button>
+                <button id="btn-save" class="btn-primary btn-interaction"
+                        th:classappend="${isSaved != null and isSaved ? 'btn-interaction--active' : ''}"
+                        th:text="${isSaved != null and isSaved ? '🏷️ Saved' : '🔖 Save'}">🔖 Save</button>
                 
                 <!-- Pin action (only for verified list creators) -->
                 <button th:if="${currentUser != null and currentUser.userId == list.creator.userId and currentUser.role == 'VERIFIED'}" 
                         id="btn-pin" class="btn-primary btn-interaction"
                         th:classappend="${list.isPinned ? 'btn-interaction--active' : ''}"
                         th:text="${list.isPinned ? '📌 Pinned' : '📌 Pin'}">📌 Pin</button>
+                        
+                <a th:if="${currentUser != null and currentUser.userId == list.creator.userId}" 
+                   th:href="@{/lists/{id}/edit(id=${list.listId})}" 
+                   class="btn-primary btn-interaction">✏️ Edit</a>
+                
+                <form th:if="${currentUser != null and currentUser.userId == list.creator.userId}"
+                      th:action="@{/lists/{id}/delete(id=${list.listId})}" method="POST" style="display:inline;">
+                    <button type="submit" class="btn-primary btn-interaction" style="background: rgba(239, 68, 68, 0.2); color: #f87171;" onclick="return confirm('Are you sure you want to delete this list?');">🗑️ Delete</button>
+                </form>
+
+                <button th:if="${currentUser != null and currentUser.userId != list.creator.userId}"
+                        id="btn-report-modal" class="btn-primary btn-interaction" style="background: rgba(239, 68, 68, 0.2); color: #f87171;">🚩 Report</button>
             </div>
         </header>
 
@@ -35,9 +52,10 @@
             <div th:each="item, iterStat : ${list.items}" class="item-card">
                 <div class="rank-badge" th:text="${iterStat.count}">1</div>
                 <div class="item-content">
+                    <img th:if="${item.photo != null and !item.photo.isEmpty()}" th:src="${item.photo}" alt="Item photo" style="max-width:200px; border-radius:8px; display:block; margin-bottom:0.5rem;" />
                     <h3 class="item-title" th:text="${item.title}">Item Title</h3>
                     <p class="item-desc" th:text="${item.description}">Item description goes here...</p>
-                    <a th:if="${item.externalUrl != null}" th:href="${item.externalUrl}" target="_blank" class="item-link">Visit Link →</a>
+                    <a th:if="${item.externalUrl != null and !item.externalUrl.isEmpty()}" th:href="${item.externalUrl}" target="_blank" class="item-link track-click" th:data-item-id="${item.itemId}">Visit Link →</a>
                 </div>
             </div>
             
@@ -51,8 +69,8 @@
             <h2>Comments</h2>
             
             <div th:if="${#authorization.expression('isAuthenticated()')}">
-                <form th:action="@{/lists/{id}/comments(id=${list.listId})}" method="POST" class="comment-form">
-                    <input type="text" name="text" placeholder="Add a comment..." required="required" class="comment-input"/>
+                <form id="comment-form" th:action="@{/lists/{id}/comments(id=${list.listId})}" method="POST" class="comment-form">
+                    <input type="text" name="text" id="comment-input" placeholder="Add a comment..." required="required" class="comment-input"/>
                     <button type="submit" class="btn-primary">Post</button>
                 </form>
             </div>
@@ -61,17 +79,48 @@
                 <a th:href="@{/oauth2/authorization/google}">Sign in</a> to leave a comment.
             </div>
 
-            <div th:each="comment : ${comments}" class="comment-card">
-                <div class="comment-author" th:text="${comment.author.username}">Author</div>
-                <div class="comment-text" th:text="${comment.text}">Comment text</div>
-                <div class="comment-date" th:text="${#temporals.format(comment.createdAt, 'dd MMM yyyy HH:mm')}">Date</div>
+            <div id="comments-container">
+                <div th:each="comment : ${comments}" class="comment-card" th:id="'comment-' + ${comment.commentId}">
+                    <div class="comment-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                        <a class="comment-author" th:href="@{/users/{username}(username=${comment.author.username})}" th:text="${comment.author.username}" style="text-decoration:none; font-weight: bold;">Author</a>
+                        <button th:if="${currentUser != null and (currentUser.userId == comment.author.userId or currentUser.userId == list.creator.userId or currentUser.role == 'ADMIN')}"
+                                class="btn-delete-comment" th:data-comment-id="${comment.commentId}" style="background: none; border: none; color: #f87171; cursor: pointer; padding: 0;">🗑️</button>
+                    </div>
+                    <div class="comment-text" th:text="${comment.text}">Comment text</div>
+                    <div class="comment-date" th:text="${#temporals.format(comment.createdAt, 'dd MMM yyyy HH:mm')}">Date</div>
+                </div>
             </div>
             
-            <div th:if="${#lists.isEmpty(comments)}" class="empty-comments">
+            <div th:if="${#lists.isEmpty(comments)}" class="empty-comments" id="empty-comments-msg">
                 No comments yet. Be the first to comment!
             </div>
         </section>
     </main>
+
+    <!-- Report Modal -->
+    <div id="report-modal" class="modal" style="display:none; position:fixed; z-index:1000; left:0; top:0; width:100%; height:100%; background-color:rgba(0,0,0,0.5); align-items:center; justify-content:center;">
+        <div class="modal-content" style="background-color:var(--surface-color); padding:2rem; border-radius:12px; max-width:500px; width:90%; position:relative;">
+            <span class="close-modal" style="position:absolute; right:1.5rem; top:1.5rem; font-size:1.5rem; cursor:pointer; color:var(--text-secondary);">&times;</span>
+            <h2>Report List</h2>
+            <form id="report-form" style="margin-top: 1rem;">
+                <div class="form-group" style="margin-bottom: 1rem;">
+                    <label for="report-reason" style="display:block; margin-bottom:0.5rem; font-weight:bold;">Reason</label>
+                    <select id="report-reason" name="reason" required style="width:100%; padding:0.75rem; border-radius:8px; border:1px solid var(--border-color); background:var(--background-color); color:var(--text-color);">
+                        <option value="">Select a reason</option>
+                        <option value="SPAM">Spam or misleading</option>
+                        <option value="INAPPROPRIATE">Inappropriate content</option>
+                        <option value="HARASSMENT">Harassment</option>
+                        <option value="OTHER">Other</option>
+                    </select>
+                </div>
+                <div class="form-group" style="margin-bottom: 1rem;">
+                    <label for="report-details" style="display:block; margin-bottom:0.5rem; font-weight:bold;">Details (Optional)</label>
+                    <textarea id="report-details" name="details" rows="3" style="width:100%; padding:0.75rem; border-radius:8px; border:1px solid var(--border-color); background:var(--background-color); color:var(--text-color);"></textarea>
+                </div>
+                <button type="submit" class="btn-primary" style="width:100%;">Submit Report</button>
+            </form>
+        </div>
+    </div>
 
     <!-- Interactions JS -->
     <script th:src="@{/js/list-detail.js}"></script>

@@ -213,3 +213,170 @@ nav {
 .btn-logout-direct:hover {
     color: #f87171;
 }
+
+/* ── Notification Bell ── */
+.notif-wrapper {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+}
+
+.notif-bell-btn {
+    background: transparent;
+    border: none;
+    color: var(--text-secondary);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    transition: color 0.2s ease, background 0.2s ease;
+    position: relative;
+    outline: none;
+}
+
+.notif-bell-btn:hover {
+    color: var(--text-primary);
+    background: var(--glass-bg);
+}
+
+.notif-badge {
+    position: absolute;
+    top: 2px;
+    right: 2px;
+    background: #ef4444;
+    color: #fff;
+    font-size: 0.65rem;
+    font-weight: 700;
+    min-width: 16px;
+    height: 16px;
+    border-radius: 999px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 3px;
+    line-height: 1;
+    pointer-events: none;
+    box-shadow: 0 0 0 2px var(--bg-primary, #0f0f19);
+}
+
+.notif-dropdown {
+    display: none;
+    position: absolute;
+    right: 0;
+    top: calc(100% + 8px);
+    width: 320px;
+    background: rgba(15, 15, 25, 0.97);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid var(--glass-border);
+    border-radius: var(--border-radius);
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.6);
+    z-index: 1000;
+    overflow: hidden;
+    animation: fadeIn 0.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.notif-dropdown.show {
+    display: block;
+}
+
+.notif-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.85rem 1rem;
+    border-bottom: 1px solid var(--glass-border);
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.notif-mark-read {
+    background: transparent;
+    border: none;
+    color: var(--accent-color);
+    font-size: 0.78rem;
+    cursor: pointer;
+    font-family: var(--font-family);
+    padding: 0;
+    transition: color 0.2s;
+}
+
+.notif-mark-read:hover {
+    color: var(--accent-hover, #818cf8);
+}
+
+.notif-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    max-height: 340px;
+    overflow-y: auto;
+}
+
+.notif-empty {
+    padding: 1.25rem 1rem;
+    color: var(--text-secondary);
+    font-size: 0.88rem;
+    text-align: center;
+}
+
+.notif-item {
+    border-bottom: 1px solid var(--glass-border);
+}
+
+.notif-item:last-child {
+    border-bottom: none;
+}
+
+.notif-item a {
+    display: block;
+    padding: 0.75rem 1rem;
+    font-size: 0.88rem;
+    color: var(--text-secondary);
+    text-decoration: none;
+    transition: background 0.15s ease, color 0.15s ease;
+    line-height: 1.4;
+}
+
+.notif-item a:hover {
+    background: rgba(99, 102, 241, 0.08);
+    color: var(--text-primary);
+}
+
+.notif-item.notif-unread {
+    background: rgba(99, 102, 241, 0.06);
+}
+
+.notif-item.notif-unread a {
+    color: var(--text-primary);
+    font-weight: 500;
+}
+
+/* ── Drag Handle for item rows ── */
+.drag-handle {
+    cursor: grab;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-secondary);
+    font-size: 1.1rem;
+    padding: 0 0.4rem;
+    opacity: 0.5;
+    transition: opacity 0.2s ease;
+    user-select: none;
+}
+
+.drag-handle:hover {
+    opacity: 1;
+    color: var(--accent-color);
+}
+
+.item-row.dragging {
+    opacity: 0.5;
+    border: 2px dashed var(--accent-color);
+    background: rgba(99, 102, 241, 0.05);
+}

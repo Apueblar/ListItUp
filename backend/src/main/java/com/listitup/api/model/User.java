@@ -46,6 +46,12 @@ public class User {
     @Column(name = "has_completed_setup")
     private Boolean hasCompletedSetup = false;
 
+    @Column(name = "profile_picture", length = 2048)
+    private String profilePicture;
+
+    @Column(columnDefinition = "TEXT")
+    private String bio;
+
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt = LocalDateTime.now();
 
@@ -74,6 +80,10 @@ public class User {
     public void setCanDeleteAny(Boolean canDeleteAny) { this.canDeleteAny = canDeleteAny; }
     public Boolean getHasCompletedSetup() { return hasCompletedSetup; }
     public void setHasCompletedSetup(Boolean hasCompletedSetup) { this.hasCompletedSetup = hasCompletedSetup; }
+    public String getProfilePicture() { return profilePicture; }
+    public void setProfilePicture(String profilePicture) { this.profilePicture = profilePicture; }
+    public String getBio() { return bio; }
+    public void setBio(String bio) { this.bio = bio; }
     public LocalDateTime getCreatedAt() { return createdAt; }
     public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
 }
