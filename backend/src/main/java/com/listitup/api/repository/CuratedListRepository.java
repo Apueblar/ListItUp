@@ -21,10 +21,10 @@ public interface CuratedListRepository extends JpaRepository<CuratedList, UUID> 
     List<CuratedList> findAllByOrderByViewCountDesc();
     List<CuratedList> findByCategoryNameIgnoreCaseOrderByViewCountDesc(String categoryName);
     
-    @org.springframework.data.jpa.repository.Query("SELECT l FROM CuratedList l WHERE l.creator IN (SELECT uf.followed FROM UserFollow uf WHERE uf.follower = :follower) ORDER BY l.createdAt DESC")
+    @org.springframework.data.jpa.repository.Query("SELECT l FROM CuratedList l WHERE l.creator IN (SELECT uf.followee FROM Follow uf WHERE uf.follower = :follower) ORDER BY l.createdAt DESC")
     List<CuratedList> findListsFromFollowedUsersOrderByCreatedAtDesc(@org.springframework.data.repository.query.Param("follower") User follower);
     
-    @org.springframework.data.jpa.repository.Query("SELECT l FROM CuratedList l WHERE l.category.name = :category AND l.creator IN (SELECT uf.followed FROM UserFollow uf WHERE uf.follower = :follower) ORDER BY l.createdAt DESC")
+    @org.springframework.data.jpa.repository.Query("SELECT l FROM CuratedList l WHERE l.category.name = :category AND l.creator IN (SELECT uf.followee FROM Follow uf WHERE uf.follower = :follower) ORDER BY l.createdAt DESC")
     List<CuratedList> findListsFromFollowedUsersByCategoryOrderByCreatedAtDesc(@org.springframework.data.repository.query.Param("follower") User follower, @org.springframework.data.repository.query.Param("category") String category);
 
     // Search Queries
