@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <th:block th:replace="~{fragments/layout :: head('My Drafts - ListItUp')}"></th:block>
+</head>
+<body>
+    <nav th:replace="~{fragments/layout :: navbar}"></nav>
+
+    <main class="animate-in" style="max-width: 1200px; margin: 2rem auto; padding: 0 1.5rem;">
+        <h1 style="margin-bottom: 2rem;">My Drafts</h1>
+
+        <div class="grid" th:if="${not #lists.isEmpty(drafts)}">
+            <a th:each="list : ${drafts}" th:href="@{/lists/{id}/edit(id=${list.listId})}" class="list-card" style="border: 2px dashed var(--primary-color);">
+                <div>
+                    <span class="category-pill" th:text="${list.category.name}">Category</span>
+                    <span class="pinned-badge" style="margin-left: 0.5rem; background: var(--text-secondary); color: var(--bg-color);">Draft</span>
+                </div>
+                <h3 th:text="${list.title}">Title</h3>
+                <p class="card-desc" th:text="${list.description}">Desc</p>
+                <div class="card-footer-row">
+                    <span>Last updated</span>
+                    <span th:text="${#temporals.format(list.createdAt, 'dd MMM yyyy')}">Date</span>
+                </div>
+            </a>
+        </div>
+
+        <div th:if="${#lists.isEmpty(drafts)}" class="empty-grid-msg" style="text-align: center; padding: 3rem; background: var(--surface-color); border-radius: 12px; border: 1px dashed var(--border-color);">
+            <p>You have no saved drafts.</p>
+            <a th:href="@{/lists/new}" class="btn-primary" style="display: inline-block; margin-top: 1rem;">Create a List</a>
+        </div>
+    </main>
+
+    <footer th:replace="~{fragments/layout :: footer}"></footer>
+</body>
+</html>

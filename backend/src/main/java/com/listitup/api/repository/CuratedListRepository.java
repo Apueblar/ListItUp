@@ -12,6 +12,8 @@ import java.util.UUID;
 public interface CuratedListRepository extends JpaRepository<CuratedList, UUID> {
     List<CuratedList> findByCreatorOrderByCreatedAtDesc(User creator);
     List<CuratedList> findByCreatorOrderByIsPinnedDescCreatedAtDesc(User creator);
+    List<CuratedList> findByCreatorAndIsDraftFalseOrderByIsPinnedDescCreatedAtDesc(User creator);
+    List<CuratedList> findByCreatorAndIsDraftTrueOrderByCreatedAtDesc(User creator);
     List<CuratedList> findByTitleContainingIgnoreCase(String title);
     List<CuratedList> findByCategoryNameIgnoreCaseOrderByCreatedAtDesc(String categoryName);
     org.springframework.data.domain.Page<CuratedList> findByCategoryNameIgnoreCase(String categoryName, org.springframework.data.domain.Pageable pageable);

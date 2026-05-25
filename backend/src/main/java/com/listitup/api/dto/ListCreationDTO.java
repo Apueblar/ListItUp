@@ -9,6 +9,7 @@ public class ListCreationDTO {
     private String description;
     private UUID categoryId;
     private String coverPhoto;
+    private boolean isDraft = false;
     private List<ItemCreationDTO> items = new ArrayList<>();
 
     public String getTitle() { return title; }
@@ -22,6 +23,9 @@ public class ListCreationDTO {
     
     public String getCoverPhoto() { return coverPhoto; }
     public void setCoverPhoto(String coverPhoto) { this.coverPhoto = coverPhoto; }
+
+    public boolean isDraft() { return isDraft; }
+    public void setDraft(boolean draft) { isDraft = draft; }
     
     public List<ItemCreationDTO> getItems() { return items; }
     public void setItems(List<ItemCreationDTO> items) { this.items = items; }

@@ -205,14 +205,20 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 
     // Report logic
-    var btnReport = document.getElementById('btn-report-modal');
+    var reportBtns = document.querySelectorAll('.btn-report-modal');
     var reportModal = document.getElementById('report-modal');
     var closeReportModal = document.querySelector('.close-modal');
     var reportForm = document.getElementById('report-form');
 
-    if (btnReport && reportModal) {
-        btnReport.addEventListener('click', function() {
-            reportModal.style.display = 'flex';
+    if (reportBtns.length > 0 && reportModal) {
+        reportBtns.forEach(function(btn) {
+            btn.addEventListener('click', function() {
+                var targetId = this.getAttribute('data-target-id');
+                var targetType = this.getAttribute('data-target-type');
+                document.getElementById('report-target-id').value = targetId;
+                document.getElementById('report-target-type').value = targetType;
+                reportModal.style.display = 'flex';
+            });
         });
 
         if (closeReportModal) {
@@ -230,21 +236,30 @@ document.addEventListener('DOMContentLoaded', function () {
         if (reportForm) {
             reportForm.addEventListener('submit', async function(e) {
                 e.preventDefault();
-                var main = document.querySelector('main[data-list-id]');
-                var listId = main ? main.getAttribute('data-list-id') : null;
                 var xsrfToken = getCookie('XSRF-TOKEN');
                 
+                var targetId = document.getElementById('report-target-id').value;
+                var targetType = document.getElementById('report-target-type').value;
                 var reason = document.getElementById('report-reason').value;
                 var details = document.getElementById('report-details').value;
 
+                var payload = {
+                    reason: reason,
+                    details: details
+                };
+
+                if (targetType === 'LIST') payload.targetListId = targetId;
+                if (targetType === 'ITEM') payload.targetItemId = targetId;
+                if (targetType === 'COMMENT') payload.targetCommentId = targetId;
+
                 try {
-                    var response = await fetch('/lists/' + listId + '/report', {
+                    var response = await fetch('/reports', {
                         method: 'POST',
                         headers: { 
                             'Content-Type': 'application/json',
                             'X-XSRF-TOKEN': xsrfToken || ''
                         },
-                        body: JSON.stringify({ reason: reason, details: details })
+                        body: JSON.stringify(payload)
                     });
 
                     if (response.ok) {

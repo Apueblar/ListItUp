@@ -11,13 +11,14 @@
 
     <main class="animate-in detail-main" th:data-list-id="${list.listId}">
         <header class="list-header">
-            <img th:if="${list.coverPhoto != null and !list.coverPhoto.isEmpty()}" th:src="${list.coverPhoto}" alt="Cover" class="list-cover-photo" style="max-width:100%; border-radius:12px; margin-bottom:1rem;" />
+            <img th:if="${list.coverPhoto != null and !list.coverPhoto.isEmpty()}" th:src="${list.coverPhoto}" alt="Cover" class="list-cover-photo" />
             <span class="category-pill category-pill-mb" th:text="${list.category.name}">Category</span>
             <h1 th:text="${list.title}">List Title</h1>
             <p th:text="${list.description}">List description</p>
             <div class="list-meta">
                 By <span th:text="${list.creator.username}">Creator</span> • 
-                <span th:text="${list.viewCount}">0</span> views
+                <span th:text="${list.viewCount}">0</span> views • 
+                <span th:text="${totalLikes != null ? totalLikes : 0}">0</span> likes
             </div>
             
             <div class="list-actions">
@@ -40,11 +41,11 @@
                 
                 <form th:if="${currentUser != null and currentUser.userId == list.creator.userId}"
                       th:action="@{/lists/{id}/delete(id=${list.listId})}" method="POST" style="display:inline;">
-                    <button type="submit" class="btn-primary btn-interaction" style="background: rgba(239, 68, 68, 0.2); color: #f87171;" onclick="return confirm('Are you sure you want to delete this list?');">🗑️ Delete</button>
+                    <button type="submit" class="btn-primary btn-interaction btn-delete-list" onclick="return confirm('Are you sure you want to delete this list?');">🗑️ Delete</button>
                 </form>
 
                 <button th:if="${currentUser != null and currentUser.userId != list.creator.userId}"
-                        id="btn-report-modal" class="btn-primary btn-interaction" style="background: rgba(239, 68, 68, 0.2); color: #f87171;">🚩 Report</button>
+                        class="btn-primary btn-interaction btn-report-modal btn-report-list" th:data-target-id="${list.listId}" th:data-target-type="LIST">🚩 Report</button>
             </div>
         </header>
 
@@ -52,10 +53,13 @@
             <div th:each="item, iterStat : ${list.items}" class="item-card">
                 <div class="rank-badge" th:text="${iterStat.count}">1</div>
                 <div class="item-content">
-                    <img th:if="${item.photo != null and !item.photo.isEmpty()}" th:src="${item.photo}" alt="Item photo" style="max-width:200px; border-radius:8px; display:block; margin-bottom:0.5rem;" />
+                    <img th:if="${item.photo != null and !item.photo.isEmpty()}" th:src="${item.photo}" alt="Item photo" class="item-photo" />
                     <h3 class="item-title" th:text="${item.title}">Item Title</h3>
                     <p class="item-desc" th:text="${item.description}">Item description goes here...</p>
                     <a th:if="${item.externalUrl != null and !item.externalUrl.isEmpty()}" th:href="${item.externalUrl}" target="_blank" class="item-link track-click" th:data-item-id="${item.itemId}">Visit Link →</a>
+                    <div class="item-report-wrapper" th:if="${currentUser != null and currentUser.userId != list.creator.userId}">
+                        <button class="btn-report-modal btn-report-item" th:data-target-id="${item.itemId}" th:data-target-type="ITEM">🚩 Report Item</button>
+                    </div>
                 </div>
             </div>
             
@@ -81,10 +85,14 @@
 
             <div id="comments-container">
                 <div th:each="comment : ${comments}" class="comment-card" th:id="'comment-' + ${comment.commentId}">
-                    <div class="comment-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
-                        <a class="comment-author" th:href="@{/users/{username}(username=${comment.author.username})}" th:text="${comment.author.username}" style="text-decoration:none; font-weight: bold;">Author</a>
-                        <button th:if="${currentUser != null and (currentUser.userId == comment.author.userId or currentUser.userId == list.creator.userId or currentUser.role == 'ADMIN')}"
-                                class="btn-delete-comment" th:data-comment-id="${comment.commentId}" style="background: none; border: none; color: #f87171; cursor: pointer; padding: 0;">🗑️</button>
+                    <div class="comment-header comment-header-row">
+                        <a class="comment-author comment-author-link" th:href="@{/users/{username}(username=${comment.author.username})}" th:text="${comment.author.username}">Author</a>
+                        <div class="comment-actions">
+                            <button th:if="${currentUser != null and currentUser.userId != comment.author.userId}"
+                                    class="btn-report-modal btn-report-comment" th:data-target-id="${comment.commentId}" th:data-target-type="COMMENT">🚩 Report</button>
+                            <button th:if="${currentUser != null and (currentUser.userId == comment.author.userId or currentUser.userId == list.creator.userId or currentUser.role == 'ADMIN')}"
+                                    class="btn-delete-comment btn-delete-comment-action" th:data-comment-id="${comment.commentId}">🗑️ Delete</button>
+                        </div>
                     </div>
                     <div class="comment-text" th:text="${comment.text}">Comment text</div>
                     <div class="comment-date" th:text="${#temporals.format(comment.createdAt, 'dd MMM yyyy HH:mm')}">Date</div>
@@ -98,14 +106,16 @@
     </main>
 
     <!-- Report Modal -->
-    <div id="report-modal" class="modal" style="display:none; position:fixed; z-index:1000; left:0; top:0; width:100%; height:100%; background-color:rgba(0,0,0,0.5); align-items:center; justify-content:center;">
-        <div class="modal-content" style="background-color:var(--surface-color); padding:2rem; border-radius:12px; max-width:500px; width:90%; position:relative;">
-            <span class="close-modal" style="position:absolute; right:1.5rem; top:1.5rem; font-size:1.5rem; cursor:pointer; color:var(--text-secondary);">&times;</span>
-            <h2>Report List</h2>
-            <form id="report-form" style="margin-top: 1rem;">
-                <div class="form-group" style="margin-bottom: 1rem;">
-                    <label for="report-reason" style="display:block; margin-bottom:0.5rem; font-weight:bold;">Reason</label>
-                    <select id="report-reason" name="reason" required style="width:100%; padding:0.75rem; border-radius:8px; border:1px solid var(--border-color); background:var(--background-color); color:var(--text-color);">
+    <div id="report-modal" class="modal">
+        <div class="modal-content">
+            <span class="close-modal">&times;</span>
+            <h2>Report Content</h2>
+            <form id="report-form" class="report-form">
+                <input type="hidden" id="report-target-id" name="targetId" value="">
+                <input type="hidden" id="report-target-type" name="targetType" value="">
+                <div class="form-group">
+                    <label for="report-reason">Reason</label>
+                    <select id="report-reason" name="reason" required>
                         <option value="">Select a reason</option>
                         <option value="SPAM">Spam or misleading</option>
                         <option value="INAPPROPRIATE">Inappropriate content</option>
@@ -113,11 +123,11 @@
                         <option value="OTHER">Other</option>
                     </select>
                 </div>
-                <div class="form-group" style="margin-bottom: 1rem;">
-                    <label for="report-details" style="display:block; margin-bottom:0.5rem; font-weight:bold;">Details (Optional)</label>
-                    <textarea id="report-details" name="details" rows="3" style="width:100%; padding:0.75rem; border-radius:8px; border:1px solid var(--border-color); background:var(--background-color); color:var(--text-color);"></textarea>
+                <div class="form-group">
+                    <label for="report-details">Details (Optional)</label>
+                    <textarea id="report-details" name="details" rows="3"></textarea>
                 </div>
-                <button type="submit" class="btn-primary" style="width:100%;">Submit Report</button>
+                <button type="submit" class="btn-primary w-100">Submit Report</button>
             </form>
         </div>
     </div>

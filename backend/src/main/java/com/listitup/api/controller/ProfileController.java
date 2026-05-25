@@ -61,8 +61,11 @@ public class ProfileController {
 
     @GetMapping("/users/{username}")
     public String viewPublicProfile(@PathVariable String username, Model model, @AuthenticationPrincipal OAuth2User oauthUser) {
-        User user = userRepository.findByUsername(username)
-                .orElseThrow(() -> new IllegalArgumentException("User not found: " + username));
+        java.util.Optional<User> userOpt = userRepository.findByUsername(username);
+        if (userOpt.isEmpty()) {
+            return "redirect:/feed?userNotFound=true";
+        }
+        User user = userOpt.get();
 
         // Sort by Pinned status first
         List<CuratedList> myLists = listRepository.findByCreatorOrderByIsPinnedDescCreatedAtDesc(user);
@@ -224,4 +227,43 @@ public class ProfileController {
 
         return "redirect:/feed";
     }
+
+    @GetMapping("/users/{username}/followers")
+    @org.springframework.web.bind.annotation.ResponseBody
+    public java.util.List<java.util.Map<String, Object>> getFollowers(@PathVariable String username) {
+        User user = userRepository.findByUsername(username).orElseThrow();
+        java.util.List<com.listitup.api.model.Follow> follows = entityManager.createQuery(
+                "SELECT f FROM Follow f WHERE f.followee = :user ORDER BY f.timestamp DESC", com.listitup.api.model.Follow.class)
+                .setParameter("user", user)
+                .getResultList();
+        
+        return follows.stream().map(f -> {
+            User follower = f.getFollower();
+            return java.util.Map.of(
+                "userId", follower.getUserId(),
+                "username", follower.getUsername(),
+                "profilePicture", follower.getProfilePicture() == null ? "" : follower.getProfilePicture()
+            );
+        }).collect(Collectors.toList());
+    }
+
+    @GetMapping("/users/{username}/following")
+    @org.springframework.web.bind.annotation.ResponseBody
+    public java.util.List<java.util.Map<String, Object>> getFollowing(@PathVariable String username) {
+        User user = userRepository.findByUsername(username).orElseThrow();
+        java.util.List<com.listitup.api.model.Follow> follows = entityManager.createQuery(
+                "SELECT f FROM Follow f WHERE f.follower = :user ORDER BY f.timestamp DESC", com.listitup.api.model.Follow.class)
+                .setParameter("user", user)
+                .getResultList();
+        
+        return follows.stream().map(f -> {
+            User followee = f.getFollowee();
+            return java.util.Map.of(
+                "userId", followee.getUserId(),
+                "username", followee.getUsername(),
+                "profilePicture", followee.getProfilePicture() == null ? "" : followee.getProfilePicture()
+            );
+        }).collect(Collectors.toList());
+    }
 }
+

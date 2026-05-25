@@ -34,6 +34,9 @@ public class CuratedList {
     @Column(nullable = false)
     private String visibility = "PUBLIC";
 
+    @Column(name = "is_draft", nullable = false)
+    private Boolean isDraft = false;
+
     @Column(name = "view_count", nullable = false)
     private Integer viewCount = 0;
 
@@ -62,6 +65,8 @@ public class CuratedList {
     public void setCoverPhoto(String coverPhoto) { this.coverPhoto = coverPhoto; }
     public String getVisibility() { return visibility; }
     public void setVisibility(String visibility) { this.visibility = visibility; }
+    public Boolean getIsDraft() { return isDraft; }
+    public void setIsDraft(Boolean isDraft) { this.isDraft = isDraft; }
     public Integer getViewCount() { return viewCount; }
     public void setViewCount(Integer viewCount) { this.viewCount = viewCount; }
     public Boolean getIsPinned() { return isPinned; }

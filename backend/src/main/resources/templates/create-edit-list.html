@@ -88,7 +88,10 @@
                     </th:block>
                 </div>
 
-                <button type="submit" class="btn-primary btn-submit-list" th:text="${list != null} ? 'Save Changes' : 'Publish List'">Publish List</button>
+                <div style="display:flex; gap:1rem;">
+                    <button type="submit" name="action" value="draft" class="btn-secondary" style="flex:1; padding: 0.75rem 1.5rem; background: transparent; border: 1px solid var(--border-color); border-radius: 8px; color: var(--text-color); font-weight: 500; cursor: pointer; transition: all 0.2s;">Save as Draft</button>
+                    <button type="submit" name="action" value="publish" class="btn-primary btn-submit-list" style="flex:1;" th:text="${list != null and !list.isDraft} ? 'Save Changes' : 'Publish List'">Publish List</button>
+                </div>
             </form>
         </div>
     </main>

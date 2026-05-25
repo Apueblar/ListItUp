@@ -13,7 +13,7 @@
         <header class="profile-header">
             <div class="profile-avatar-wrapper">
                 <div class="profile-avatar">
-                    <img th:if="${profileUser.profilePicture != null and !profileUser.profilePicture.isEmpty()}" th:src="${profileUser.profilePicture}" alt="Avatar" style="width:100%; height:100%; border-radius:50%; object-fit:cover;" />
+                    <img th:if="${profileUser.profilePicture != null and !profileUser.profilePicture.isEmpty()}" th:src="${profileUser.profilePicture}" alt="Avatar" />
                     <span th:unless="${profileUser.profilePicture != null and !profileUser.profilePicture.isEmpty()}" th:text="${#strings.substring(profileUser.username, 0, 1).toUpperCase()}">U</span>
                 </div>
                 <!-- Verification badge inside the avatar wrapper if user is verified -->
@@ -27,8 +27,9 @@
                 <span class="profile-role-pill" th:text="${profileUser.role}">STANDARD</span>
             </div>
             
-            <div style="margin-top: 1rem; display: flex; justify-content: center; gap: 1rem; align-items: center;">
-                <span style="font-weight: bold;" th:text="${followersCount} + ' followers'">0 followers</span>
+            <div class="profile-stats-row">
+                <span class="follower-count-link" th:data-username="${profileUser.username}" th:data-type="followers" th:text="${followersCount} + ' followers'">0 followers</span>
+                <span class="follower-count-link" th:data-username="${profileUser.username}" th:data-type="following">Following</span>
                 
                 <th:block th:if="${currentUser != null and currentUser.userId != profileUser.userId}">
                     <button id="btn-follow" class="btn-primary btn-interaction"
@@ -38,7 +39,7 @@
                 </th:block>
             </div>
             
-            <p th:if="${profileUser.bio != null and !profileUser.bio.isEmpty()}" th:text="${profileUser.bio}" style="margin-top:1rem; max-width:600px; margin-left:auto; margin-right:auto; color:var(--text-secondary);"></p>
+            <p th:if="${profileUser.bio != null and !profileUser.bio.isEmpty()}" th:text="${profileUser.bio}" class="profile-bio-text"></p>
             <p class="profile-joined" th:text="${'Joined ' + #temporals.format(profileUser.createdAt, 'MMMM yyyy')}">Joined May 2026</p>
         </header>
 
@@ -49,7 +50,7 @@
                 <a th:each="list : ${myLists}" th:href="@{/lists/{id}(id=${list.listId})}" class="list-card">
                     <div>
                         <span class="category-pill" th:text="${list.category.name}">Category</span>
-                        <span th:if="${list.isPinned}" class="pinned-badge" style="margin-left: 0.5rem;">📌 Pinned</span>
+                        <span th:if="${list.isPinned}" class="pinned-badge pinned-badge-margin">📌 Pinned</span>
                     </div>
                     <h3 th:text="${list.title}">Title</h3>
                     <p class="card-desc" th:text="${list.description}">Desc</p>
@@ -66,6 +67,18 @@
         </section>
     </main>
 
+    <!-- Followers / Following Modal -->
+    <div id="follow-modal" class="modal">
+        <div class="modal-content">
+            <span class="close-modal" id="close-follow-modal">&times;</span>
+            <h2 id="follow-modal-title">Followers</h2>
+            <div id="follow-modal-list" class="follow-modal-list-container">
+                <!-- User rows injected here -->
+            </div>
+        </div>
+    </div>
+
+    <script th:src="@{/js/profile.js}"></script>
     <footer th:replace="~{fragments/layout :: footer}"></footer>
     
     <script>

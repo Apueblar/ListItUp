@@ -71,6 +71,8 @@ public class WebController {
             if (hasCategory) lists = listRepository.findByCategoryNameIgnoreCaseOrderByCreatedAtDesc(category);
             else lists = listRepository.findAllByOrderByCreatedAtDesc();
         }
+        // Exclude drafts from public feed
+        lists = lists.stream().filter(l -> !Boolean.TRUE.equals(l.getIsDraft())).collect(java.util.stream.Collectors.toList());
 
         model.addAttribute("selectedCategory", hasCategory ? category : "All");
         model.addAttribute("selectedSort", sort.toLowerCase());
@@ -107,12 +109,29 @@ public class WebController {
     }
 
     @GetMapping("/lists/{id}")
-    public String listDetail(@PathVariable UUID id, Model model, @AuthenticationPrincipal OAuth2User oauthUser) {
+    public String listDetail(@PathVariable UUID id, Model model, @AuthenticationPrincipal OAuth2User oauthUser,
+                             jakarta.servlet.http.HttpServletRequest request) {
         Optional<CuratedList> list = listService.getListById(id);
         if (list.isPresent()) {
-            model.addAttribute("list", list.get());
-            model.addAttribute("comments", commentRepository.findByListOrderByCreatedAtDesc(list.get()));
+            CuratedList curatedList = list.get();
+
+            // Increment view count (once per session per list)
+            jakarta.servlet.http.HttpSession session = request.getSession(true);
+            String viewedKey = "viewed_" + id;
+            if (session.getAttribute(viewedKey) == null) {
+                curatedList.setViewCount(curatedList.getViewCount() + 1);
+                listService.saveList(curatedList);
+                session.setAttribute(viewedKey, true);
+            }
+
+            model.addAttribute("list", curatedList);
+            model.addAttribute("comments", commentRepository.findByListOrderByCreatedAtDesc(curatedList));
             
+            long totalLikes = (long) entityManager.createQuery("SELECT COUNT(l) FROM Like l WHERE l.list = :list")
+                    .setParameter("list", curatedList)
+                    .getSingleResult();
+            model.addAttribute("totalLikes", totalLikes);
+
             // Add currentUser if logged in
             if (oauthUser != null) {
                 String email = oauthUser.getAttribute("email");
@@ -122,19 +141,19 @@ public class WebController {
                     
                     long likeCount = (long) entityManager.createQuery("SELECT COUNT(l) FROM Like l WHERE l.user = :u AND l.list = :list")
                             .setParameter("u", user)
-                            .setParameter("list", list.get())
+                            .setParameter("list", curatedList)
                             .getSingleResult();
                     model.addAttribute("isLiked", likeCount > 0);
 
                     long saveCount = (long) entityManager.createQuery("SELECT COUNT(s) FROM SavedList s WHERE s.user = :u AND s.list = :list")
                             .setParameter("u", user)
-                            .setParameter("list", list.get())
+                            .setParameter("list", curatedList)
                             .getSingleResult();
                     model.addAttribute("isSaved", saveCount > 0);
                 });
             }
             
-            return "list-detail"; // renders list-detail.html
+            return "list-detail";
         }
         return "redirect:/feed";
     }
@@ -142,7 +161,7 @@ public class WebController {
     @GetMapping("/lists/new")
     public String createList(Model model) {
         model.addAttribute("categories", categoryRepository.findAll());
-        return "create-edit-list"; // renders create-edit-list.html
+        return "create-edit-list";
     }
 
     @GetMapping("/lists/{id}/edit")
@@ -164,4 +183,17 @@ public class WebController {
         }
         return "redirect:/lists/" + id;
     }
-}
+
+    @GetMapping("/profile/drafts")
+    public String myDrafts(Model model, @AuthenticationPrincipal OAuth2User oauthUser) {
+        if (oauthUser == null) {
+            return "redirect:/oauth2/authorization/google";
+        }
+        String email = oauthUser.getAttribute("email");
+        User currentUser = userRepository.findByEmail(email).orElseThrow();
+        List<CuratedList> drafts = listRepository.findByCreatorAndIsDraftTrueOrderByCreatedAtDesc(currentUser);
+        model.addAttribute("currentUser", currentUser);
+        model.addAttribute("drafts", drafts);
+        return "drafts";
+    }
+}

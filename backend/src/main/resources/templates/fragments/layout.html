@@ -29,10 +29,13 @@
 <nav th:fragment="navbar">
     <a th:href="@{/feed}" class="nav-brand">List<span>It</span>Up</a>
     <div class="nav-links">
+        <button id="theme-toggle" class="btn-theme-toggle" aria-label="Toggle Theme">
+            <span id="theme-icon">☀️</span>
+        </button>
         <a th:href="@{/search}" class="nav-link">Search</a>
 
-        <!-- ADMIN or VERIFIED: show create list button -->
-        <a th:if="${#authorization.expression('hasAnyRole(''ADMIN'', ''VERIFIED'')')}"
+        <!-- Authenticated: show create list button -->
+        <a th:if="${currentUser != null}"
            th:href="@{/lists/new}" class="btn-primary">+ Create List</a>
 
         <!-- ADMIN: show admin panel -->
@@ -68,6 +71,7 @@
                 </div>
                 <div class="dropdown-divider"></div>
                 <a th:href="@{/users/{username}(username=${currentUser.username})}" class="dropdown-item">My Profile</a>
+                <a th:href="@{/profile/drafts}" class="dropdown-item">My Drafts</a>
                 <div class="dropdown-divider"></div>
                 <form th:action="@{/profile/update-username}" method="post" class="username-update-form">
                     <!-- Include CSRF token explicitly for non-thymeleaf generated raw form elements if needed, but th:action handles it! -->
@@ -95,6 +99,12 @@
      ===================================================== -->
 <footer th:fragment="footer" class="site-footer">
     <p>&copy; 2026 ListItUp &mdash; Curated lists, shared with the world.</p>
+    
+    <!-- Cookie Consent Banner -->
+    <div id="cookie-banner" class="cookie-banner">
+        <p class="cookie-banner-text">We use cookies to ensure you get the best experience on our website. <a href="#" class="cookie-banner-link">Learn more</a></p>
+        <button id="btn-accept-cookies" class="btn-primary cookie-banner-btn">Got it!</button>
+    </div>
 </footer>
 
 </body>

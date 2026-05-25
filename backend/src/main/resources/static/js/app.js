@@ -158,6 +158,48 @@ document.addEventListener('DOMContentLoaded', function () {
         /* Fetch badge count on load (quietly) */
         fetchNotifications();
     }
+
+    /* ── Theme Toggle Logic ── */
+    var themeToggleBtn = document.getElementById('theme-toggle');
+    var themeIcon = document.getElementById('theme-icon');
+    
+    // Apply saved theme on load
+    var savedTheme = localStorage.getItem('theme') || 'dark';
+    if (savedTheme === 'light') {
+        document.documentElement.classList.add('theme-light');
+        if (themeIcon) themeIcon.textContent = '🌙';
+    } else {
+        document.documentElement.classList.remove('theme-light');
+        if (themeIcon) themeIcon.textContent = '☀️';
+    }
+
+    if (themeToggleBtn) {
+        themeToggleBtn.addEventListener('click', function() {
+            var isLight = document.documentElement.classList.toggle('theme-light');
+            var currentTheme = isLight ? 'light' : 'dark';
+            localStorage.setItem('theme', currentTheme);
+            if (themeIcon) {
+                themeIcon.textContent = isLight ? '🌙' : '☀️';
+            }
+        });
+    }
+
+    /* ── Cookie Consent Banner Logic ── */
+    var cookieBanner = document.getElementById('cookie-banner');
+    var acceptCookiesBtn = document.getElementById('btn-accept-cookies');
+
+    if (cookieBanner) {
+        var cookieConsent = localStorage.getItem('cookieConsent');
+        if (cookieConsent !== 'accepted') {
+            cookieBanner.style.display = 'block';
+        }
+        if (acceptCookiesBtn) {
+            acceptCookiesBtn.addEventListener('click', function() {
+                localStorage.setItem('cookieConsent', 'accepted');
+                cookieBanner.style.display = 'none';
+            });
+        }
+    }
 });
 
 /** Read CSRF token from cookie (used for POST requests). */
