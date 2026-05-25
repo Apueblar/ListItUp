@@ -239,11 +239,11 @@ public class ProfileController {
         
         return follows.stream().map(f -> {
             User follower = f.getFollower();
-            return java.util.Map.of(
-                "userId", follower.getUserId(),
-                "username", follower.getUsername(),
-                "profilePicture", follower.getProfilePicture() == null ? "" : follower.getProfilePicture()
-            );
+            java.util.Map<String, Object> map = new java.util.HashMap<>();
+            map.put("userId", follower.getUserId());
+            map.put("username", follower.getUsername());
+            map.put("profilePicture", follower.getProfilePicture() == null ? "" : follower.getProfilePicture());
+            return map;
         }).collect(Collectors.toList());
     }
 
@@ -258,11 +258,11 @@ public class ProfileController {
         
         return follows.stream().map(f -> {
             User followee = f.getFollowee();
-            return java.util.Map.of(
-                "userId", followee.getUserId(),
-                "username", followee.getUsername(),
-                "profilePicture", followee.getProfilePicture() == null ? "" : followee.getProfilePicture()
-            );
+            java.util.Map<String, Object> map = new java.util.HashMap<>();
+            map.put("userId", followee.getUserId());
+            map.put("username", followee.getUsername());
+            map.put("profilePicture", followee.getProfilePicture() == null ? "" : followee.getProfilePicture());
+            return map;
         }).collect(Collectors.toList());
     }
 }
