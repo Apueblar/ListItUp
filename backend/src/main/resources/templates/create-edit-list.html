@@ -33,10 +33,10 @@
                         <option value="">Select a category</option>
                         <option th:each="cat : ${categories}" th:value="${cat.categoryId}" th:text="${cat.name}" th:selected="${list != null and list.category.categoryId == cat.categoryId}"></option>
                     </select>
-                    <div id="propose-category-container" style="display:none; margin-top:0.75rem; background:var(--surface-color); padding:1rem; border-radius:8px; border:1px dashed var(--border-color);">
+                    <div id="propose-category-container" style="display:none; margin-top:0.75rem; background:var(--surface-color); padding:1rem; border-radius:8px; border:1px dashed var(--glass-border);">
                         <label for="proposedCategoryName" style="font-size:0.9rem; font-weight:bold;">Proposed Category Name</label>
                         <div style="display:flex; gap:0.5rem; margin-top:0.25rem;">
-                            <input type="text" id="proposedCategoryName" placeholder="e.g. Science" style="flex:1; padding:0.5rem; border-radius:6px; border:1px solid var(--border-color); background:var(--bg-color); color:var(--text-color);">
+                            <input type="text" id="proposedCategoryName" placeholder="e.g. Science" style="flex:1; padding:0.5rem; border-radius:6px; border:1px solid var(--glass-border); background:var(--bg-primary); color:var(--text-primary);">
                             <button type="button" id="submit-proposal-btn" class="btn-primary" style="padding:0.5rem 1rem;">Submit</button>
                         </div>
                         <p id="proposal-feedback" style="margin-top:0.5rem; font-size:0.85rem; display:none;"></p>
@@ -89,7 +89,7 @@
                 </div>
 
                 <div style="display:flex; gap:1rem;">
-                    <button type="submit" name="action" value="draft" class="btn-secondary" style="flex:1; padding: 0.75rem 1.5rem; background: transparent; border: 1px solid var(--border-color); border-radius: 8px; color: var(--text-color); font-weight: 500; cursor: pointer; transition: all 0.2s;">Save as Draft</button>
+                    <button type="submit" name="action" value="draft" class="btn-secondary" style="flex:1; padding: 0.75rem 1.5rem; background: transparent; border: 1px solid var(--glass-border); border-radius: 8px; color: var(--text-primary); font-weight: 500; cursor: pointer; transition: all 0.2s;">Save as Draft</button>
                     <button type="submit" name="action" value="publish" class="btn-primary btn-submit-list" style="flex:1;" th:text="${list != null and !list.isDraft} ? 'Save Changes' : 'Publish List'">Publish List</button>
                 </div>
             </form>

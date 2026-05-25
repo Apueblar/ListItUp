@@ -233,7 +233,7 @@ public class ProfileController {
     public java.util.List<java.util.Map<String, Object>> getFollowers(@PathVariable String username) {
         User user = userRepository.findByUsername(username).orElseThrow();
         java.util.List<com.listitup.api.model.Follow> follows = entityManager.createQuery(
-                "SELECT f FROM Follow f WHERE f.followee = :user ORDER BY f.timestamp DESC", com.listitup.api.model.Follow.class)
+                "SELECT f FROM Follow f WHERE f.followee = :user ORDER BY f.createdAt DESC", com.listitup.api.model.Follow.class)
                 .setParameter("user", user)
                 .getResultList();
         
@@ -252,7 +252,7 @@ public class ProfileController {
     public java.util.List<java.util.Map<String, Object>> getFollowing(@PathVariable String username) {
         User user = userRepository.findByUsername(username).orElseThrow();
         java.util.List<com.listitup.api.model.Follow> follows = entityManager.createQuery(
-                "SELECT f FROM Follow f WHERE f.follower = :user ORDER BY f.timestamp DESC", com.listitup.api.model.Follow.class)
+                "SELECT f FROM Follow f WHERE f.follower = :user ORDER BY f.createdAt DESC", com.listitup.api.model.Follow.class)
                 .setParameter("user", user)
                 .getResultList();
         
