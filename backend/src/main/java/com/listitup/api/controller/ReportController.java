@@ -62,7 +62,7 @@ public class ReportController {
         report.setSubmittedByUser(reporter);
         report.setReason(reason);
         report.setDetails(details);
-        report.setStatus("OPEN");
+        report.setStatus("PENDING");
 
         int targets = 0;
         if (targetListId != null && !targetListId.isBlank()) {

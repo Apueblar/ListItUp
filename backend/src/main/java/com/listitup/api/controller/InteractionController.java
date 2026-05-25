@@ -23,11 +23,13 @@ public class InteractionController {
 
     private final CuratedListRepository listRepository;
     private final UserRepository userRepository;
+    private final com.listitup.api.repository.NotificationRepository notificationRepository;
     private final EntityManager entityManager;
 
-    public InteractionController(CuratedListRepository listRepository, UserRepository userRepository, EntityManager entityManager) {
+    public InteractionController(CuratedListRepository listRepository, UserRepository userRepository, com.listitup.api.repository.NotificationRepository notificationRepository, EntityManager entityManager) {
         this.listRepository = listRepository;
         this.userRepository = userRepository;
+        this.notificationRepository = notificationRepository;
         this.entityManager = entityManager;
     }
 
@@ -55,6 +57,15 @@ public class InteractionController {
             like.setUser(user);
             like.setList(list);
             entityManager.persist(like);
+            
+            if (!user.getUserId().equals(list.getCreator().getUserId())) {
+                com.listitup.api.model.Notification n = new com.listitup.api.model.Notification();
+                n.setUser(list.getCreator());
+                n.setMessage("❤️ " + user.getUsername() + " liked your list: " + list.getTitle());
+                n.setLinkUrl("/lists/" + list.getListId());
+                notificationRepository.save(n);
+            }
+            
             return ResponseEntity.ok(Map.of("status", "liked"));
         }
     }
@@ -124,5 +135,42 @@ public class InteractionController {
         listRepository.save(list);
 
         return ResponseEntity.ok(Map.of("status", nextPin ? "pinned" : "unpinned"));
+    }
+    @org.springframework.web.bind.annotation.RequestMapping(value = "/users/{username}/follow", method = {org.springframework.web.bind.annotation.RequestMethod.POST, org.springframework.web.bind.annotation.RequestMethod.DELETE})
+    @Transactional
+    public ResponseEntity<?> toggleFollow(@PathVariable String username, @AuthenticationPrincipal OAuth2User oauthUser, jakarta.servlet.http.HttpServletRequest request) {
+        if (oauthUser == null) return ResponseEntity.status(401).build();
+        User follower = userRepository.findByEmail(oauthUser.getAttribute("email")).orElseThrow();
+        User followee = userRepository.findByUsername(username).orElseThrow();
+        
+        if (follower.getUserId().equals(followee.getUserId())) {
+            return ResponseEntity.badRequest().build();
+        }
+
+        if (request.getMethod().equalsIgnoreCase("DELETE")) {
+            entityManager.createQuery("DELETE FROM Follow f WHERE f.follower = :follower AND f.followee = :followee")
+                    .setParameter("follower", follower)
+                    .setParameter("followee", followee)
+                    .executeUpdate();
+            return ResponseEntity.ok(Map.of("status", "unfollowed"));
+        } else {
+            long count = (long) entityManager.createQuery("SELECT COUNT(f) FROM Follow f WHERE f.follower = :follower AND f.followee = :followee")
+                    .setParameter("follower", follower)
+                    .setParameter("followee", followee)
+                    .getSingleResult();
+            if (count == 0) {
+                com.listitup.api.model.Follow follow = new com.listitup.api.model.Follow();
+                follow.setFollower(follower);
+                follow.setFollowee(followee);
+                entityManager.persist(follow);
+
+                com.listitup.api.model.Notification n = new com.listitup.api.model.Notification();
+                n.setUser(followee);
+                n.setMessage("👋 " + follower.getUsername() + " started following you!");
+                n.setLinkUrl("/users/" + follower.getUsername());
+                notificationRepository.save(n);
+            }
+            return ResponseEntity.ok(Map.of("status", "followed"));
+        }
     }
 }

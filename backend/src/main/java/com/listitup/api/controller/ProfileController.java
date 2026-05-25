@@ -51,10 +51,17 @@ public class ProfileController {
                 .setParameter("user", user)
                 .getResultList();
 
+        long followersCount = (long) entityManager.createQuery("SELECT COUNT(uf) FROM Follow uf WHERE uf.followee = :user")
+                .setParameter("user", user).getSingleResult();
+        long followingCount = (long) entityManager.createQuery("SELECT COUNT(uf) FROM Follow uf WHERE uf.follower = :user")
+                .setParameter("user", user).getSingleResult();
+
         model.addAttribute("user", user);
         model.addAttribute("myLists", myLists);
         model.addAttribute("savedLists", savedLists);
         model.addAttribute("likedLists", likedLists);
+        model.addAttribute("followersCount", followersCount);
+        model.addAttribute("followingCount", followingCount);
 
         return "profile";
     }
@@ -71,6 +78,8 @@ public class ProfileController {
         List<CuratedList> myLists = listRepository.findByCreatorOrderByIsPinnedDescCreatedAtDesc(user);
 
         long followersCount = (long) entityManager.createQuery("SELECT COUNT(uf) FROM Follow uf WHERE uf.followee = :user")
+                .setParameter("user", user).getSingleResult();
+        long followingCount = (long) entityManager.createQuery("SELECT COUNT(uf) FROM Follow uf WHERE uf.follower = :user")
                 .setParameter("user", user).getSingleResult();
 
         boolean isFollowing = false;
@@ -94,6 +103,7 @@ public class ProfileController {
         model.addAttribute("profileUser", user);
         model.addAttribute("myLists", myLists);
         model.addAttribute("followersCount", followersCount);
+        model.addAttribute("followingCount", followingCount);
         model.addAttribute("isFollowing", isFollowing);
 
         return "user-profile";

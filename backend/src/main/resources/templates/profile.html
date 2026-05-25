@@ -18,8 +18,8 @@
             <h1 class="section-heading profile-username" th:text="${user.username}">Username</h1>
             <p class="profile-own-role" th:text="${'Role: ' + user.role}">Role</p>
             <div class="profile-stats-row">
-                <span class="follower-count-link" th:data-username="${user.username}" th:data-type="followers">Followers</span> | 
-                <span class="follower-count-link" th:data-username="${user.username}" th:data-type="following">Following</span>
+                <span class="follower-count-link" th:data-username="${user.username}" th:data-type="followers" th:text="${followersCount} + ' followers'">0 followers</span> | 
+                <span class="follower-count-link" th:data-username="${user.username}" th:data-type="following" th:text="${followingCount} + ' following'">0 following</span>
             </div>
             <p th:if="${user.bio != null and !user.bio.isEmpty()}" th:text="${user.bio}" class="profile-bio-text"></p>
             <div th:if="${profileSuccess}" class="profile-success-msg" th:text="${profileSuccess}"></div>

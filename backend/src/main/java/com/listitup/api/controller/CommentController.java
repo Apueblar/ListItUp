@@ -23,11 +23,13 @@ public class CommentController {
     private final CommentRepository commentRepository;
     private final CuratedListRepository listRepository;
     private final UserRepository userRepository;
+    private final com.listitup.api.repository.NotificationRepository notificationRepository;
 
-    public CommentController(CommentRepository commentRepository, CuratedListRepository listRepository, UserRepository userRepository) {
+    public CommentController(CommentRepository commentRepository, CuratedListRepository listRepository, UserRepository userRepository, com.listitup.api.repository.NotificationRepository notificationRepository) {
         this.commentRepository = commentRepository;
         this.listRepository = listRepository;
         this.userRepository = userRepository;
+        this.notificationRepository = notificationRepository;
     }
 
     @PostMapping("/lists/{id}/comments")
@@ -46,6 +48,14 @@ public class CommentController {
         comment.setAuthor(author);
         comment.setList(list);
         comment = commentRepository.save(comment);
+
+        if (!author.getUserId().equals(list.getCreator().getUserId())) {
+            com.listitup.api.model.Notification n = new com.listitup.api.model.Notification();
+            n.setUser(list.getCreator());
+            n.setMessage("💬 " + author.getUsername() + " commented on your list: " + list.getTitle());
+            n.setLinkUrl("/lists/" + list.getListId());
+            notificationRepository.save(n);
+        }
 
         Map<String, Object> response = new HashMap<>();
         response.put("commentId", comment.getCommentId());

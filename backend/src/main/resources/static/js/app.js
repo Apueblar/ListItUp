@@ -127,7 +127,6 @@ document.addEventListener('DOMContentLoaded', function () {
 
         /* Toggle dropdown on bell click */
         bellBtn.addEventListener('click', function (e) {
-            e.stopPropagation();
             notifDropdown.classList.toggle('show');
             if (notifDropdown.classList.contains('show')) {
                 fetchNotifications();
@@ -167,10 +166,8 @@ document.addEventListener('DOMContentLoaded', function () {
     var savedTheme = localStorage.getItem('theme') || 'dark';
     if (savedTheme === 'light') {
         document.documentElement.classList.add('theme-light');
-        if (themeIcon) themeIcon.textContent = '🌙';
     } else {
         document.documentElement.classList.remove('theme-light');
-        if (themeIcon) themeIcon.textContent = '☀️';
     }
 
     if (themeToggleBtn) {
@@ -178,9 +175,6 @@ document.addEventListener('DOMContentLoaded', function () {
             var isLight = document.documentElement.classList.toggle('theme-light');
             var currentTheme = isLight ? 'light' : 'dark';
             localStorage.setItem('theme', currentTheme);
-            if (themeIcon) {
-                themeIcon.textContent = isLight ? '🌙' : '☀️';
-            }
         });
     }
 

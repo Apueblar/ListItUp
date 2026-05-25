@@ -446,3 +446,9 @@ nav {
 .btn-theme-toggle:hover {
     transform: scale(1.1);
 }
+
+/* Theme Toggle Icons */
+html.theme-light .theme-icon-dark { display: none; }
+html.theme-light .theme-icon-light { display: inline; }
+html:not(.theme-light) .theme-icon-dark { display: inline; }
+html:not(.theme-light) .theme-icon-light { display: none; }

@@ -29,7 +29,7 @@
             
             <div class="profile-stats-row">
                 <span class="follower-count-link" th:data-username="${profileUser.username}" th:data-type="followers" th:text="${followersCount} + ' followers'">0 followers</span>
-                <span class="follower-count-link" th:data-username="${profileUser.username}" th:data-type="following">Following</span>
+                <span class="follower-count-link" th:data-username="${profileUser.username}" th:data-type="following" th:text="${followingCount} + ' following'">0 following</span>
                 
                 <th:block th:if="${currentUser != null and currentUser.userId != profileUser.userId}">
                     <button id="btn-follow" class="btn-primary btn-interaction"
