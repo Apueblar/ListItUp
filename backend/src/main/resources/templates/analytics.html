@@ -9,13 +9,13 @@
     <nav th:replace="~{fragments/layout :: navbar}"></nav>
 
     <main class="animate-in analytics-main">
-        <h1 class="analytics-title">Platform Analytics</h1>
+        <h1 class="analytics-title" th:text="${isAdmin ? 'Platform Analytics' : 'My Creator Analytics'}">Platform Analytics</h1>
 
-        <div th:if="${#lists.isEmpty(snapshots)}" class="analytics-empty">
+        <div th:if="${isAdmin and #lists.isEmpty(snapshots)}" class="analytics-empty">
             No analytics data available yet. Data is gathered nightly.
         </div>
 
-        <div th:unless="${#lists.isEmpty(snapshots)}">
+        <div th:if="${isAdmin and not #lists.isEmpty(snapshots)}">
             <table class="analytics-table">
                 <thead>
                     <tr>
@@ -38,6 +38,50 @@
                     </tr>
                 </tbody>
             </table>
+        </div>
+
+        <div th:if="${!isAdmin}">
+            <div class="analytics-summary-cards">
+                <div class="analytics-summary-card">
+                    <h3>Total Views</h3>
+                    <p th:text="${totalViews}">0</p>
+                </div>
+                <div class="analytics-summary-card">
+                    <h3>Total Saves</h3>
+                    <p th:text="${totalSaves}">0</p>
+                </div>
+                <div class="analytics-summary-card">
+                    <h3>Link Clicks</h3>
+                    <p th:text="${totalLinkClicks}">0</p>
+                </div>
+            </div>
+
+            <div th:if="${#lists.isEmpty(creatorAnalytics)}" class="analytics-empty">
+                You haven't created any lists yet or no data is available.
+            </div>
+
+            <div th:unless="${#lists.isEmpty(creatorAnalytics)}">
+                <table class="analytics-table">
+                    <thead>
+                        <tr>
+                            <th>List Title</th>
+                            <th>Views</th>
+                            <th>Saves</th>
+                            <th>Link Clicks</th>
+                            <th>Last Updated</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="stat : ${creatorAnalytics}">
+                            <td><a th:href="@{/lists/{id}(id=${stat.list.listId})}" th:text="${stat.list.title}" class="analytics-list-link">Title</a></td>
+                            <td th:text="${stat.views}">0</td>
+                            <td th:text="${stat.saves}">0</td>
+                            <td th:text="${stat.linkClicks}">0</td>
+                            <td th:text="${#temporals.format(stat.lastUpdated, 'dd MMM yyyy')}">Date</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
         </div>
     </main>
 

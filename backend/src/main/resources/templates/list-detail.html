@@ -18,7 +18,8 @@
             <div class="list-meta">
                 By <span th:text="${list.creator.username}">Creator</span> • 
                 <span th:text="${list.viewCount}">0</span> views • 
-                <span th:text="${totalLikes != null ? totalLikes : 0}">0</span> likes
+                <span th:if="${currentUser == null or currentUser.userId != list.creator.userId}" th:text="${totalLikes != null ? totalLikes : 0}">0</span>
+                <a th:if="${currentUser != null and currentUser.userId == list.creator.userId}" href="javascript:void(0)" id="likes-count-link" th:text="${totalLikes != null ? totalLikes : 0}" class="likes-link" th:data-list-id="${list.listId}">0</a> likes
             </div>
             
             <div class="list-actions">
@@ -41,7 +42,7 @@
                 
                 <form th:if="${currentUser != null and currentUser.userId == list.creator.userId}"
                       th:action="@{/lists/{id}/delete(id=${list.listId})}" method="POST" class="delete-form-inline">
-                    <button type="submit" class="btn-primary btn-interaction btn-delete-list" onclick="return confirm('Are you sure you want to delete this list?');">🗑️ Delete</button>
+                    <button type="submit" class="btn-primary btn-interaction btn-delete-list btn-confirm-delete">🗑️ Delete</button>
                 </form>
 
                 <button th:if="${currentUser != null and currentUser.userId != list.creator.userId}"
@@ -129,6 +130,18 @@
                 </div>
                 <button type="submit" class="btn-primary w-100">Submit Report</button>
             </form>
+        </div>
+        </div>
+    </div>
+
+    <!-- Likes Modal -->
+    <div id="likes-modal" class="modal">
+        <div class="modal-content">
+            <span class="close-modal" id="close-likes-modal">&times;</span>
+            <h2>Likes</h2>
+            <div id="likes-modal-list" class="follow-modal-list-container">
+                <!-- User rows injected here -->
+            </div>
         </div>
     </div>
 

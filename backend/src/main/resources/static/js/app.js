@@ -194,6 +194,16 @@ document.addEventListener('DOMContentLoaded', function () {
             });
         }
     }
+
+    /* ── Generic Confirm Delete Logic ── */
+    var confirmDeleteBtns = document.querySelectorAll('.btn-confirm-delete');
+    confirmDeleteBtns.forEach(function(btn) {
+        btn.addEventListener('click', function(e) {
+            if (!window.confirm('Are you sure you want to completely delete this item?')) {
+                e.preventDefault();
+            }
+        });
+    });
 });
 
 /** Read CSRF token from cookie (used for POST requests). */

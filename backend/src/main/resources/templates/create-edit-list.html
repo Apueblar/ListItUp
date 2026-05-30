@@ -69,7 +69,7 @@
                     <!-- Dynamic items will be appended here -->
                     <th:block th:if="${list != null}">
                         <div th:each="item, stat : ${list.items}" class="item-row">
-                            <button type="button" class="btn-remove-item" aria-label="Remove item" onclick="this.parentElement.remove();">&times;</button>
+                            <button type="button" class="btn-remove-item" aria-label="Remove item">&times;</button>
                             <div class="item-row-field">
                                 <label>Item Title</label>
                                 <input type="text" th:name="'items[' + ${stat.index} + '].title'" th:value="${item.title}" required/>

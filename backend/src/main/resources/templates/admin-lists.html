@@ -31,6 +31,7 @@
                         <th>Views</th>
                         <th>Pinned?</th>
                         <th>Date</th>
+                        <th>Link</th>
                         <th>Actions</th>
                     </tr>
                 </thead>
@@ -42,18 +43,17 @@
                         <td th:text="${list.viewCount}">0</td>
                         <td th:text="${list.isPinned ? 'Yes' : 'No'}">No</td>
                         <td th:text="${#temporals.format(list.createdAt, 'dd MMM yyyy')}">Date</td>
+                        <td><a th:href="@{/lists/{id}(id=${list.listId})}" target="_blank" class="admin-list-link">🔗 View</a></td>
                         <td>
                             <div class="td-actions">
                                 <form th:action="@{/admin/lists/{id}/delete(id=${list.listId})}" method="post" class="form-inline">
-                                    <button type="submit" class="btn-action btn-block" onclick="return confirm('Are you sure you want to completely delete this list?');">
-                                        Delete
-                                    </button>
+                                    <button type="submit" class="btn-action btn-block btn-confirm-delete">Delete</button>
                                 </form>
                             </div>
                         </td>
                     </tr>
                     <tr th:if="${#lists.isEmpty(lists)}">
-                        <td colspan="7" class="admin-empty-text">No lists found.</td>
+                        <td colspan="8" class="admin-empty-text">No lists found.</td>
                     </tr>
                 </tbody>
             </table>

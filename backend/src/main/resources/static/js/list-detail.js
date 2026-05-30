@@ -278,4 +278,89 @@ document.addEventListener('DOMContentLoaded', function () {
             });
         }
     }
+
+    // Likes Modal Logic
+    var likesLink = document.getElementById('likes-count-link');
+    var likesModal = document.getElementById('likes-modal');
+    var closeLikesModal = document.getElementById('close-likes-modal');
+    var likesModalList = document.getElementById('likes-modal-list');
+
+    if (likesLink && likesModal) {
+        likesLink.addEventListener('click', async function() {
+            var listId = this.getAttribute('data-list-id');
+            likesModalList.innerHTML = '<p>Loading...</p>';
+            likesModal.style.display = 'flex';
+
+            try {
+                var response = await fetch('/lists/' + listId + '/likes');
+                if (response.ok) {
+                    var users = await response.json();
+                    likesModalList.innerHTML = '';
+                    if (users.length === 0) {
+                        likesModalList.innerHTML = '<p>No likes yet.</p>';
+                    } else {
+                        users.forEach(function(u) {
+                            var container = document.createElement('div');
+                            container.style.display = 'flex';
+                            container.style.alignItems = 'center';
+                            container.style.gap = '1rem';
+                            container.style.padding = '0.5rem';
+                            container.style.borderBottom = '1px solid var(--glass-border)';
+
+                            if (u.profilePicture) {
+                                var img = document.createElement('img');
+                                img.src = u.profilePicture;
+                                img.style.width = '40px';
+                                img.style.height = '40px';
+                                img.style.borderRadius = '50%';
+                                img.style.objectFit = 'cover';
+                                container.appendChild(img);
+                            } else {
+                                var span = document.createElement('span');
+                                span.style.width = '40px';
+                                span.style.height = '40px';
+                                span.style.borderRadius = '50%';
+                                span.style.background = 'var(--glass-bg)';
+                                span.style.display = 'flex';
+                                span.style.alignItems = 'center';
+                                span.style.justifyContent = 'center';
+                                span.style.border = '1px solid var(--glass-border)';
+                                span.textContent = u.username.charAt(0).toUpperCase();
+                                container.appendChild(span);
+                            }
+
+                            var link = document.createElement('a');
+                            link.href = '/users/' + encodeURIComponent(u.username);
+                            link.style.flex = '1';
+                            link.style.textDecoration = 'none';
+                            link.style.color = 'var(--text-primary)';
+                            link.style.fontWeight = 'bold';
+                            link.textContent = u.username;
+                            container.appendChild(link);
+
+                            likesModalList.appendChild(container);
+                        });
+                    }
+                } else {
+                    likesModalList.innerHTML = '<p>Error loading likes.</p>';
+                }
+            } catch (err) {
+                console.error('Fetch error:', err);
+                likesModalList.innerHTML = '<p>Error loading likes.</p>';
+            }
+        });
+
+        if (closeLikesModal) {
+            closeLikesModal.addEventListener('click', function() {
+                likesModal.style.display = 'none';
+            });
+        }
+
+        window.addEventListener('click', function(e) {
+            if (e.target === likesModal) {
+                likesModal.style.display = 'none';
+            }
+        });
+    }
+
 });

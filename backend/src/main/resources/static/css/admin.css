@@ -670,3 +670,9 @@ select.admin-select {
     border: 1px solid var(--border-color);
     border-radius: 8px;
 }
+
+.admin-list-link {
+    color: var(--primary-color);
+    font-weight: bold;
+    text-decoration: none;
+}

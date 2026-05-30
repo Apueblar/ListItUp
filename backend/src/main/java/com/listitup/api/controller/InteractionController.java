@@ -70,6 +70,25 @@ public class InteractionController {
         }
     }
 
+    @org.springframework.web.bind.annotation.GetMapping("/lists/{id}/likes")
+    @org.springframework.web.bind.annotation.ResponseBody
+    public java.util.List<java.util.Map<String, Object>> getLikes(@PathVariable UUID id) {
+        CuratedList list = listRepository.findById(id).orElseThrow();
+        java.util.List<Like> likes = entityManager.createQuery(
+                "SELECT l FROM Like l WHERE l.list = :list ORDER BY l.createdAt DESC", Like.class)
+                .setParameter("list", list)
+                .getResultList();
+        
+        return likes.stream().map(l -> {
+            User u = l.getUser();
+            java.util.Map<String, Object> map = new java.util.HashMap<>();
+            map.put("userId", u.getUserId());
+            map.put("username", u.getUsername());
+            map.put("profilePicture", u.getProfilePicture() == null ? "" : u.getProfilePicture());
+            return map;
+        }).collect(java.util.stream.Collectors.toList());
+    }
+
     @PostMapping("/lists/{id}/save")
     @Transactional
     public ResponseEntity<?> toggleSave(@PathVariable UUID id, @AuthenticationPrincipal OAuth2User oauthUser) {

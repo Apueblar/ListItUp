@@ -36,3 +36,36 @@
 .analytics-table tbody tr {
     border-bottom: 1px solid var(--border-color);
 }
+
+.analytics-summary-cards {
+    display: flex;
+    gap: 2rem;
+    margin-bottom: 2rem;
+    justify-content: center;
+}
+
+.analytics-summary-card {
+    text-align: center;
+    padding: 1.5rem;
+    background: var(--surface-color);
+    border-radius: 12px;
+    border: 1px solid var(--border-color);
+    flex: 1;
+}
+
+.analytics-summary-card h3 {
+    margin-bottom: 0.5rem;
+    color: var(--text-secondary);
+}
+
+.analytics-summary-card p {
+    font-size: 2rem;
+    font-weight: bold;
+    color: var(--primary-color);
+}
+
+.analytics-list-link {
+    color: var(--primary-color);
+    font-weight: bold;
+    text-decoration: none;
+}

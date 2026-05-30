@@ -298,6 +298,7 @@ nav {
     background: #ef4444;
     color: #fff;
     font-size: 0.65rem;
+    display: none;
     font-weight: 700;
     min-width: 16px;
     height: 16px;

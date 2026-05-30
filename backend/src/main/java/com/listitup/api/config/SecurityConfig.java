@@ -24,7 +24,11 @@ public class SecurityConfig {
             .authorizeHttpRequests(authorize -> authorize
                 // Specific list creation/edit endpoints
                 .requestMatchers("/lists/new").authenticated()
+                .requestMatchers("/lists/*/edit").authenticated()
+                .requestMatchers(org.springframework.http.HttpMethod.POST, "/lists/*/delete").authenticated()
                 .requestMatchers(org.springframework.http.HttpMethod.POST, "/lists").authenticated()
+                .requestMatchers(org.springframework.http.HttpMethod.POST, "/users/*/follow").authenticated()
+                .requestMatchers(org.springframework.http.HttpMethod.DELETE, "/users/*/follow").authenticated()
                 // List interaction endpoints require authentication (must be before the broad /lists/** permitAll)
                 .requestMatchers(org.springframework.http.HttpMethod.POST, "/lists/*/like").authenticated()
                 .requestMatchers(org.springframework.http.HttpMethod.POST, "/lists/*/save").authenticated()

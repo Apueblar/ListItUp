@@ -8,6 +8,10 @@ document.addEventListener('DOMContentLoaded', function() {
             var endpoint = '/users/' + username + '/follow';
             
             function getCookie(name) {
+                if (name === 'XSRF-TOKEN') {
+                    var meta = document.querySelector('meta[name="_csrf"]');
+                    if (meta && meta.content) return meta.content;
+                }
                 var value = "; " + document.cookie;
                 var parts = value.split("; " + name + "=");
                 if (parts.length === 2) return parts.pop().split(";").shift();
@@ -32,6 +36,10 @@ document.addEventListener('DOMContentLoaded', function() {
                 });
                 
                 if (!response.ok) {
+                    if (response.status === 401 || response.status === 403) {
+                        window.location.href = '/oauth2/authorization/google';
+                        return;
+                    }
                     throw new Error('Failed');
                 }
             } catch(e) {

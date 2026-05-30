@@ -220,4 +220,27 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
     }
+
+    // Tabs Logic
+    var tabBtns = document.querySelectorAll('.profile-tab-btn');
+    var tabContents = document.querySelectorAll('.profile-tab-content');
+
+    if (tabBtns.length > 0 && tabContents.length > 0) {
+        tabBtns.forEach(function(btn) {
+            btn.addEventListener('click', function() {
+                // Remove active from all
+                tabBtns.forEach(function(b) { b.classList.remove('active'); });
+                tabContents.forEach(function(c) { c.classList.remove('active'); });
+
+                // Add active to current
+                this.classList.add('active');
+                var targetId = this.getAttribute('data-tab');
+                var targetContent = document.getElementById(targetId);
+                if (targetContent) {
+                    targetContent.classList.add('active');
+                }
+            });
+        });
+    }
+
 });

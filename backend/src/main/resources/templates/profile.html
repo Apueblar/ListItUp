@@ -41,54 +41,60 @@
             </form>
         </section>
 
-        <section class="profile-section">
-            <h2 class="section-heading">My Created Lists</h2>
-            <div class="grid">
-                <a th:each="list : ${myLists}" th:href="@{/lists/{id}(id=${list.listId})}" class="list-card">
-                    <div>
-                        <span class="category-pill" th:text="${list.category.name}">Category</span>
-                        <span th:if="${list.isPinned}" class="pinned-badge pinned-badge-margin">📌 Pinned</span>
-                    </div>
-                    <h3 th:text="${list.title}">Title</h3>
-                    <p class="card-desc" th:text="${list.description}">Desc</p>
-                    <div class="card-footer-row">
-                        <span th:text="${list.viewCount + ' views'}">0 views</span>
-                        <span th:text="${#temporals.format(list.createdAt, 'dd MMM yyyy')}">Date</span>
-                    </div>
-                </a>
-                <div th:if="${#lists.isEmpty(myLists)}" class="empty-grid-msg">You haven't created any lists yet.</div>
+        <!-- Tabs Container -->
+        <div class="profile-tabs-container">
+            <div class="profile-tabs-header">
+                <button class="profile-tab-btn active" data-tab="my-lists">My Created Lists</button>
+                <button class="profile-tab-btn" data-tab="saved-lists">My Saved Lists</button>
+                <button class="profile-tab-btn" data-tab="liked-lists">My Liked Lists</button>
             </div>
-        </section>
 
-        <section class="profile-section">
-            <h2 class="section-heading">My Saved Lists</h2>
-            <div class="grid">
-                <a th:each="list : ${savedLists}" th:href="@{/lists/{id}(id=${list.listId})}" class="list-card">
-                    <div><span class="category-pill" th:text="${list.category.name}">Category</span></div>
-                    <h3 th:text="${list.title}">Title</h3>
-                    <p class="card-desc" th:text="${list.description}">Desc</p>
-                    <div class="card-footer-row">
-                        <span th:text="${'By ' + list.creator.username}">Creator</span>
-                    </div>
-                </a>
-                <div th:if="${#lists.isEmpty(savedLists)}" class="empty-grid-msg">No saved lists. Go explore!</div>
+            <div class="profile-tab-content active" id="my-lists">
+                <div class="grid">
+                    <a th:each="list : ${myLists}" th:href="@{/lists/{id}(id=${list.listId})}" class="list-card">
+                        <div>
+                            <span class="category-pill" th:text="${list.category.name}">Category</span>
+                            <span th:if="${list.isPinned}" class="pinned-badge pinned-badge-margin">📌 Pinned</span>
+                        </div>
+                        <h3 th:text="${list.title}">Title</h3>
+                        <p class="card-desc" th:text="${list.description}">Desc</p>
+                        <div class="card-footer-row">
+                            <span th:text="${list.viewCount + ' views'}">0 views</span>
+                            <span th:text="${#temporals.format(list.createdAt, 'dd MMM yyyy')}">Date</span>
+                        </div>
+                    </a>
+                    <div th:if="${#lists.isEmpty(myLists)}" class="empty-grid-msg">You haven't created any lists yet.</div>
+                </div>
             </div>
-        </section>
 
-        <section class="profile-section">
-            <h2 class="section-heading">My Liked Lists</h2>
-            <div class="grid">
-                <a th:each="list : ${likedLists}" th:href="@{/lists/{id}(id=${list.listId})}" class="list-card">
-                    <div><span class="category-pill" th:text="${list.category.name}">Category</span></div>
-                    <h3 th:text="${list.title}">Title</h3>
-                    <p class="card-desc" th:text="${list.description}">Desc</p>
-                    <div class="card-footer-row">
-                        <span th:text="${'By ' + list.creator.username}">Creator</span>
-                    </div>
-                </a>
-                <div th:if="${#lists.isEmpty(likedLists)}" class="empty-grid-msg">No liked lists. Go explore!</div>
+            <div class="profile-tab-content" id="saved-lists">
+                <div class="grid">
+                    <a th:each="list : ${savedLists}" th:href="@{/lists/{id}(id=${list.listId})}" class="list-card">
+                        <div><span class="category-pill" th:text="${list.category.name}">Category</span></div>
+                        <h3 th:text="${list.title}">Title</h3>
+                        <p class="card-desc" th:text="${list.description}">Desc</p>
+                        <div class="card-footer-row">
+                            <span th:text="${'By ' + list.creator.username}">Creator</span>
+                        </div>
+                    </a>
+                    <div th:if="${#lists.isEmpty(savedLists)}" class="empty-grid-msg">No saved lists. Go explore!</div>
+                </div>
             </div>
-        </section>
+
+            <div class="profile-tab-content" id="liked-lists">
+                <div class="grid">
+                    <a th:each="list : ${likedLists}" th:href="@{/lists/{id}(id=${list.listId})}" class="list-card">
+                        <div><span class="category-pill" th:text="${list.category.name}">Category</span></div>
+                        <h3 th:text="${list.title}">Title</h3>
+                        <p class="card-desc" th:text="${list.description}">Desc</p>
+                        <div class="card-footer-row">
+                            <span th:text="${'By ' + list.creator.username}">Creator</span>
+                        </div>
+                    </a>
+                    <div th:if="${#lists.isEmpty(likedLists)}" class="empty-grid-msg">No liked lists. Go explore!</div>
+                </div>
+            </div>
+        </div>
     </main>
 
     <!-- Followers / Following Modal -->

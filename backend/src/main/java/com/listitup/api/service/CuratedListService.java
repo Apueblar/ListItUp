@@ -116,9 +116,9 @@ public class CuratedListService {
                     .executeUpdate();
 
             // Delete reports
-            entityManager.createQuery("DELETE FROM Report r WHERE r.list = :listToDelete")
-                    .setParameter("listToDelete", listToDelete)
-                    .executeUpdate();
+            entityManager.createQuery("DELETE FROM Report r WHERE r.targetList = :listToDelete")
+                .setParameter("listToDelete", listToDelete)
+                .executeUpdate();
 
             // Delete list
             listRepository.delete(listToDelete);
