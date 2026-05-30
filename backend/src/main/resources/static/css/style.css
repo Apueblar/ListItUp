@@ -276,3 +276,80 @@ select option {
     color: var(--text-primary);
 }
 
+/* ---------- Shared: Filters & Sort Tabs ---------- */
+.filters-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+.sort-tabs {
+    display: flex;
+    gap: 1rem;
+}
+.sort-tab-link {
+    text-decoration: none;
+    font-weight: bold;
+    padding-bottom: 0.25rem;
+    border-bottom: 2px solid transparent;
+    color: var(--text-secondary);
+    transition: color 0.2s ease, border-color 0.2s ease;
+}
+.sort-tab-link.active-tab {
+    border-bottom-color: var(--primary-color);
+    color: var(--primary-color);
+}
+
+/* ---------- Shared: Card Cover Photo ---------- */
+.card-cover-photo {
+    width: 100%;
+    height: 140px;
+    object-fit: cover;
+    border-radius: 8px;
+    margin-top: 0.5rem;
+    margin-bottom: 0.5rem;
+}
+
+/* ---------- Shared: Card Footer Actions ---------- */
+.card-footer-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+.btn-like-feed {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 1.2rem;
+    padding: 0;
+}
+
+/* ---------- Shared: Pagination ---------- */
+.pagination-container {
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+    margin-top: 2rem;
+}
+.pagination-btn {
+    background-color: var(--surface-color);
+    color: var(--text-color);
+    border: 1px solid var(--border-color);
+}
+.pagination-label {
+    align-self: center;
+}
+
+/* ---------- Shared: User Not Found Alert ---------- */
+.user-not-found-alert {
+    background-color: rgba(239, 68, 68, 0.15);
+    border: 1px solid #ef4444;
+    color: #ef4444;
+    padding: 1rem;
+    border-radius: 8px;
+    margin-bottom: 1.5rem;
+    text-align: center;
+}
+

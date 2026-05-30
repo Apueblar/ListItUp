@@ -11,7 +11,10 @@
 
     <main class="animate-in">
         <div class="editor-container">
-            <h1 class="editor-title" th:text="${list != null} ? 'Edit List' : 'Create a New List'">Create a New List</h1>
+            <div class="editor-title-row">
+                <h1 class="editor-title" th:text="${list != null} ? 'Edit List' : 'Create a New List'">Create a New List</h1>
+                <a th:href="${list != null} ? @{/lists/{id}(id=${list.listId})} : @{/feed}" class="btn-cancel-top">&times; Cancel</a>
+            </div>
             
             <form th:action="${list != null} ? @{/lists/{id}/edit(id=${list.listId})} : @{/lists}" method="POST">
                 <div class="form-group">
@@ -25,29 +28,29 @@
                 </div>
 
                 <div class="form-group">
-                    <label for="category" style="display:flex; justify-content:space-between; align-items:center;">
+                    <label for="category" class="category-label">
                         <span>Category</span>
-                        <a href="javascript:void(0)" id="propose-category-link" style="font-size:0.8rem; font-weight:normal; color:var(--primary-color); text-decoration:none;">Can't find it? Propose a new one</a>
+                        <a href="javascript:void(0)" id="propose-category-link" class="propose-category-link">Can't find it? Propose a new one</a>
                     </label>
                     <select id="category" name="categoryId" required>
                         <option value="">Select a category</option>
                         <option th:each="cat : ${categories}" th:value="${cat.categoryId}" th:text="${cat.name}" th:selected="${list != null and list.category.categoryId == cat.categoryId}"></option>
                     </select>
-                    <div id="propose-category-container" style="display:none; margin-top:0.75rem; background:var(--surface-color); padding:1rem; border-radius:8px; border:1px dashed var(--glass-border);">
-                        <label for="proposedCategoryName" style="font-size:0.9rem; font-weight:bold;">Proposed Category Name</label>
-                        <div style="display:flex; gap:0.5rem; margin-top:0.25rem;">
-                            <input type="text" id="proposedCategoryName" placeholder="e.g. Science" style="flex:1; padding:0.5rem; border-radius:6px; border:1px solid var(--glass-border); background:var(--bg-primary); color:var(--text-primary);">
-                            <button type="button" id="submit-proposal-btn" class="btn-primary" style="padding:0.5rem 1rem;">Submit</button>
+                    <div id="propose-category-container" class="propose-category-container">
+                        <label for="proposedCategoryName" class="propose-category-label">Proposed Category Name</label>
+                        <div class="propose-input-row">
+                            <input type="text" id="proposedCategoryName" class="propose-input" placeholder="e.g. Science">
+                            <button type="button" id="submit-proposal-btn" class="btn-primary propose-submit-btn">Submit</button>
                         </div>
-                        <p id="proposal-feedback" style="margin-top:0.5rem; font-size:0.85rem; display:none;"></p>
+                        <p id="proposal-feedback" class="proposal-feedback"></p>
                     </div>
                 </div>
 
                 <div class="form-group">
                     <label for="coverPhoto">Cover Photo (Optional)</label>
-                    <div style="display: flex; gap: 0.5rem; align-items: center;">
-                        <input type="text" id="coverPhoto" name="coverPhoto" th:value="${list != null ? list.coverPhoto : ''}" placeholder="https://..." style="flex: 1;" />
-                        <span style="font-weight: bold;">OR</span>
+                    <div class="photo-upload-row">
+                        <input type="text" id="coverPhoto" name="coverPhoto" th:value="${list != null ? list.coverPhoto : ''}" placeholder="https://..." />
+                        <span class="photo-upload-separator">OR</span>
                         <input type="file" id="coverPhotoFile" accept="image/*" class="file-upload-input" data-target="coverPhoto" />
                     </div>
                 </div>
@@ -74,9 +77,9 @@
                             </div>
                             <div class="item-row-field">
                                 <label>Photo (Optional)</label>
-                                <div style="display: flex; gap: 0.5rem; align-items: center;">
-                                    <input type="text" th:name="'items[' + ${stat.index} + '].photo'" th:value="${item.photo}" th:id="'item-photo-' + ${stat.index}" style="flex: 1;" />
-                                    <span style="font-weight: bold;">OR</span>
+                                <div class="photo-upload-row">
+                                    <input type="text" th:name="'items[' + ${stat.index} + '].photo'" th:value="${item.photo}" th:id="'item-photo-' + ${stat.index}" />
+                                    <span class="photo-upload-separator">OR</span>
                                     <input type="file" accept="image/*" class="file-upload-input" th:attr="data-target='item-photo-' + ${stat.index}" />
                                 </div>
                             </div>
@@ -88,9 +91,9 @@
                     </th:block>
                 </div>
 
-                <div style="display:flex; gap:1rem; margin-top: 2rem;">
-                    <button type="submit" name="action" value="draft" class="btn-draft-list" style="flex:1;">Save as Draft</button>
-                    <button type="submit" name="action" value="publish" class="btn-primary btn-submit-list" style="flex:1;" th:text="${list != null and !list.isDraft} ? 'Save Changes' : 'Publish List'">Publish List</button>
+                <div class="editor-submit-row">
+                    <button type="submit" name="action" value="draft" class="btn-draft-list">Save as Draft</button>
+                    <button type="submit" name="action" value="publish" class="btn-primary btn-submit-list" th:text="${list != null and !list.isDraft} ? 'Save Changes' : 'Publish List'">Publish List</button>
                 </div>
             </form>
         </div>

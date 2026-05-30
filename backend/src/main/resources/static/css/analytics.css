@@ -1,0 +1,38 @@
+.analytics-main {
+    max-width: 1000px;
+    margin: 2rem auto;
+    padding: 0 1rem;
+}
+.analytics-title {
+    margin-bottom: 2rem;
+}
+.analytics-empty {
+    text-align: center;
+    color: var(--text-secondary);
+}
+.analytics-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 2rem;
+    background: var(--surface-color);
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+.analytics-table thead {
+    background: var(--background-color);
+}
+.analytics-table thead tr {
+    border-bottom: 2px solid var(--border-color);
+    text-align: left;
+}
+.analytics-table th,
+.analytics-table td {
+    padding: 1rem;
+}
+.analytics-table td:first-child {
+    font-weight: bold;
+}
+.analytics-table tbody tr {
+    border-bottom: 1px solid var(--border-color);
+}

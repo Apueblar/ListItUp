@@ -11,62 +11,123 @@ document.addEventListener('DOMContentLoaded', function() {
         if (parts.length === 2) return parts.pop().split(";").shift();
     }
 
-    // Avatar Upload Logic
-    var btnUploadAvatar = document.getElementById('btn-upload-avatar');
+    // Avatar Upload & Cropper Logic
+    var avatarContainer = document.getElementById('avatar-container');
     var fileInput = document.getElementById('avatar-file-input');
-    var avatarPreview = document.getElementById('avatar-preview');
     var profilePictureInput = document.getElementById('profilePictureInput');
+    
+    var cropperModal = document.getElementById('cropper-modal');
+    var closeCropperModal = document.getElementById('close-cropper-modal');
+    var btnCancelCrop = document.getElementById('btn-cancel-crop');
+    var btnSaveCrop = document.getElementById('btn-save-crop');
+    var cropperImage = document.getElementById('cropper-image');
+    
+    var cropper = null;
 
-    if (btnUploadAvatar && fileInput) {
-        btnUploadAvatar.addEventListener('click', function() {
+    if (avatarContainer && fileInput) {
+        avatarContainer.addEventListener('click', function() {
+            fileInput.value = ''; // Reset
             fileInput.click();
         });
 
-        fileInput.addEventListener('change', async function() {
-            if (!this.files || this.files.length === 0) return;
-            var file = this.files[0];
-            var formData = new FormData();
-            formData.append('file', file);
-            
-            var xsrfToken = getCookie('XSRF-TOKEN');
-
-            try {
-                btnUploadAvatar.textContent = 'Uploading...';
-                btnUploadAvatar.disabled = true;
-
-                var response = await fetch('/upload/image', {
-                    method: 'POST',
-                    body: formData,
-                    headers: {
-                        'X-XSRF-TOKEN': xsrfToken || ''
+        fileInput.addEventListener('change', function(e) {
+            var files = e.target.files;
+            if (files && files.length > 0) {
+                var reader = new FileReader();
+                reader.onload = function(event) {
+                    cropperImage.src = event.target.result;
+                    cropperModal.style.display = 'block';
+                    
+                    if (cropper) {
+                        cropper.destroy();
                     }
-                });
-
-                if (response.ok) {
-                    var data = await response.json();
-                    if (data.url) {
-                        profilePictureInput.value = data.url;
-                        if (avatarPreview) {
-                            avatarPreview.src = data.url;
-                        } else {
-                            // Create preview if it didn't exist
-                            var newImg = document.createElement('img');
-                            newImg.src = data.url;
-                            newImg.id = 'avatar-preview';
-                            newImg.style = 'width:40px; height:40px; border-radius:50%; object-fit:cover;';
-                            profilePictureInput.parentNode.insertBefore(newImg, btnUploadAvatar);
-                        }
-                    }
-                } else {
-                    alert('Failed to upload image.');
-                }
-            } catch (err) {
-                console.error('Upload error:', err);
-                alert('Error uploading image.');
-            } finally {
-                btnUploadAvatar.textContent = 'Upload Image';
-                btnUploadAvatar.disabled = false;
+                    cropper = new Cropper(cropperImage, {
+                        aspectRatio: 1,
+                        viewMode: 1,
+                        background: false
+                    });
+                };
+                reader.readAsDataURL(files[0]);
             }
+        });
+    }
+
+    function hideCropperModal() {
+        cropperModal.style.display = 'none';
+        if (cropper) {
+            cropper.destroy();
+            cropper = null;
+        }
+    }
+
+    if (closeCropperModal) closeCropperModal.addEventListener('click', hideCropperModal);
+    if (btnCancelCrop) btnCancelCrop.addEventListener('click', hideCropperModal);
+    if (cropperModal) {
+        window.addEventListener('click', function(e) {
+            if (e.target == cropperModal) hideCropperModal();
+        });
+    }
+
+    if (btnSaveCrop) {
+        btnSaveCrop.addEventListener('click', async function() {
+            if (!cropper) return;
+            btnSaveCrop.textContent = 'Saving...';
+            btnSaveCrop.disabled = true;
+
+            cropper.getCroppedCanvas({
+                width: 400,
+                height: 400
+            }).toBlob(async function(blob) {
+                var formData = new FormData();
+                formData.append('file', blob, 'avatar.png');
+                
+                var xsrfToken = getCookie('XSRF-TOKEN');
+
+                try {
+                    // Upload image
+                    var response = await fetch('/upload/image', {
+                        method: 'POST',
+                        body: formData,
+                        headers: {
+                            'X-XSRF-TOKEN': xsrfToken || ''
+                        }
+                    });
+
+                    if (response.ok) {
+                        var data = await response.json();
+                        if (data.url) {
+                            // Update avatar via backend API form submit
+                            var updateForm = document.createElement('form');
+                            updateForm.method = 'POST';
+                            updateForm.action = '/profile/update-avatar';
+                            
+                            var csrfInput = document.createElement('input');
+                            csrfInput.type = 'hidden';
+                            csrfInput.name = '_csrf';
+                            csrfInput.value = xsrfToken;
+                            updateForm.appendChild(csrfInput);
+
+                            var picInput = document.createElement('input');
+                            picInput.type = 'hidden';
+                            picInput.name = 'profilePicture';
+                            picInput.value = data.url;
+                            updateForm.appendChild(picInput);
+
+                            document.body.appendChild(updateForm);
+                            updateForm.submit();
+                        }
+                    } else {
+                        alert('Failed to upload image.');
+                    }
+                } catch (err) {
+                    console.error('Upload error:', err);
+                    alert('Error uploading image.');
+                } finally {
+                    btnSaveCrop.textContent = 'Save Picture';
+                    btnSaveCrop.disabled = false;
+                    hideCropperModal();
+                }
+            }, 'image/png');
         });
     }
 
@@ -96,17 +157,45 @@ document.addEventListener('DOMContentLoaded', function() {
                             modalList.innerHTML = '<p>No users found.</p>';
                         } else {
                             users.forEach(function(u) {
-                                var avatarHtml = u.profilePicture ? 
-                                    `<img src="${u.profilePicture}" style="width:40px; height:40px; border-radius:50%; object-fit:cover;">` :
-                                    `<span style="width:40px; height:40px; border-radius:50%; background:var(--glass-bg); display:flex; align-items:center; justify-content:center; border:1px solid var(--glass-border);">${u.username.charAt(0).toUpperCase()}</span>`;
-                                
-                                var userHtml = `
-                                    <div style="display:flex; align-items:center; gap:1rem; padding:0.5rem; border-bottom:1px solid var(--glass-border);">
-                                        ${avatarHtml}
-                                        <a href="/users/${u.username}" style="flex:1; text-decoration:none; color:var(--text-primary); font-weight:bold;">${u.username}</a>
-                                    </div>
-                                `;
-                                modalList.insertAdjacentHTML('beforeend', userHtml);
+                                var container = document.createElement('div');
+                                container.style.display = 'flex';
+                                container.style.alignItems = 'center';
+                                container.style.gap = '1rem';
+                                container.style.padding = '0.5rem';
+                                container.style.borderBottom = '1px solid var(--glass-border)';
+
+                                if (u.profilePicture) {
+                                    var img = document.createElement('img');
+                                    img.src = u.profilePicture;
+                                    img.style.width = '40px';
+                                    img.style.height = '40px';
+                                    img.style.borderRadius = '50%';
+                                    img.style.objectFit = 'cover';
+                                    container.appendChild(img);
+                                } else {
+                                    var span = document.createElement('span');
+                                    span.style.width = '40px';
+                                    span.style.height = '40px';
+                                    span.style.borderRadius = '50%';
+                                    span.style.background = 'var(--glass-bg)';
+                                    span.style.display = 'flex';
+                                    span.style.alignItems = 'center';
+                                    span.style.justifyContent = 'center';
+                                    span.style.border = '1px solid var(--glass-border)';
+                                    span.textContent = u.username.charAt(0).toUpperCase();
+                                    container.appendChild(span);
+                                }
+
+                                var link = document.createElement('a');
+                                link.href = '/users/' + encodeURIComponent(u.username);
+                                link.style.flex = '1';
+                                link.style.textDecoration = 'none';
+                                link.style.color = 'var(--text-primary)';
+                                link.style.fontWeight = 'bold';
+                                link.textContent = u.username;
+                                container.appendChild(link);
+
+                                modalList.appendChild(container);
                             });
                         }
                     } else {

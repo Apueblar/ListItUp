@@ -15,14 +15,14 @@
             <p>Manage users, toggle verification badges, assign administrative privileges, or block accounts.</p>
         </header>
 
-        <div style="margin-bottom: 2rem; display: flex; gap: 1rem;">
-            <a href="/admin" class="btn-primary btn-interaction--active" style="text-decoration:none;">Users</a>
+        <div class="admin-nav">
+            <a href="/admin" class="btn-primary btn-interaction--active">Users</a>
             <a href="/admin/lists" class="btn-secondary">Lists</a>
             <a href="/admin/reports" class="btn-secondary">Reports</a>
             <a href="/admin/categories" class="btn-secondary">Categories</a>
         </div>
 
-        <div style="overflow-x: auto;">
+        <div class="admin-table-wrapper">
             <table class="admin-table">
             <thead>
                 <tr>
@@ -51,7 +51,7 @@
                     </td>
                     <td>
                         <span th:if="${user.hasBadge}" class="badge-verified">Verified Badge</span>
-                        <span th:unless="${user.hasBadge}" class="td-email" style="font-size: 0.9rem;">None</span>
+                        <span th:unless="${user.hasBadge}" class="td-email verification-none">None</span>
                     </td>
                     <td>
                         <span th:if="${user.isBlocked}" class="badge-blocked">Blocked</span>

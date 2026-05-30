@@ -22,6 +22,9 @@ public class User {
     @Column(name = "auth_provider", nullable = false)
     private String authProvider;
 
+    @Column(name = "oauth_provider_id")
+    private String oauthProviderId;
+
     @Column(nullable = false)
     private String role = "STANDARD";
 
@@ -50,7 +53,7 @@ public class User {
     private String profilePicture;
 
     @Column(columnDefinition = "TEXT")
-    private String bio;
+    private String biography;
 
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt = LocalDateTime.now();
@@ -64,6 +67,8 @@ public class User {
     public void setEmail(String email) { this.email = email; }
     public String getAuthProvider() { return authProvider; }
     public void setAuthProvider(String authProvider) { this.authProvider = authProvider; }
+    public String getOauthProviderId() { return oauthProviderId; }
+    public void setOauthProviderId(String oauthProviderId) { this.oauthProviderId = oauthProviderId; }
     public String getRole() { return role; }
     public void setRole(String role) { this.role = role; }
     public Boolean getHasBadge() { return hasBadge; }
@@ -82,8 +87,8 @@ public class User {
     public void setHasCompletedSetup(Boolean hasCompletedSetup) { this.hasCompletedSetup = hasCompletedSetup; }
     public String getProfilePicture() { return profilePicture; }
     public void setProfilePicture(String profilePicture) { this.profilePicture = profilePicture; }
-    public String getBio() { return bio; }
-    public void setBio(String bio) { this.bio = bio; }
+    public String getBiography() { return biography; }
+    public void setBiography(String biography) { this.biography = biography; }
     public LocalDateTime getCreatedAt() { return createdAt; }
     public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
 }

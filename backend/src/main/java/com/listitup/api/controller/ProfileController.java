@@ -152,7 +152,13 @@ public class ProfileController {
         if (oauthUser == null) return "redirect:/feed";
         User user = userRepository.findByEmail(oauthUser.getAttribute("email")).orElseThrow();
         
-        user.setProfilePicture(profilePicture.trim());
+        String url = profilePicture.trim();
+        if (!url.isEmpty() && !url.startsWith("http://") && !url.startsWith("https://") && !url.startsWith("/uploads/")) {
+            redirectAttributes.addFlashAttribute("profileError", "Invalid profile picture URL.");
+            return "redirect:/profile";
+        }
+        
+        user.setProfilePicture(url);
         userRepository.save(user);
         redirectAttributes.addFlashAttribute("profileSuccess", "Profile picture updated successfully!");
         return "redirect:/profile";
@@ -160,12 +166,12 @@ public class ProfileController {
 
     @PostMapping("/profile/update-bio")
     public String updateBio(@AuthenticationPrincipal OAuth2User oauthUser, 
-                            @RequestParam String bio,
+                            @RequestParam String biography,
                             org.springframework.web.servlet.mvc.support.RedirectAttributes redirectAttributes) {
         if (oauthUser == null) return "redirect:/feed";
         User user = userRepository.findByEmail(oauthUser.getAttribute("email")).orElseThrow();
         
-        user.setBio(bio.trim());
+        user.setBiography(biography.trim());
         userRepository.save(user);
         redirectAttributes.addFlashAttribute("profileSuccess", "Bio updated successfully!");
         return "redirect:/profile";

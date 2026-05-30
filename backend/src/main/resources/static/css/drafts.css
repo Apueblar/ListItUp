@@ -1,0 +1,27 @@
+.drafts-main {
+    max-width: 1200px;
+    margin: 2rem auto;
+    padding: 0 1.5rem;
+}
+.drafts-title {
+    margin-bottom: 2rem;
+}
+.draft-card {
+    border: 2px dashed var(--primary-color);
+}
+.draft-badge {
+    margin-left: 0.5rem;
+    background: var(--text-secondary);
+    color: var(--bg-color);
+}
+.drafts-empty {
+    text-align: center;
+    padding: 3rem;
+    background: var(--surface-color);
+    border-radius: 12px;
+    border: 1px dashed var(--border-color);
+}
+.drafts-empty .btn-primary {
+    display: inline-block;
+    margin-top: 1rem;
+}

@@ -20,6 +20,9 @@ public class Notification {
     @Column(nullable = false)
     private String message;
 
+    @Column(name = "type")
+    private String type;
+
     @Column(name = "link_url")
     private String linkUrl;
 
@@ -35,6 +38,8 @@ public class Notification {
     public void setUser(User user) { this.user = user; }
     public String getMessage() { return message; }
     public void setMessage(String message) { this.message = message; }
+    public String getType() { return type; }
+    public void setType(String type) { this.type = type; }
     public String getLinkUrl() { return linkUrl; }
     public void setLinkUrl(String linkUrl) { this.linkUrl = linkUrl; }
     public Boolean getIsRead() { return isRead; }

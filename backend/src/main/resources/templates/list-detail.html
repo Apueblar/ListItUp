@@ -40,7 +40,7 @@
                    class="btn-primary btn-interaction">✏️ Edit</a>
                 
                 <form th:if="${currentUser != null and currentUser.userId == list.creator.userId}"
-                      th:action="@{/lists/{id}/delete(id=${list.listId})}" method="POST" style="display:inline;">
+                      th:action="@{/lists/{id}/delete(id=${list.listId})}" method="POST" class="delete-form-inline">
                     <button type="submit" class="btn-primary btn-interaction btn-delete-list" onclick="return confirm('Are you sure you want to delete this list?');">🗑️ Delete</button>
                 </form>
 

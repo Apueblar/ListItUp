@@ -48,9 +48,13 @@ public class WebController {
                        @RequestParam(required = false, defaultValue = "recent") String sort,
                        Model model, jakarta.servlet.http.HttpServletRequest request) {
         
+        // Extract the logged-in user from the security context
         User currentUser = null;
-        if (request.getUserPrincipal() instanceof OAuth2User) {
-            String email = ((OAuth2User) request.getUserPrincipal()).getAttribute("email");
+        OAuth2User oauthPrincipal = null;
+        org.springframework.security.core.Authentication auth = org.springframework.security.core.context.SecurityContextHolder.getContext().getAuthentication();
+        if (auth != null && auth.getPrincipal() instanceof OAuth2User) {
+            oauthPrincipal = (OAuth2User) auth.getPrincipal();
+            String email = oauthPrincipal.getAttribute("email");
             currentUser = userRepository.findByEmail(email).orElse(null);
         }
 
@@ -79,17 +83,13 @@ public class WebController {
         model.addAttribute("lists", lists);
         model.addAttribute("categories", categoryRepository.findAll());
         
-        if (request.getUserPrincipal() instanceof OAuth2User) {
-            OAuth2User oauthUser = (OAuth2User) request.getUserPrincipal();
-            String email = oauthUser.getAttribute("email");
-            Optional<User> currentUserOpt = userRepository.findByEmail(email);
-            currentUserOpt.ifPresent(user -> {
-                model.addAttribute("currentUser", user);
-                List<UUID> likedListIds = entityManager.createQuery("SELECT l.list.listId FROM Like l WHERE l.user = :u", UUID.class)
-                        .setParameter("u", user)
-                        .getResultList();
-                model.addAttribute("likedListIds", likedListIds);
-            });
+        if (currentUser != null) {
+            final User finalUser = currentUser;
+            model.addAttribute("currentUser", finalUser);
+            List<UUID> likedListIds = entityManager.createQuery("SELECT l.list.listId FROM Like l WHERE l.user = :u", UUID.class)
+                    .setParameter("u", finalUser)
+                    .getResultList();
+            model.addAttribute("likedListIds", likedListIds);
         }
 
         jakarta.servlet.http.HttpSession session = request.getSession(false);

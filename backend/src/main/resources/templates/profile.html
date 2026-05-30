@@ -4,6 +4,7 @@
 <head>
     <th:block th:replace="~{fragments/layout :: head(${user.username + ' - Profile'})}"></th:block>
     <link rel="stylesheet" th:href="@{/css/profile.css}"/>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css"/>
 </head>
 <body>
 
@@ -11,35 +12,31 @@
 
     <main class="animate-in">
         <header class="profile-own-header">
-            <div class="profile-own-avatar">
-                <img th:if="${user.profilePicture != null and !user.profilePicture.isEmpty()}" th:src="${user.profilePicture}" alt="Avatar" />
-                <span th:unless="${user.profilePicture != null and !user.profilePicture.isEmpty()}" th:text="${#strings.substring(user.username,0,1).toUpperCase()}">U</span>
+            <div class="profile-own-avatar" id="avatar-container" title="Change Profile Picture">
+                <img th:if="${user.profilePicture != null and !user.profilePicture.isEmpty()}" th:src="${user.profilePicture}" alt="Avatar" id="main-avatar-img" />
+                <span th:unless="${user.profilePicture != null and !user.profilePicture.isEmpty()}" th:text="${#strings.substring(user.username,0,1).toUpperCase()}" id="main-avatar-text">U</span>
+                <div class="avatar-overlay">
+                    <span class="avatar-overlay-text">📷 Change</span>
+                </div>
             </div>
+            <input type="file" id="avatar-file-input" accept="image/*" />
+            <input type="hidden" id="profilePictureInput" th:value="${user.profilePicture}" />
             <h1 class="section-heading profile-username" th:text="${user.username}">Username</h1>
             <p class="profile-own-role" th:text="${'Role: ' + user.role}">Role</p>
             <div class="profile-stats-row">
                 <span class="follower-count-link" th:data-username="${user.username}" th:data-type="followers" th:text="${followersCount} + ' followers'">0 followers</span> | 
                 <span class="follower-count-link" th:data-username="${user.username}" th:data-type="following" th:text="${followingCount} + ' following'">0 following</span>
             </div>
-            <p th:if="${user.bio != null and !user.bio.isEmpty()}" th:text="${user.bio}" class="profile-bio-text"></p>
+            <p th:if="${user.biography != null and !user.biography.isEmpty()}" th:text="${user.biography}" class="profile-bio-text"></p>
             <div th:if="${profileSuccess}" class="profile-success-msg" th:text="${profileSuccess}"></div>
         </header>
 
         <section class="profile-section edit-profile-section">
             <h2 class="section-heading edit-profile-title">Edit Profile</h2>
-            <form th:action="@{/profile/update-avatar}" method="post" id="avatar-form" class="profile-edit-form profile-edit-form--mb">
-                <label class="form-label-bold">Profile Picture URL or Upload</label>
-                <div class="flex-align-center">
-                    <input type="hidden" name="profilePicture" id="profilePictureInput" th:value="${user.profilePicture}" />
-                    <img th:if="${user.profilePicture != null and !user.profilePicture.isEmpty()}" th:src="${user.profilePicture}" id="avatar-preview" class="avatar-preview-small" />
-                    <button type="button" class="btn-primary btn-upload-avatar-small" id="btn-upload-avatar">Upload Image</button>
-                    <input type="file" id="avatar-file-input" accept="image/*" style="display:none;" />
-                    <button type="submit" class="btn-primary btn-save-action">Save URL</button>
-                </div>
-            </form>
+
             <form th:action="@{/profile/update-bio}" method="post" class="profile-edit-form">
                 <label class="form-label-bold">Bio</label>
-                <textarea name="bio" rows="3" placeholder="Tell us about yourself..." class="profile-textarea" th:text="${user.bio}"></textarea>
+                <textarea name="biography" rows="3" placeholder="Tell us about yourself..." class="profile-textarea" th:text="${user.biography}"></textarea>
                 <button type="submit" class="btn-primary btn-save-bio">Save Bio</button>
             </form>
         </section>
@@ -105,6 +102,22 @@
         </div>
     </div>
 
+    <!-- Cropper Modal -->
+    <div id="cropper-modal" class="modal">
+        <div class="modal-content">
+            <span class="close-modal" id="close-cropper-modal">&times;</span>
+            <h2 id="cropper-modal-title">Crop Profile Picture</h2>
+            <div class="cropper-container-wrapper">
+                <img id="cropper-image" src="">
+            </div>
+            <div class="cropper-actions-row">
+                <button type="button" class="btn-secondary" id="btn-cancel-crop">Cancel</button>
+                <button type="button" class="btn-primary" id="btn-save-crop">Save Picture</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
     <script th:src="@{/js/profile.js}"></script>
     <footer th:replace="~{fragments/layout :: footer}"></footer>
 </body>

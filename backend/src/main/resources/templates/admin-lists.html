@@ -13,16 +13,15 @@
             <h1>List Management</h1>
             <p>Manage all curated lists across the platform. You can delete any list here.</p>
 
-        <div style="margin-bottom: 2rem; display: flex; gap: 1rem;">
-            <a href="/admin" class="btn-secondary">Users</a>
-            <a href="/admin/lists" class="btn-primary btn-interaction--active" style="text-decoration:none;">Lists</a>
-            <a href="/admin/reports" class="btn-secondary">Reports</a>
-            <a href="/admin/categories" class="btn-secondary">Categories</a>
-        </div>
-
+            <div class="admin-nav">
+                <a href="/admin" class="btn-secondary">Users</a>
+                <a href="/admin/lists" class="btn-primary btn-interaction--active">Lists</a>
+                <a href="/admin/reports" class="btn-secondary">Reports</a>
+                <a href="/admin/categories" class="btn-secondary">Categories</a>
+            </div>
         </header>
 
-        <div style="overflow-x: auto;">
+        <div class="admin-table-wrapper">
             <table class="admin-table">
                 <thead>
                     <tr>
@@ -37,7 +36,7 @@
                 </thead>
                 <tbody>
                     <tr th:each="list : ${lists}">
-                        <td><a th:href="@{/lists/{id}(id=${list.listId})}" th:text="${list.title}" style="color:var(--text-primary);">Title</a></td>
+                        <td><a th:href="@{/lists/{id}(id=${list.listId})}" th:text="${list.title}" class="list-card-link">Title</a></td>
                         <td th:text="${list.creator.username}">Creator</td>
                         <td th:text="${list.category.name}">Category</td>
                         <td th:text="${list.viewCount}">0</td>
@@ -54,7 +53,7 @@
                         </td>
                     </tr>
                     <tr th:if="${#lists.isEmpty(lists)}">
-                        <td colspan="7" style="text-align:center; padding: 2rem;">No lists found.</td>
+                        <td colspan="7" class="admin-empty-text">No lists found.</td>
                     </tr>
                 </tbody>
             </table>

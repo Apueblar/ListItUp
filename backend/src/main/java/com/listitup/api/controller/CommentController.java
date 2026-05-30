@@ -74,6 +74,10 @@ public class CommentController {
         User user = userRepository.findByEmail(email).orElseThrow();
         Comment comment = commentRepository.findById(commentId).orElseThrow();
         
+        if (!comment.getList().getListId().equals(listId)) {
+            return ResponseEntity.badRequest().body(Map.of("error", "Comment does not belong to this list"));
+        }
+        
         if (!comment.getAuthor().getUserId().equals(user.getUserId()) && 
             !comment.getList().getCreator().getUserId().equals(user.getUserId()) &&
             !"ADMIN".equals(user.getRole())) {

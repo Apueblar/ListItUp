@@ -32,12 +32,19 @@ public class UploadController {
                 directory.mkdirs();
             }
 
-            // Generate unique filename
+            // Generate unique filename and validate extension
             String originalFilename = file.getOriginalFilename();
             String extension = "";
             if (originalFilename != null && originalFilename.lastIndexOf(".") > 0) {
-                extension = originalFilename.substring(originalFilename.lastIndexOf("."));
+                extension = originalFilename.substring(originalFilename.lastIndexOf(".")).toLowerCase();
             }
+            
+            if (!extension.equals(".png") && !extension.equals(".jpg") && 
+                !extension.equals(".jpeg") && !extension.equals(".gif") && 
+                !extension.equals(".webp")) {
+                return ResponseEntity.badRequest().body(Map.of("error", "Invalid file type. Only PNG, JPG, GIF, and WEBP are allowed."));
+            }
+
             String newFilename = UUID.randomUUID().toString() + extension;
             Path filePath = Paths.get(UPLOAD_DIR, newFilename);
 

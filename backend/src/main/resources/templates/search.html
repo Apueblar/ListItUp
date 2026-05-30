@@ -21,19 +21,17 @@
         </header>
 
         <!-- Sort and Category Filters -->
-        <div class="filters-container" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; flex-wrap: wrap; gap: 1rem;">
-            <div class="sort-tabs" style="display: flex; gap: 1rem;">
+        <div class="filters-container">
+            <div class="sort-tabs">
                 <a th:href="@{/search(q=${query}, sort='relevance', category=${selectedCategory != 'All' ? selectedCategory : null})}" 
-                   th:classappend="${selectedSort == 'relevance'} ? 'active-tab' : ''"
-                   style="text-decoration: none; font-weight: bold; padding-bottom: 0.25rem; border-bottom: 2px solid transparent;"
-                   th:styleappend="${selectedSort == 'relevance'} ? 'border-bottom-color: var(--primary-color); color: var(--primary-color);' : 'color: var(--text-secondary);'">Relevance</a>
+                   class="sort-tab-link"
+                   th:classappend="${selectedSort == 'relevance'} ? 'active-tab' : ''">Relevance</a>
                 <a th:href="@{/search(q=${query}, sort='recency', category=${selectedCategory != 'All' ? selectedCategory : null})}" 
-                   th:classappend="${selectedSort == 'recency'} ? 'active-tab' : ''"
-                   style="text-decoration: none; font-weight: bold; padding-bottom: 0.25rem; border-bottom: 2px solid transparent;"
-                   th:styleappend="${selectedSort == 'recency'} ? 'border-bottom-color: var(--primary-color); color: var(--primary-color);' : 'color: var(--text-secondary);'">Recency</a>
+                   class="sort-tab-link"
+                   th:classappend="${selectedSort == 'recency'} ? 'active-tab' : ''">Recency</a>
             </div>
 
-            <div class="category-filters" style="margin: 0;">
+            <div class="category-filters">
                 <a th:href="@{/search(q=${query}, category='All', sort=${selectedSort != 'relevance' ? selectedSort : null})}" 
                    class="filter-pill" 
                    th:classappend="${selectedCategory == 'All'} ? 'active' : ''">All</a>
@@ -73,16 +71,16 @@
         </section>
 
         <!-- Pagination -->
-        <div th:if="${listsPage.totalPages > 1}" class="pagination-container" style="display: flex; justify-content: center; gap: 1rem; margin-top: 2rem;">
+        <div th:if="${listsPage.totalPages > 1}" class="pagination-container">
             <a th:if="${listsPage.hasPrevious()}" 
                th:href="@{/search(q=${query}, category=${selectedCategory}, sort=${selectedSort}, page=${listsPage.number - 1})}" 
-               class="btn-primary" style="background-color: var(--surface-color); color: var(--text-color); border: 1px solid var(--border-color);">&laquo; Previous</a>
+               class="btn-primary pagination-btn">&laquo; Previous</a>
                
-            <span style="align-self: center;" th:text="${'Page ' + (listsPage.number + 1) + ' of ' + listsPage.totalPages}">Page 1 of 5</span>
+            <span class="pagination-label" th:text="${'Page ' + (listsPage.number + 1) + ' of ' + listsPage.totalPages}">Page 1 of 5</span>
             
             <a th:if="${listsPage.hasNext()}" 
                th:href="@{/search(q=${query}, category=${selectedCategory}, sort=${selectedSort}, page=${listsPage.number + 1})}" 
-               class="btn-primary" style="background-color: var(--surface-color); color: var(--text-color); border: 1px solid var(--border-color);">Next &raquo;</a>
+               class="btn-primary pagination-btn">Next &raquo;</a>
         </div>
     </main>
 

@@ -2,49 +2,50 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
     <th:block th:replace="~{fragments/layout :: head('Admin Reports - ListItUp')}"></th:block>
+    <link rel="stylesheet" th:href="@{/css/admin.css(v=1.1)}"/>
 </head>
 <body>
 
     <nav th:replace="~{fragments/layout :: navbar}"></nav>
 
-    <main class="animate-in" style="max-width: 1000px; margin: 2rem auto; padding: 0 1rem;">
+    <main class="animate-in admin-main">
         <h1>Admin - Reports</h1>
 
-        <div style="margin-bottom: 2rem; display: flex; gap: 1rem;">
+        <div class="admin-nav">
             <a href="/admin" class="btn-secondary">Users</a>
             <a href="/admin/lists" class="btn-secondary">Lists</a>
-            <a href="/admin/reports" class="btn-primary btn-interaction--active" style="text-decoration:none;">Reports</a>
+            <a href="/admin/reports" class="btn-primary btn-interaction--active">Reports</a>
             <a href="/admin/categories" class="btn-secondary">Categories</a>
         </div>
 
         <h2>Pending Reports</h2>
         <div th:if="${#lists.isEmpty(pendingReports)}">No pending reports.</div>
-        <table th:unless="${#lists.isEmpty(pendingReports)}" style="width: 100%; border-collapse: collapse; margin-bottom: 2rem;">
+        <table th:unless="${#lists.isEmpty(pendingReports)}" class="admin-reports-table">
             <thead>
-                <tr style="border-bottom: 2px solid var(--border-color); text-align: left;">
-                    <th style="padding: 0.5rem;">Date</th>
-                    <th style="padding: 0.5rem;">List</th>
-                    <th style="padding: 0.5rem;">Reporter</th>
-                    <th style="padding: 0.5rem;">Reason</th>
-                    <th style="padding: 0.5rem;">Details</th>
-                    <th style="padding: 0.5rem;">Actions</th>
+                <tr>
+                    <th>Date</th>
+                    <th>List</th>
+                    <th>Reporter</th>
+                    <th>Reason</th>
+                    <th>Details</th>
+                    <th>Actions</th>
                 </tr>
             </thead>
             <tbody>
-                <tr th:each="report : ${pendingReports}" style="border-bottom: 1px solid var(--border-color);">
-                    <td style="padding: 0.5rem;" th:text="${#temporals.format(report.createdAt, 'dd MMM yyyy')}">Date</td>
-                    <td style="padding: 0.5rem;">
+                <tr th:each="report : ${pendingReports}">
+                    <td th:text="${#temporals.format(report.createdAt, 'dd MMM yyyy')}">Date</td>
+                    <td>
                         <a th:href="@{/lists/{id}(id=${report.list.listId})}" th:text="${report.list.title}">List</a>
                     </td>
-                    <td style="padding: 0.5rem;" th:text="${report.reporter.username}">Reporter</td>
-                    <td style="padding: 0.5rem;" th:text="${report.reason}">Reason</td>
-                    <td style="padding: 0.5rem;" th:text="${report.details}">Details</td>
-                    <td style="padding: 0.5rem; display: flex; gap: 0.5rem;">
+                    <td th:text="${report.reporter.username}">Reporter</td>
+                    <td th:text="${report.reason}">Reason</td>
+                    <td th:text="${report.details}">Details</td>
+                    <td class="td-actions-flex">
                         <form th:action="@{/admin/reports/{id}/resolve(id=${report.reportId})}" method="post">
-                            <button type="submit" class="btn-primary" style="padding: 0.25rem 0.5rem; font-size: 0.8rem; background-color: var(--success-color, #10b981);">Resolve</button>
+                            <button type="submit" class="btn-resolve-sm">Resolve</button>
                         </form>
                         <form th:action="@{/admin/reports/{id}/dismiss(id=${report.reportId})}" method="post">
-                            <button type="submit" class="btn-primary" style="padding: 0.25rem 0.5rem; font-size: 0.8rem; background-color: var(--surface-color); color: var(--text-color); border: 1px solid var(--border-color);">Dismiss</button>
+                            <button type="submit" class="btn-dismiss-sm">Dismiss</button>
                         </form>
                     </td>
                 </tr>
@@ -53,11 +54,11 @@
 
         <h2>Resolved / Dismissed</h2>
         <div th:if="${#lists.isEmpty(resolvedReports) and #lists.isEmpty(dismissedReports)}">No resolved/dismissed reports.</div>
-        <ul style="list-style-type: none; padding: 0;">
-            <li th:each="report : ${resolvedReports}" style="margin-bottom: 0.5rem; padding: 0.5rem; border: 1px solid var(--border-color); border-radius: 8px;">
+        <ul class="admin-history-list">
+            <li th:each="report : ${resolvedReports}" class="admin-history-item">
                 ✅ <span th:text="${report.list.title}">List</span> reported for <strong th:text="${report.reason}"></strong> - RESOLVED
             </li>
-            <li th:each="report : ${dismissedReports}" style="margin-bottom: 0.5rem; padding: 0.5rem; border: 1px solid var(--border-color); border-radius: 8px;">
+            <li th:each="report : ${dismissedReports}" class="admin-history-item">
                 ❌ <span th:text="${report.list.title}">List</span> reported for <strong th:text="${report.reason}"></strong> - DISMISSED
             </li>
         </ul>

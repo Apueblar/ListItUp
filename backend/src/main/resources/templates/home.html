@@ -16,7 +16,7 @@
         </div>
         
         <!-- User Not Found Alert -->
-        <div th:if="${param.userNotFound != null}" class="error-alert" style="background-color: rgba(239, 68, 68, 0.15); border: 1px solid #ef4444; color: #ef4444; padding: 1rem; border-radius: 8px; margin-bottom: 1.5rem; text-align: center;">
+        <div th:if="${param.userNotFound != null}" class="user-not-found-alert">
             <p>The user profile you are looking for does not exist or could not be found.</p>
         </div>
         <header class="home-header">
@@ -27,23 +27,20 @@
         </header>
 
         <!-- Sort and Category Filters -->
-        <div class="filters-container" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; flex-wrap: wrap; gap: 1rem;">
-            <div class="sort-tabs" style="display: flex; gap: 1rem;">
+        <div class="filters-container">
+            <div class="sort-tabs">
                 <a th:href="@{/feed(sort='recent', category=${selectedCategory != 'All' ? selectedCategory : null})}" 
-                   th:classappend="${selectedSort == 'recent'} ? 'active-tab' : ''"
-                   style="text-decoration: none; font-weight: bold; padding-bottom: 0.25rem; border-bottom: 2px solid transparent;"
-                   th:styleappend="${selectedSort == 'recent'} ? 'border-bottom-color: var(--primary-color); color: var(--primary-color);' : 'color: var(--text-secondary);'">Recent</a>
+                   class="sort-tab-link"
+                   th:classappend="${selectedSort == 'recent'} ? 'active-tab' : ''">Recent</a>
                 <a th:href="@{/feed(sort='trending', category=${selectedCategory != 'All' ? selectedCategory : null})}" 
-                   th:classappend="${selectedSort == 'trending'} ? 'active-tab' : ''"
-                   style="text-decoration: none; font-weight: bold; padding-bottom: 0.25rem; border-bottom: 2px solid transparent;"
-                   th:styleappend="${selectedSort == 'trending'} ? 'border-bottom-color: var(--primary-color); color: var(--primary-color);' : 'color: var(--text-secondary);'">Trending</a>
+                   class="sort-tab-link"
+                   th:classappend="${selectedSort == 'trending'} ? 'active-tab' : ''">Trending</a>
                 <a th:href="@{/feed(sort='following', category=${selectedCategory != 'All' ? selectedCategory : null})}" 
-                   th:classappend="${selectedSort == 'following'} ? 'active-tab' : ''"
-                   style="text-decoration: none; font-weight: bold; padding-bottom: 0.25rem; border-bottom: 2px solid transparent;"
-                   th:styleappend="${selectedSort == 'following'} ? 'border-bottom-color: var(--primary-color); color: var(--primary-color);' : 'color: var(--text-secondary);'">Following</a>
+                   class="sort-tab-link"
+                   th:classappend="${selectedSort == 'following'} ? 'active-tab' : ''">Following</a>
             </div>
 
-            <div class="category-filters" style="margin: 0;">
+            <div class="category-filters">
                 <a th:href="@{/feed(category='All', sort=${selectedSort != 'recent' ? selectedSort : null})}" 
                    class="filter-pill" 
                    th:classappend="${selectedCategory == 'All'} ? 'active' : ''">All</a>
@@ -62,7 +59,7 @@
                     <span class="category-pill" th:text="${list.category.name}">Category</span>
                     <span class="card-date" th:text="${#temporals.format(list.createdAt, 'dd MMM yyyy')}">Date</span>
                 </div>
-                <img th:if="${list.coverPhoto != null and !list.coverPhoto.isEmpty()}" th:src="${list.coverPhoto}" alt="Cover" style="width:100%; height:140px; object-fit:cover; border-radius:8px; margin-top:0.5rem; margin-bottom:0.5rem;"/>
+                <img th:if="${list.coverPhoto != null and !list.coverPhoto.isEmpty()}" th:src="${list.coverPhoto}" alt="Cover" class="card-cover-photo"/>
                 <h3>
                     <a th:href="@{/lists/{id}(id=${list.listId})}" th:text="${list.title}" class="list-card-link">Top 10 Sci-Fi Movies</a>
                 </h3>
@@ -73,11 +70,10 @@
                     <span>
                         by <a th:href="@{/users/{username}(username=${list.creator.username})}" th:text="${list.creator.username}" class="card-creator-link">creator</a>
                     </span>
-                    <div style="display:flex; align-items:center; gap:0.5rem;">
+                    <div class="card-footer-actions">
                         <span th:text="${list.viewCount + ' views'}">1.2k views</span>
                         <button class="btn-like-feed" th:data-list-id="${list.listId}"
-                                th:classappend="${likedListIds != null and #lists.contains(likedListIds, list.listId)} ? 'btn-interaction--active' : ''"
-                                style="background: none; border: none; cursor: pointer; font-size: 1.2rem; padding: 0;">
+                                th:classappend="${likedListIds != null and #lists.contains(likedListIds, list.listId)} ? 'btn-interaction--active' : ''">
                             <span th:text="${likedListIds != null and #lists.contains(likedListIds, list.listId)} ? '❤️' : '🤍'">🤍</span>
                         </button>
                     </div>
@@ -92,67 +88,6 @@
     </main>
 
     <footer th:replace="~{fragments/layout :: footer}"></footer>
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            function getCsrfToken() {
-                var meta = document.querySelector('meta[name="_csrf"]');
-                if (meta && meta.content) return meta.content;
-                var value = "; " + document.cookie;
-                var parts = value.split("; XSRF-TOKEN=");
-                if (parts.length === 2) return parts.pop().split(";").shift();
-                return '';
-            }
-            var xsrfToken = getCsrfToken();
-            var btns = document.querySelectorAll('.btn-like-feed');
-            btns.forEach(function(btn) {
-                btn.addEventListener('click', async function(e) {
-                    e.preventDefault();
-                    var listId = btn.getAttribute('data-list-id');
-                    var span = btn.querySelector('span');
-                    
-                    var wasActive = btn.classList.contains('btn-interaction--active');
-                    if (wasActive) {
-                        span.textContent = '🤍';
-                        btn.classList.remove('btn-interaction--active');
-                    } else {
-                        span.textContent = '❤️';
-                        btn.classList.add('btn-interaction--active');
-                    }
-
-                    try {
-                        var response = await fetch('/lists/' + listId + '/like', {
-                            method: 'POST',
-                            headers: {
-                                'Content-Type': 'application/json',
-                                'X-XSRF-TOKEN': xsrfToken || ''
-                            }
-                        });
-
-                        if (!response.ok) {
-                            if (wasActive) {
-                                span.textContent = '❤️';
-                                btn.classList.add('btn-interaction--active');
-                            } else {
-                                span.textContent = '🤍';
-                                btn.classList.remove('btn-interaction--active');
-                            }
-                            if (response.status === 401 || response.status === 403) {
-                                window.location.href = '/oauth2/authorization/google';
-                            }
-                        }
-                    } catch (err) {
-                        console.error(err);
-                        if (wasActive) {
-                            span.textContent = '❤️';
-                            btn.classList.add('btn-interaction--active');
-                        } else {
-                            span.textContent = '🤍';
-                            btn.classList.remove('btn-interaction--active');
-                        }
-                    }
-                });
-            });
-        });
-    </script>
+    <script th:src="@{/js/home.js}"></script>
 </body>
 </html>

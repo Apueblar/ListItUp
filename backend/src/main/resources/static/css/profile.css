@@ -22,6 +22,42 @@
     font-size: 2rem;
     font-weight: bold;
     color: white;
+    overflow: hidden;
+    position: relative;
+    cursor: pointer;
+}
+
+.profile-own-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.avatar-overlay {
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0,0,0,0.6);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transition: opacity 0.2s ease;
+}
+
+.profile-own-avatar:hover .avatar-overlay {
+    opacity: 1;
+}
+
+.avatar-overlay-text {
+    color: white;
+    font-size: 0.9rem;
+    font-weight: 600;
+}
+
+/* Cropper fixes */
+.cropper-view-box,
+.cropper-face {
+    border-radius: 50%;
 }
 
 .profile-own-role {
@@ -236,4 +272,27 @@
     display: flex;
     flex-direction: column;
     gap: 1rem;
+}
+
+/* ---------- Cropper Modal ---------- */
+#avatar-file-input {
+    display: none;
+}
+#cropper-modal {
+    display: none;
+}
+.cropper-container-wrapper {
+    max-height: 400px;
+    margin-top: 1rem;
+    margin-bottom: 1rem;
+    text-align: center;
+}
+.cropper-container-wrapper img {
+    max-width: 100%;
+    max-height: 400px;
+}
+.cropper-actions-row {
+    display: flex;
+    gap: 1rem;
+    justify-content: flex-end;
 }
