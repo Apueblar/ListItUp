@@ -60,6 +60,7 @@ public class CuratedListService {
                     u.setUsername("System");
                     u.setEmail("system@listitup.com");
                     u.setRole("STANDARD");
+                    u.setAuthProvider("SYSTEM");
                     return userRepository.save(u);
                 });
 
