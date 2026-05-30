@@ -149,7 +149,7 @@
 }
 
 /* ---------- Category Proposal ---------- */
-.category-label {
+.editor-container label.category-label {
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -214,5 +214,54 @@
     margin-top: 2rem;
 }
 .editor-submit-row > button {
+    flex: 1;
+}
+
+/* ---------- Drag & Drop Upload Zone ---------- */
+.file-upload-zone {
+    border: 2px dashed var(--glass-border);
+    border-radius: var(--border-radius-sm);
+    padding: 2rem;
+    text-align: center;
+    background: rgba(255, 255, 255, 0.02);
+    cursor: pointer;
+    transition: all 0.3s ease;
+    position: relative;
+    margin-bottom: 0.5rem;
+}
+
+.file-upload-zone:hover, .file-upload-zone.drag-over {
+    border-color: var(--accent-color);
+    background: rgba(99, 102, 241, 0.05);
+}
+
+.drop-zone-text {
+    color: var(--text-secondary);
+    pointer-events: none;
+}
+
+.drop-zone-input {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    cursor: pointer;
+}
+
+.url-input-zone {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.url-input-zone span {
+    font-weight: 500;
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+}
+
+.url-input-zone input {
     flex: 1;
 }

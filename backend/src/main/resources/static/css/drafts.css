@@ -25,3 +25,26 @@
     display: inline-block;
     margin-top: 1rem;
 }
+
+.draft-card-wrapper {
+    position: relative;
+}
+.draft-delete-form {
+    display: inline;
+    position: absolute;
+    right: 1.5rem;
+    top: 1.5rem;
+}
+.btn-delete-draft {
+    background-color: var(--danger-color, #ef4444);
+    padding: 0.2rem 0.5rem;
+    font-size: 0.75rem;
+    border: none;
+    border-radius: 4px;
+    color: white;
+    cursor: pointer;
+    transition: opacity 0.2s;
+}
+.btn-delete-draft:hover {
+    opacity: 0.8;
+}

@@ -48,10 +48,13 @@
 
                 <div class="form-group">
                     <label for="coverPhoto">Cover Photo (Optional)</label>
-                    <div class="photo-upload-row">
+                    <div class="file-upload-zone" id="cover-drop-zone">
+                        <span class="drop-zone-text">Drag & Drop an image here or click to select</span>
+                        <input type="file" id="coverPhotoFile" accept="image/*" class="file-upload-input drop-zone-input" data-target="coverPhoto" />
+                    </div>
+                    <div class="url-input-zone">
+                        <span>OR provide a URL:</span>
                         <input type="text" id="coverPhoto" name="coverPhoto" th:value="${list != null ? list.coverPhoto : ''}" placeholder="https://..." />
-                        <span class="photo-upload-separator">OR</span>
-                        <input type="file" id="coverPhotoFile" accept="image/*" class="file-upload-input" data-target="coverPhoto" />
                     </div>
                 </div>
                 
@@ -77,10 +80,13 @@
                             </div>
                             <div class="item-row-field">
                                 <label>Photo (Optional)</label>
-                                <div class="photo-upload-row">
-                                    <input type="text" th:name="'items[' + ${stat.index} + '].photo'" th:value="${item.photo}" th:id="'item-photo-' + ${stat.index}" />
-                                    <span class="photo-upload-separator">OR</span>
-                                    <input type="file" accept="image/*" class="file-upload-input" th:attr="data-target='item-photo-' + ${stat.index}" />
+                                <div class="file-upload-zone">
+                                    <span class="drop-zone-text">Drag & Drop an image here or click to select</span>
+                                    <input type="file" accept="image/*" class="file-upload-input drop-zone-input" th:attr="data-target='item-photo-' + ${stat.index}" />
+                                </div>
+                                <div class="url-input-zone">
+                                    <span>OR provide a URL:</span>
+                                    <input type="text" th:name="'items[' + ${stat.index} + '].photo'" th:value="${item.photo}" th:id="'item-photo-' + ${stat.index}" placeholder="https://..." />
                                 </div>
                             </div>
                             <div class="item-row-field">

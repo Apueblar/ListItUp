@@ -40,6 +40,11 @@
     box-sizing: border-box;
 }
 
+textarea {
+    resize: vertical;
+    max-width: 100%;
+}
+
 body {
     font-family: var(--font-family);
     background-color: var(--bg-primary);

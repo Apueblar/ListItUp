@@ -44,7 +44,7 @@
         </header>
 
         <section class="profile-lists-section">
-            <h2 th:text="${profileUser.username + '\'s Lists'}">Lists</h2>
+            <h2 th:text="|${profileUser.username}'s Lists|">Lists</h2>
             
             <div class="grid">
                 <a th:each="list : ${myLists}" th:href="@{/lists/{id}(id=${list.listId})}" class="list-card">

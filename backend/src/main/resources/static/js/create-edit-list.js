@@ -29,10 +29,13 @@ function createItemRow() {
         '</div>' +
         '<div class="item-row-field">' +
             '<label>Photo (Optional)</label>' +
-            '<div style="display: flex; gap: 0.5rem; align-items: center;">' +
-                '<input type="text" name="items[' + itemIndex + '].photo" id="item-photo-' + itemIndex + '" placeholder="https://" style="flex: 1;">' +
-                '<span style="font-weight: bold;">OR</span>' +
-                '<input type="file" accept="image/*" class="file-upload-input" data-target="item-photo-' + itemIndex + '">' +
+            '<div class="file-upload-zone">' +
+                '<span class="drop-zone-text">Drag & Drop an image here or click to select</span>' +
+                '<input type="file" accept="image/*" class="file-upload-input drop-zone-input" data-target="item-photo-' + itemIndex + '">' +
+            '</div>' +
+            '<div class="url-input-zone">' +
+                '<span>OR provide a URL:</span>' +
+                '<input type="text" name="items[' + itemIndex + '].photo" id="item-photo-' + itemIndex + '" placeholder="https://">' +
             '</div>' +
         '</div>' +
         '<div class="item-row-field">' +
@@ -154,6 +157,27 @@ function getCookie(name) {
 
 document.addEventListener('DOMContentLoaded', function () {
     document.body.addEventListener('change', handleFileUpload);
+    
+    // Add visual feedback for drag and drop file uploads
+    document.body.addEventListener('dragover', function(e) {
+        if (e.target.classList.contains('drop-zone-input')) {
+            var zone = e.target.closest('.file-upload-zone');
+            if (zone) zone.classList.add('drag-over');
+        }
+    });
+    document.body.addEventListener('dragleave', function(e) {
+        if (e.target.classList.contains('drop-zone-input')) {
+            var zone = e.target.closest('.file-upload-zone');
+            if (zone) zone.classList.remove('drag-over');
+        }
+    });
+    document.body.addEventListener('drop', function(e) {
+        if (e.target.classList.contains('drop-zone-input')) {
+            var zone = e.target.closest('.file-upload-zone');
+            if (zone) zone.classList.remove('drag-over');
+        }
+    });
+
     var addBtn = document.getElementById('add-item-btn');
     if (addBtn) {
         addBtn.addEventListener('click', createItemRow);
