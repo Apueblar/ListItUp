@@ -94,9 +94,9 @@ document.addEventListener('DOMContentLoaded', function () {
             var unread = (items || []).filter(function(n) { return !n.isRead; }).length;
             if (unread > 0) {
                 notifBadge.textContent = unread > 9 ? '9+' : unread;
-                notifBadge.style.display = 'flex';
+                notifBadge.classList.add('show-badge');
             } else {
-                notifBadge.style.display = 'none';
+                notifBadge.classList.remove('show-badge');
             }
         }
 
@@ -148,14 +148,14 @@ document.addEventListener('DOMContentLoaded', function () {
                     document.querySelectorAll('.notif-unread').forEach(function(el) {
                         el.classList.remove('notif-unread');
                     });
-                    if (notifBadge) notifBadge.style.display = 'none';
+                    if (notifBadge) notifBadge.classList.remove('show-badge');
                 })
                 .catch(function() {});
             });
         }
 
-        /* Fetch badge count on load (quietly) */
-        fetchNotifications();
+        /* Notifications are now pre-loaded by Thymeleaf for the badge count.
+           We only fetch when the dropdown is opened. */
     }
 
     /* ── Theme Toggle Logic ── */

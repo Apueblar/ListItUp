@@ -37,6 +37,9 @@
                             th:classappend="${isFollowing} ? 'btn-interaction--active' : ''"
                             th:text="${isFollowing} ? 'Following' : 'Follow'">Follow</button>
                 </th:block>
+                <th:block th:if="${currentUser != null and currentUser.userId == profileUser.userId}">
+                    <a th:href="@{/profile}" class="btn-primary btn-interaction">✏️ Edit Profile</a>
+                </th:block>
             </div>
             
             <p th:if="${profileUser.biography != null and !profileUser.biography.isEmpty()}" th:text="${profileUser.biography}" class="profile-bio-text"></p>

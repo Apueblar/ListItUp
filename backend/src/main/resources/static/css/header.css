@@ -303,13 +303,16 @@ nav {
     min-width: 16px;
     height: 16px;
     border-radius: 999px;
-    display: flex;
     align-items: center;
     justify-content: center;
     padding: 0 3px;
     line-height: 1;
     pointer-events: none;
     box-shadow: 0 0 0 2px var(--bg-primary, #0f0f19);
+}
+
+.notif-badge.show-badge {
+    display: flex;
 }
 
 .notif-dropdown {

@@ -49,7 +49,9 @@
         <div th:if="${currentUser != null}" class="notif-wrapper">
             <button class="notif-bell-btn" id="notifBellBtn" aria-label="Notifications">
                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
-                <span class="notif-badge" id="notifBadge"></span>
+                <span class="notif-badge" id="notifBadge" 
+                      th:classappend="${unreadNotificationCount > 0 ? 'show-badge' : ''}"
+                      th:text="${unreadNotificationCount > 9 ? '9+' : unreadNotificationCount}"></span>
             </button>
             <div class="notif-dropdown" id="notifDropdown">
                 <div class="notif-header">
@@ -73,7 +75,8 @@
                     <span class="user-email" th:text="${currentUser.email}">user@example.com</span>
                 </div>
                 <div class="dropdown-divider"></div>
-                <a th:href="@{/users/{username}(username=${currentUser.username})}" class="dropdown-item">My Profile</a>
+                <a th:href="@{/profile}" class="dropdown-item">Edit Profile Dashboard</a>
+                <a th:href="@{/users/{username}(username=${currentUser.username})}" class="dropdown-item">Public Profile</a>
                 <a th:href="@{/profile/drafts}" class="dropdown-item">My Drafts</a>
                 <a th:if="${#authorization.expression('hasAnyRole(''ADMIN'', ''VERIFIED'')')}" th:href="@{/analytics}" class="dropdown-item">Analytics</a>
                 <div class="dropdown-divider"></div>

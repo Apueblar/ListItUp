@@ -12,8 +12,11 @@ public class GlobalControllerAdvice {
 
     private final UserRepository userRepository;
 
-    public GlobalControllerAdvice(UserRepository userRepository) {
+    private final com.listitup.api.repository.NotificationRepository notificationRepository;
+
+    public GlobalControllerAdvice(UserRepository userRepository, com.listitup.api.repository.NotificationRepository notificationRepository) {
         this.userRepository = userRepository;
+        this.notificationRepository = notificationRepository;
     }
 
     @ModelAttribute("currentUser")
@@ -26,5 +29,21 @@ public class GlobalControllerAdvice {
             return null;
         }
         return userRepository.findByEmail(email).orElse(null);
+    }
+
+    @ModelAttribute("unreadNotificationCount")
+    public long unreadNotificationCount(@AuthenticationPrincipal OAuth2User oauthUser) {
+        if (oauthUser == null) {
+            return 0;
+        }
+        String email = oauthUser.getAttribute("email");
+        if (email == null) {
+            return 0;
+        }
+        User user = userRepository.findByEmail(email).orElse(null);
+        if (user == null) {
+            return 0;
+        }
+        return notificationRepository.countByUserAndIsReadFalse(user);
     }
 }
