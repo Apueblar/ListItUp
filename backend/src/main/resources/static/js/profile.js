@@ -36,7 +36,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 var reader = new FileReader();
                 reader.onload = function(event) {
                     cropperImage.src = event.target.result;
-                    cropperModal.style.display = 'block';
+                    cropperModal.style.display = 'flex';
                     
                     if (cropper) {
                         cropper.destroy();

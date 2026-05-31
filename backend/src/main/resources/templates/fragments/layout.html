@@ -67,7 +67,8 @@
         <!-- Authenticated: show user avatar dropdown -->
         <div th:if="${currentUser != null}" class="user-dropdown">
             <button class="avatar-btn" id="avatarDropdownBtn">
-                <span th:text="${#strings.substring(currentUser.username, 0, 1).toUpperCase()}">U</span>
+                <img th:if="${currentUser.profilePicture != null and !currentUser.profilePicture.isEmpty()}" th:src="${currentUser.profilePicture}" alt="Avatar" class="avatar-img-header" />
+                <span th:unless="${currentUser.profilePicture != null and !currentUser.profilePicture.isEmpty()}" th:text="${#strings.substring(currentUser.username, 0, 1).toUpperCase()}">U</span>
             </button>
             <div class="dropdown-menu" id="avatarDropdownMenu">
                 <div class="dropdown-header">
