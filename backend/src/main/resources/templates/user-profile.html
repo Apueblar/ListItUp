@@ -13,8 +13,13 @@
         <header class="profile-header">
             <div class="profile-avatar-wrapper">
                 <div class="profile-avatar">
-                    <img th:if="${profileUser.profilePicture != null and !profileUser.profilePicture.isEmpty()}" th:src="${profileUser.profilePicture}" alt="Avatar" />
-                    <span th:unless="${profileUser.profilePicture != null and !profileUser.profilePicture.isEmpty()}" th:text="${#strings.substring(profileUser.username, 0, 1).toUpperCase()}">U</span>
+                    <span th:text="${#strings.substring(profileUser.username, 0, 1).toUpperCase()}" 
+                          class="avatar-fallback-user-profile"
+                          th:style="${profileUser.profilePicture != null and !profileUser.profilePicture.isEmpty() ? 'display: none;' : ''}">U</span>
+                    <img th:if="${profileUser.profilePicture != null and !profileUser.profilePicture.isEmpty()}" 
+                         th:src="${profileUser.profilePicture}" 
+                         alt="Avatar" 
+                         onerror="this.style.display='none'; this.previousElementSibling.style.display='flex';" />
                 </div>
                 <!-- Verification badge inside the avatar wrapper if user is verified -->
                 <div th:if="${profileUser.hasBadge}" class="badge-verified-icon" title="Verified Creator">✓</div>

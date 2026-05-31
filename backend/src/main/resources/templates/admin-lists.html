@@ -21,6 +21,22 @@
             </div>
         </header>
 
+        <!-- Search Filters Section -->
+        <div class="admin-search-container">
+            <div class="search-group">
+                <label for="search-title" class="search-label">Title</label>
+                <input type="text" id="search-title" placeholder="Filter by title..." class="search-input" />
+            </div>
+            <div class="search-group">
+                <label for="search-creator" class="search-label">Creator</label>
+                <input type="text" id="search-creator" placeholder="Filter by creator..." class="search-input" />
+            </div>
+            <div class="search-group">
+                <label for="search-category" class="search-label">Category</label>
+                <input type="text" id="search-category" placeholder="Filter by category..." class="search-input" />
+            </div>
+        </div>
+
         <div class="admin-table-wrapper">
             <table class="admin-table">
                 <thead>
@@ -37,9 +53,9 @@
                 </thead>
                 <tbody>
                     <tr th:each="list : ${lists}">
-                        <td><a th:href="@{/lists/{id}(id=${list.listId})}" th:text="${list.title}" class="list-card-link">Title</a></td>
-                        <td th:text="${list.creator.username}">Creator</td>
-                        <td th:text="${list.category.name}">Category</td>
+                        <td class="td-title"><a th:href="@{/lists/{id}(id=${list.listId})}" th:text="${list.title}" class="list-card-link">Title</a></td>
+                        <td class="td-creator" th:text="${list.creator.username}">Creator</td>
+                        <td class="td-category" th:text="${list.category.name}">Category</td>
                         <td th:text="${list.viewCount}">0</td>
                         <td th:text="${list.isPinned ? 'Yes' : 'No'}">No</td>
                         <td th:text="${#temporals.format(list.createdAt, 'dd MMM yyyy')}">Date</td>
@@ -60,6 +76,47 @@
         </div>
     </main>
 
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const searchTitle = document.getElementById('search-title');
+            const searchCreator = document.getElementById('search-creator');
+            const searchCategory = document.getElementById('search-category');
+            const rows = document.querySelectorAll('.admin-table tbody tr');
+
+            function filterLists() {
+                const titleQuery = searchTitle.value.toLowerCase().trim();
+                const creatorQuery = searchCreator.value.toLowerCase().trim();
+                const categoryQuery = searchCategory.value.toLowerCase().trim();
+
+                rows.forEach(row => {
+                    // Skip the empty list message row
+                    if (row.querySelector('.admin-empty-text')) return;
+
+                    const titleTd = row.querySelector('.td-title');
+                    const creatorTd = row.querySelector('.td-creator');
+                    const categoryTd = row.querySelector('.td-category');
+
+                    const titleText = titleTd ? titleTd.textContent.toLowerCase() : '';
+                    const creatorText = creatorTd ? creatorTd.textContent.toLowerCase() : '';
+                    const categoryText = categoryTd ? categoryTd.textContent.toLowerCase() : '';
+
+                    const titleMatch = titleText.includes(titleQuery);
+                    const creatorMatch = creatorText.includes(creatorQuery);
+                    const categoryMatch = categoryText.includes(categoryQuery);
+
+                    if (titleMatch && creatorMatch && categoryMatch) {
+                        row.style.display = '';
+                    } else {
+                        row.style.display = 'none';
+                    }
+                });
+            }
+
+            if (searchTitle) searchTitle.addEventListener('input', filterLists);
+            if (searchCreator) searchCreator.addEventListener('input', filterLists);
+            if (searchCategory) searchCategory.addEventListener('input', filterLists);
+        });
+    </script>
     <footer th:replace="~{fragments/layout :: footer}"></footer>
 </body>
 </html>

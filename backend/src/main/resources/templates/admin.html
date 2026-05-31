@@ -22,6 +22,27 @@
             <a href="/admin/categories" class="btn-secondary">Categories</a>
         </div>
 
+        <!-- Search Filters Section -->
+        <div class="admin-search-container">
+            <div class="search-group">
+                <label for="search-username" class="search-label">Username</label>
+                <input type="text" id="search-username" placeholder="Filter by username..." class="search-input" />
+            </div>
+            <div class="search-group">
+                <label for="search-email" class="search-label">Email</label>
+                <input type="text" id="search-email" placeholder="Filter by email..." class="search-input" />
+            </div>
+            <div class="search-group">
+                <label for="filter-role" class="search-label">Role</label>
+                <select id="filter-role" class="search-input select-input">
+                    <option value="">All Roles</option>
+                    <option value="STANDARD">Standard</option>
+                    <option value="VERIFIED">Verified</option>
+                    <option value="ADMIN">Admin</option>
+                </select>
+            </div>
+        </div>
+
         <div class="admin-table-wrapper">
             <table class="admin-table">
             <thead>
@@ -86,6 +107,45 @@
         </div>
     </main>
 
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const searchUsername = document.getElementById('search-username');
+            const searchEmail = document.getElementById('search-email');
+            const filterRole = document.getElementById('filter-role');
+            const rows = document.querySelectorAll('.admin-table tbody tr');
+
+            function filterUsers() {
+                const usernameQuery = searchUsername.value.toLowerCase().trim();
+                const emailQuery = searchEmail.value.toLowerCase().trim();
+                const roleQuery = filterRole.value.toUpperCase();
+
+                rows.forEach(row => {
+                    const usernameTd = row.querySelector('.td-username');
+                    const emailTd = row.querySelector('.td-email');
+                    
+                    const roleSelect = row.querySelector('select[name="role"]');
+                    const currentRole = roleSelect ? roleSelect.value.toUpperCase() : '';
+
+                    const usernameText = usernameTd ? usernameTd.textContent.toLowerCase() : '';
+                    const emailText = emailTd ? emailTd.textContent.toLowerCase() : '';
+
+                    const usernameMatch = usernameText.includes(usernameQuery);
+                    const emailMatch = emailText.includes(emailQuery);
+                    const roleMatch = !roleQuery || currentRole === roleQuery;
+
+                    if (usernameMatch && emailMatch && roleMatch) {
+                        row.style.display = '';
+                    } else {
+                        row.style.display = 'none';
+                    }
+                });
+            }
+
+            if (searchUsername) searchUsername.addEventListener('input', filterUsers);
+            if (searchEmail) searchEmail.addEventListener('input', filterUsers);
+            if (filterRole) filterRole.addEventListener('change', filterUsers);
+        });
+    </script>
     <footer th:replace="~{fragments/layout :: footer}"></footer>
 </body>
 </html>

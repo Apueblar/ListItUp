@@ -40,6 +40,8 @@ services:
     depends_on:
       db:
         condition: service_healthy
+    volumes:
+      - uploads_data:/app/uploads
     networks:
       - listitup_net
     healthcheck:
@@ -56,6 +58,7 @@ services:
 
 volumes:
   pgdata:
+  uploads_data:
 
 networks:
   listitup_net:

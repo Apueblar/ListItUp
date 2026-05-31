@@ -39,7 +39,7 @@ public class SecurityConfig {
                 // Admin endpoints
                 .requestMatchers("/admin/**").hasRole("ADMIN")
                 // Analytics endpoints
-                .requestMatchers("/analytics/**").hasAnyRole("VERIFIED", "ADMIN")
+                .requestMatchers("/analytics/**").hasRole("VERIFIED")
                 // All other endpoints require authentication
                 .anyRequest().authenticated()
             )

@@ -67,8 +67,14 @@
         <!-- Authenticated: show user avatar dropdown -->
         <div th:if="${currentUser != null}" class="user-dropdown">
             <button class="avatar-btn" id="avatarDropdownBtn">
-                <img th:if="${currentUser.profilePicture != null and !currentUser.profilePicture.isEmpty()}" th:src="${currentUser.profilePicture}" alt="Avatar" class="avatar-img-header" />
-                <span th:unless="${currentUser.profilePicture != null and !currentUser.profilePicture.isEmpty()}" th:text="${#strings.substring(currentUser.username, 0, 1).toUpperCase()}">U</span>
+                <span th:text="${#strings.substring(currentUser.username, 0, 1).toUpperCase()}" 
+                      class="avatar-fallback-header"
+                      th:style="${currentUser.profilePicture != null and !currentUser.profilePicture.isEmpty() ? 'display: none;' : ''}">U</span>
+                <img th:if="${currentUser.profilePicture != null and !currentUser.profilePicture.isEmpty()}" 
+                     th:src="${currentUser.profilePicture}" 
+                     alt="Avatar" 
+                     class="avatar-img-header" 
+                     onerror="this.style.display='none'; this.previousElementSibling.style.display='flex';" />
             </button>
             <div class="dropdown-menu" id="avatarDropdownMenu">
                 <div class="dropdown-header">
@@ -79,7 +85,7 @@
                 <a th:href="@{/profile}" class="dropdown-item">Edit Profile Dashboard</a>
                 <a th:href="@{/users/{username}(username=${currentUser.username})}" class="dropdown-item">Public Profile</a>
                 <a th:href="@{/profile/drafts}" class="dropdown-item">My Drafts</a>
-                <a th:if="${#authorization.expression('hasAnyRole(''ADMIN'', ''VERIFIED'')')}" th:href="@{/analytics}" class="dropdown-item">Analytics</a>
+                <a th:if="${#authorization.expression('hasRole(''VERIFIED'')')}" th:href="@{/analytics}" class="dropdown-item">Analytics</a>
                 <div class="dropdown-divider"></div>
                 <form th:action="@{/profile/update-username}" method="post" class="username-update-form">
                     <!-- Include CSRF token explicitly for non-thymeleaf generated raw form elements if needed, but th:action handles it! -->

@@ -13,8 +13,14 @@
     <main class="animate-in">
         <header class="profile-own-header">
             <div class="profile-own-avatar" id="avatar-container" title="Change Profile Picture">
-                <img th:if="${user.profilePicture != null and !user.profilePicture.isEmpty()}" th:src="${user.profilePicture}" alt="Avatar" id="main-avatar-img" />
-                <span th:unless="${user.profilePicture != null and !user.profilePicture.isEmpty()}" th:text="${#strings.substring(user.username,0,1).toUpperCase()}" id="main-avatar-text">U</span>
+                <span th:text="${#strings.substring(user.username,0,1).toUpperCase()}" 
+                      id="main-avatar-text" 
+                      th:style="${user.profilePicture != null and !user.profilePicture.isEmpty() ? 'display: none;' : ''}">U</span>
+                <img th:if="${user.profilePicture != null and !user.profilePicture.isEmpty()}" 
+                     th:src="${user.profilePicture}" 
+                     alt="Avatar" 
+                     id="main-avatar-img" 
+                     onerror="this.style.display='none'; document.getElementById('main-avatar-text').style.display='flex';" />
                 <div class="avatar-overlay">
                     <span class="avatar-overlay-text">📷 Change</span>
                 </div>
