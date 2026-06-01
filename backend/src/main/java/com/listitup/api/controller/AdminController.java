@@ -14,6 +14,8 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.oauth2.core.user.OAuth2User;
 
 import java.util.List;
 import java.util.Optional;
@@ -137,18 +139,36 @@ public class AdminController {
     }
 
     @PostMapping("/admin/reports/{id}/resolve")
-    public String resolveReport(@PathVariable UUID id) {
+    public String resolveReport(@PathVariable UUID id, @AuthenticationPrincipal OAuth2User oauthUser) {
+        User admin = null;
+        if (oauthUser != null) {
+            String email = oauthUser.getAttribute("email");
+            admin = userRepository.findByEmail(email).orElse(null);
+        }
+        final User finalAdmin = admin;
         reportRepository.findById(id).ifPresent(report -> {
             report.setStatus("RESOLVED");
+            if (finalAdmin != null) {
+                report.setReviewedByAdmin(finalAdmin);
+            }
             reportRepository.save(report);
         });
         return "redirect:/admin/reports";
     }
 
     @PostMapping("/admin/reports/{id}/dismiss")
-    public String dismissReport(@PathVariable UUID id) {
+    public String dismissReport(@PathVariable UUID id, @AuthenticationPrincipal OAuth2User oauthUser) {
+        User admin = null;
+        if (oauthUser != null) {
+            String email = oauthUser.getAttribute("email");
+            admin = userRepository.findByEmail(email).orElse(null);
+        }
+        final User finalAdmin = admin;
         reportRepository.findById(id).ifPresent(report -> {
             report.setStatus("DISMISSED");
+            if (finalAdmin != null) {
+                report.setReviewedByAdmin(finalAdmin);
+            }
             reportRepository.save(report);
         });
         return "redirect:/admin/reports";

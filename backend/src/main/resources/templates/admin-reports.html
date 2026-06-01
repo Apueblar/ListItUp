@@ -22,47 +22,78 @@
         </header>
 
         <h2>Pending Reports</h2>
-        <div th:if="${#lists.isEmpty(pendingReports)}">No pending reports.</div>
-        <table th:unless="${#lists.isEmpty(pendingReports)}" class="admin-reports-table">
-            <thead>
-                <tr>
-                    <th>Date</th>
-                    <th>List</th>
-                    <th>Reporter</th>
-                    <th>Reason</th>
-                    <th>Details</th>
-                    <th>Actions</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr th:each="report : ${pendingReports}">
-                    <td th:text="${#temporals.format(report.createdAt, 'dd MMM yyyy')}">Date</td>
-                    <td>
-                        <a th:href="@{/lists/{id}(id=${report.targetList.listId})}" th:text="${report.targetList.title}">List</a>
-                    </td>
-                    <td th:text="${report.submittedByUser.username}">Reporter</td>
-                    <td th:text="${report.reason}">Reason</td>
-                    <td th:text="${report.details}">Details</td>
-                    <td class="td-actions-flex">
-                        <form th:action="@{/admin/reports/{id}/resolve(id=${report.reportId})}" method="post">
-                            <button type="submit" class="btn-resolve-sm">Resolve</button>
-                        </form>
-                        <form th:action="@{/admin/reports/{id}/dismiss(id=${report.reportId})}" method="post">
-                            <button type="submit" class="btn-dismiss-sm">Dismiss</button>
-                        </form>
-                    </td>
-                </tr>
-            </tbody>
-        </table>
+        <div th:if="${#lists.isEmpty(pendingReports)}" class="admin-empty-text">No pending reports.</div>
+        
+        <div th:unless="${#lists.isEmpty(pendingReports)}" class="admin-table-wrapper">
+            <table class="admin-table">
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>List</th>
+                        <th>Reporter</th>
+                        <th>Reason</th>
+                        <th>Details</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="report : ${pendingReports}">
+                        <td th:text="${#temporals.format(report.createdAt, 'dd MMM yyyy')}">Date</td>
+                        <td>
+                            <a th:href="@{/lists/{id}(id=${report.targetList.listId})}" th:text="${report.targetList.title}" class="admin-list-link">List</a>
+                        </td>
+                        <td th:text="${report.submittedByUser.username}">Reporter</td>
+                        <td>
+                            <span class="badge-reason" th:text="${report.reason}">Reason</span>
+                        </td>
+                        <td th:text="${report.details}">Details</td>
+                        <td>
+                            <div class="td-actions">
+                                <form th:action="@{/admin/reports/{id}/resolve(id=${report.reportId})}" method="post" class="form-inline">
+                                    <button type="submit" class="btn-action btn-unblock">Resolve</button>
+                                </form>
+                                <form th:action="@{/admin/reports/{id}/dismiss(id=${report.reportId})}" method="post" class="form-inline">
+                                    <button type="submit" class="btn-action btn-block btn-dismiss">Dismiss</button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
 
-        <h2>Resolved / Dismissed</h2>
-        <div th:if="${#lists.isEmpty(resolvedReports) and #lists.isEmpty(dismissedReports)}">No resolved/dismissed reports.</div>
-        <ul class="admin-history-list">
+        <h2 class="admin-history-title">Resolved / Dismissed History</h2>
+        <div th:if="${#lists.isEmpty(resolvedReports) and #lists.isEmpty(dismissedReports)}" class="admin-empty-text">No resolved/dismissed reports.</div>
+        <ul th:unless="${#lists.isEmpty(resolvedReports) and #lists.isEmpty(dismissedReports)}" class="admin-history-list">
             <li th:each="report : ${resolvedReports}" class="admin-history-item">
-                ✅ <span th:text="${report.targetList.title}">List</span> reported for <strong th:text="${report.reason}"></strong> - RESOLVED
+                <div class="admin-history-item-header">
+                    <div class="admin-history-item-content">
+                        <span class="badge-verified">RESOLVED</span>
+                        <a th:href="@{/lists/{id}(id=${report.targetList.listId})}" th:text="${report.targetList.title}" class="admin-list-link">List</a>
+                    </div>
+                    <span th:text="${#temporals.format(report.createdAt, 'dd MMM yyyy')}" class="admin-history-date">Date</span>
+                </div>
+                <div class="admin-history-item-details">
+                    <span><strong>Reason:</strong> <span th:text="${report.reason}">SPAM</span></span>
+                    <span><strong>Reporter:</strong> <span th:text="${report.submittedByUser != null ? report.submittedByUser.username : 'Unknown'}">Reporter</span></span>
+                    <span><strong>Details:</strong> <span th:text="${!#strings.isEmpty(report.details) ? report.details : 'None'}">Details</span></span>
+                    <span><strong>Moderator:</strong> <span th:text="${report.reviewedByAdmin != null ? report.reviewedByAdmin.username : 'System'}">Admin</span></span>
+                </div>
             </li>
             <li th:each="report : ${dismissedReports}" class="admin-history-item">
-                ❌ <span th:text="${report.targetList.title}">List</span> reported for <strong th:text="${report.reason}"></strong> - DISMISSED
+                <div class="admin-history-item-header">
+                    <div class="admin-history-item-content">
+                        <span class="badge-dismissed">DISMISSED</span>
+                        <a th:href="@{/lists/{id}(id=${report.targetList.listId})}" th:text="${report.targetList.title}" class="admin-list-link">List</a>
+                    </div>
+                    <span th:text="${#temporals.format(report.createdAt, 'dd MMM yyyy')}" class="admin-history-date">Date</span>
+                </div>
+                <div class="admin-history-item-details">
+                    <span><strong>Reason:</strong> <span th:text="${report.reason}">SPAM</span></span>
+                    <span><strong>Reporter:</strong> <span th:text="${report.submittedByUser != null ? report.submittedByUser.username : 'Unknown'}">Reporter</span></span>
+                    <span><strong>Details:</strong> <span th:text="${!#strings.isEmpty(report.details) ? report.details : 'None'}">Details</span></span>
+                    <span><strong>Moderator:</strong> <span th:text="${report.reviewedByAdmin != null ? report.reviewedByAdmin.username : 'System'}">Admin</span></span>
+                </div>
             </li>
         </ul>
     </main>

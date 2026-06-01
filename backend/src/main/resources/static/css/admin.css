@@ -661,15 +661,68 @@ select.admin-select {
 }
 
 /* ---------- Reports History List ---------- */
+.admin-history-title {
+    margin-top: 3rem;
+}
 .admin-history-list {
+    margin-top: 1.5rem;
     list-style-type: none;
     padding: 0;
 }
 .admin-history-item {
-    margin-bottom: 0.5rem;
-    padding: 0.5rem;
-    border: 1px solid var(--border-color);
-    border-radius: 8px;
+    background: var(--glass-bg);
+    border: 1px solid var(--glass-border);
+    padding: 1rem;
+    border-radius: 12px;
+    margin-bottom: 0.75rem;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: space-between;
+    backdrop-filter: blur(5px);
+    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.05);
+}
+.admin-history-item-content {
+    display: flex;
+    align-items: center;
+}
+.admin-history-item-content .badge-verified,
+.admin-history-item-content .badge-dismissed {
+    margin-right: 0.75rem;
+}
+.admin-history-item-content span.history-text {
+    color: var(--text-secondary);
+    margin-left: 0.5rem;
+}
+.admin-history-date {
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+}
+.badge-reason {
+    background: rgba(239, 68, 68, 0.1);
+    color: #ef4444;
+    border: 1px solid rgba(239, 68, 68, 0.2);
+    padding: 0.25rem 0.5rem;
+    border-radius: 6px;
+    font-size: 0.8rem;
+    font-weight: 600;
+}
+.badge-dismissed {
+    background: rgba(255, 255, 255, 0.1);
+    color: var(--text-primary);
+    border: 1px solid var(--glass-border);
+    padding: 0.25rem 0.5rem;
+    border-radius: 6px;
+    font-size: 0.8rem;
+    font-weight: 600;
+}
+.btn-dismiss {
+    background: rgba(255, 255, 255, 0.05);
+    color: var(--text-primary);
+    border: 1px solid var(--glass-border);
+}
+.btn-dismiss:hover {
+    background: rgba(255, 255, 255, 0.1);
 }
 
 .admin-list-link {
@@ -732,4 +785,23 @@ select.admin-select {
     background-position: right 10px center;
     background-size: 20px;
     padding-right: 30px;
+}
+
+.admin-history-item-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+}
+
+.admin-history-item-details {
+    width: 100%;
+    margin-top: 0.75rem;
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1.5rem;
+    padding-top: 0.75rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.05);
 }
