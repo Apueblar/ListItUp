@@ -14,7 +14,6 @@
             <div th:each="list : ${drafts}" class="list-card draft-card draft-card-wrapper">
                 <div>
                     <span class="category-pill" th:text="${list.category.name}">Category</span>
-                    <span class="pinned-badge draft-badge">Draft</span>
                     <form th:action="@{/lists/{id}/delete(id=${list.listId})}" method="post" class="draft-delete-form" onsubmit="return confirm('Are you sure you want to remove this draft?');">
                         <button type="submit" class="btn-primary btn-delete-draft">&times; Remove</button>
                     </form>

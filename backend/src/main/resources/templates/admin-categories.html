@@ -9,18 +9,21 @@
     <nav th:replace="~{fragments/layout :: navbar}"></nav>
 
     <main class="animate-in admin-main">
-        <h1>Admin - Categories</h1>
+        <header class="admin-header">
+            <h1>Category Taxonomy</h1>
+            <p>Create and edit list categories, approve community category proposals, or manage taxonomy rules.</p>
+
+            <div class="admin-nav">
+                <a href="/admin" class="btn-secondary">Users</a>
+                <a href="/admin/lists" class="btn-secondary">Lists</a>
+                <a href="/admin/reports" class="btn-secondary">Reports</a>
+                <a href="/admin/categories" class="btn-primary btn-interaction--active">Categories</a>
+            </div>
+        </header>
 
         <!-- Success/Error Messages -->
         <div th:if="${success}" class="admin-alert-success" th:text="${success}">Success message</div>
         <div th:if="${error}" class="admin-alert-error" th:text="${error}">Error message</div>
-
-        <div class="admin-nav">
-            <a href="/admin" class="btn-secondary">Users</a>
-            <a href="/admin/lists" class="btn-secondary">Lists</a>
-            <a href="/admin/reports" class="btn-secondary">Reports</a>
-            <a href="/admin/categories" class="btn-primary btn-interaction--active">Categories</a>
-        </div>
 
         <section class="admin-create-section">
             <h2>Create New Category</h2>

@@ -9,14 +9,17 @@
     <nav th:replace="~{fragments/layout :: navbar}"></nav>
 
     <main class="animate-in admin-main">
-        <h1>Admin - Reports</h1>
+        <header class="admin-header">
+            <h1>Report Moderation</h1>
+            <p>Review content reports filed by users, resolve active flag notifications, or dismiss content violations.</p>
 
-        <div class="admin-nav">
-            <a href="/admin" class="btn-secondary">Users</a>
-            <a href="/admin/lists" class="btn-secondary">Lists</a>
-            <a href="/admin/reports" class="btn-primary btn-interaction--active">Reports</a>
-            <a href="/admin/categories" class="btn-secondary">Categories</a>
-        </div>
+            <div class="admin-nav">
+                <a href="/admin" class="btn-secondary">Users</a>
+                <a href="/admin/lists" class="btn-secondary">Lists</a>
+                <a href="/admin/reports" class="btn-primary btn-interaction--active">Reports</a>
+                <a href="/admin/categories" class="btn-secondary">Categories</a>
+            </div>
+        </header>
 
         <h2>Pending Reports</h2>
         <div th:if="${#lists.isEmpty(pendingReports)}">No pending reports.</div>

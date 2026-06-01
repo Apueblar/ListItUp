@@ -7,6 +7,7 @@ import com.listitup.api.repository.CommentRepository;
 import com.listitup.api.repository.CuratedListRepository;
 import com.listitup.api.repository.UserRepository;
 import com.listitup.api.service.CuratedListService;
+import com.listitup.api.service.TrendingService;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Controller;
@@ -28,14 +29,16 @@ public class WebController {
     private final CommentRepository commentRepository;
     private final UserRepository userRepository;
     private final jakarta.persistence.EntityManager entityManager;
+    private final TrendingService trendingService;
 
-    public WebController(CuratedListService listService, CuratedListRepository listRepository, CategoryRepository categoryRepository, CommentRepository commentRepository, UserRepository userRepository, jakarta.persistence.EntityManager entityManager) {
+    public WebController(CuratedListService listService, CuratedListRepository listRepository, CategoryRepository categoryRepository, CommentRepository commentRepository, UserRepository userRepository, jakarta.persistence.EntityManager entityManager, TrendingService trendingService) {
         this.listService = listService;
         this.listRepository = listRepository;
         this.categoryRepository = categoryRepository;
         this.commentRepository = commentRepository;
         this.userRepository = userRepository;
         this.entityManager = entityManager;
+        this.trendingService = trendingService;
     }
 
     @GetMapping("/")
@@ -66,8 +69,24 @@ public class WebController {
         boolean hasCategory = category != null && !category.trim().isEmpty() && !category.equalsIgnoreCase("All");
         
         if ("trending".equalsIgnoreCase(sort)) {
-            if (hasCategory) lists = listRepository.findByCategoryNameIgnoreCaseOrderByViewCountDesc(category);
-            else lists = listRepository.findAllByOrderByViewCountDesc();
+            if (hasCategory) lists = listRepository.findByCategoryNameIgnoreCaseOrderByCreatedAtDesc(category);
+            else lists = listRepository.findAllByOrderByCreatedAtDesc();
+            
+            // Sort by 24h views, then lifetime views, then creation date
+            Map<UUID, Integer> recentViews = trendingService.getRecentViewCounts();
+            lists.sort((l1, l2) -> {
+                int v1 = recentViews.getOrDefault(l1.getListId(), 0);
+                int v2 = recentViews.getOrDefault(l2.getListId(), 0);
+                if (v1 != v2) {
+                    return Integer.compare(v2, v1);
+                }
+                int tv1 = l1.getViewCount() != null ? l1.getViewCount() : 0;
+                int tv2 = l2.getViewCount() != null ? l2.getViewCount() : 0;
+                if (tv1 != tv2) {
+                    return Integer.compare(tv2, tv1);
+                }
+                return l2.getCreatedAt().compareTo(l1.getCreatedAt());
+            });
         } else if ("following".equalsIgnoreCase(sort) && currentUser != null) {
             if (hasCategory) lists = listRepository.findListsFromFollowedUsersByCategoryOrderByCreatedAtDesc(currentUser, category);
             else lists = listRepository.findListsFromFollowedUsersOrderByCreatedAtDesc(currentUser);
@@ -121,6 +140,7 @@ public class WebController {
             if (session.getAttribute(viewedKey) == null) {
                 curatedList.setViewCount(curatedList.getViewCount() + 1);
                 listService.saveList(curatedList);
+                trendingService.recordView(id);
                 session.setAttribute(viewedKey, true);
             }
 

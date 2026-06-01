@@ -74,8 +74,21 @@ public class ProfileController {
         }
         User user = userOpt.get();
 
-        // Sort by Pinned status first
-        List<CuratedList> myLists = listRepository.findByCreatorOrderByIsPinnedDescCreatedAtDesc(user);
+        List<CuratedList> myLists;
+        boolean isOwner = false;
+        if (oauthUser != null) {
+            String email = oauthUser.getAttribute("email");
+            java.util.Optional<User> currentUserOpt = userRepository.findByEmail(email);
+            if (currentUserOpt.isPresent() && currentUserOpt.get().getUserId().equals(user.getUserId())) {
+                isOwner = true;
+            }
+        }
+
+        if (isOwner) {
+            myLists = listRepository.findByCreatorOrderByIsPinnedDescCreatedAtDesc(user);
+        } else {
+            myLists = listRepository.findByCreatorAndIsDraftFalseOrderByIsPinnedDescCreatedAtDesc(user);
+        }
 
         long followersCount = (long) entityManager.createQuery("SELECT COUNT(uf) FROM Follow uf WHERE uf.followee = :user")
                 .setParameter("user", user).getSingleResult();

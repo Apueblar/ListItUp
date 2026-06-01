@@ -120,6 +120,23 @@
     border: 1px solid rgba(245, 158, 11, 0.4);
 }
 
+.draft-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    background: rgba(139, 92, 246, 0.18);
+    color: #a78bfa;
+    padding: 0.2rem 0.6rem;
+    border-radius: 20px;
+    font-size: 0.78rem;
+    font-weight: 600;
+    border: 1px solid rgba(139, 92, 246, 0.4);
+}
+
+.draft-badge-margin {
+    margin-left: 0.5rem;
+}
+
 /* Inline styles refactored from user-profile.html */
 .profile-avatar img {
     width: 100%;

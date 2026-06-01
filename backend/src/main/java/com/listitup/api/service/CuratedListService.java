@@ -38,6 +38,11 @@ public class CuratedListService {
     }
 
     @Transactional(readOnly = true)
+    public List<CuratedList> getAllPublicLists() {
+        return listRepository.findByIsDraftFalseOrderByCreatedAtDesc();
+    }
+
+    @Transactional(readOnly = true)
     public Optional<CuratedList> getListById(UUID id) {
         return listRepository.findById(id);
     }

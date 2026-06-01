@@ -17,6 +17,7 @@ public interface CuratedListRepository extends JpaRepository<CuratedList, UUID> 
     List<CuratedList> findByTitleContainingIgnoreCase(String title);
     List<CuratedList> findByCategoryNameIgnoreCaseOrderByCreatedAtDesc(String categoryName);
     org.springframework.data.domain.Page<CuratedList> findByCategoryNameIgnoreCase(String categoryName, org.springframework.data.domain.Pageable pageable);
+    List<CuratedList> findByIsDraftFalseOrderByCreatedAtDesc();
 
     // Feed Queries
     List<CuratedList> findAllByOrderByCreatedAtDesc();

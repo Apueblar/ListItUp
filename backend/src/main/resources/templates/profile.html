@@ -61,6 +61,7 @@
                         <div>
                             <span class="category-pill" th:text="${list.category.name}">Category</span>
                             <span th:if="${list.isPinned}" class="pinned-badge pinned-badge-margin">📌 Pinned</span>
+                            <span th:if="${list.isDraft}" class="draft-badge draft-badge-margin">📝 Draft</span>
                         </div>
                         <h3 th:text="${list.title}">Title</h3>
                         <p class="card-desc" th:text="${list.description}">Desc</p>

@@ -263,17 +263,17 @@ document.addEventListener('DOMContentLoaded', function () {
                     });
 
                     if (response.ok) {
-                        alert('Report submitted successfully. Thank you.');
+                        showCustomAlert('Report submitted successfully. Thank you.');
                         reportModal.style.display = 'none';
                         reportForm.reset();
                     } else if (response.status === 401 || response.status === 403) {
                         window.location.href = '/oauth2/authorization/google';
                     } else {
-                        alert('Failed to submit report. Please try again.');
+                        showCustomAlert('Failed to submit report. Please try again.');
                     }
                 } catch (err) {
                     console.error('Report error:', err);
-                    alert('An error occurred. Please try again.');
+                    showCustomAlert('An error occurred. Please try again.');
                 }
             });
         }

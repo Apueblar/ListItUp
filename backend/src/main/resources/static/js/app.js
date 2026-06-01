@@ -204,7 +204,40 @@ document.addEventListener('DOMContentLoaded', function () {
             }
         });
     });
+
+    /* ── Global Custom Alert Modal Close Actions ── */
+    var alertModal = document.getElementById('alert-modal');
+    var closeAlertModal = document.getElementById('close-alert-modal');
+    var btnAlertOk = document.getElementById('btn-alert-ok');
+
+    if (closeAlertModal) {
+        closeAlertModal.addEventListener('click', function() {
+            if (alertModal) alertModal.style.display = 'none';
+        });
+    }
+    if (btnAlertOk) {
+        btnAlertOk.addEventListener('click', function() {
+            if (alertModal) alertModal.style.display = 'none';
+        });
+    }
+    window.addEventListener('click', function(e) {
+        if (e.target === alertModal) {
+            alertModal.style.display = 'none';
+        }
+    });
 });
+
+/** Global custom alert function callable from anywhere */
+window.showCustomAlert = function(message) {
+    var alertModal = document.getElementById('alert-modal');
+    var alertMessage = document.getElementById('alert-modal-message');
+    if (alertModal && alertMessage) {
+        alertMessage.textContent = message;
+        alertModal.style.display = 'flex';
+    } else {
+        alert(message);
+    }
+};
 
 /** Read CSRF token from cookie (used for POST requests). */
 function getCsrfToken() {

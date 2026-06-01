@@ -113,7 +113,7 @@ public class AdminController {
 
     @GetMapping("/admin/lists")
     public String adminListsPanel(Model model) {
-        model.addAttribute("lists", listService.getAllLists());
+        model.addAttribute("lists", listService.getAllPublicLists());
         return "admin-lists";
     }
 
