@@ -38,9 +38,9 @@
                 <tr th:each="report : ${pendingReports}">
                     <td th:text="${#temporals.format(report.createdAt, 'dd MMM yyyy')}">Date</td>
                     <td>
-                        <a th:href="@{/lists/{id}(id=${report.list.listId})}" th:text="${report.list.title}">List</a>
+                        <a th:href="@{/lists/{id}(id=${report.targetList.listId})}" th:text="${report.targetList.title}">List</a>
                     </td>
-                    <td th:text="${report.reporter.username}">Reporter</td>
+                    <td th:text="${report.submittedByUser.username}">Reporter</td>
                     <td th:text="${report.reason}">Reason</td>
                     <td th:text="${report.details}">Details</td>
                     <td class="td-actions-flex">
@@ -59,10 +59,10 @@
         <div th:if="${#lists.isEmpty(resolvedReports) and #lists.isEmpty(dismissedReports)}">No resolved/dismissed reports.</div>
         <ul class="admin-history-list">
             <li th:each="report : ${resolvedReports}" class="admin-history-item">
-                ✅ <span th:text="${report.list.title}">List</span> reported for <strong th:text="${report.reason}"></strong> - RESOLVED
+                ✅ <span th:text="${report.targetList.title}">List</span> reported for <strong th:text="${report.reason}"></strong> - RESOLVED
             </li>
             <li th:each="report : ${dismissedReports}" class="admin-history-item">
-                ❌ <span th:text="${report.list.title}">List</span> reported for <strong th:text="${report.reason}"></strong> - DISMISSED
+                ❌ <span th:text="${report.targetList.title}">List</span> reported for <strong th:text="${report.reason}"></strong> - DISMISSED
             </li>
         </ul>
     </main>

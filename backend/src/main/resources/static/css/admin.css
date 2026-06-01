@@ -135,6 +135,7 @@ select.admin-select {
 
 .admin-header p {
     color: var(--text-secondary);
+    margin-bottom: 1.5rem;
 }
 
 /* ---------- Table utility classes ---------- */
