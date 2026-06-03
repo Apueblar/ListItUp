@@ -40,7 +40,6 @@ public class InteractionController {
         User user = userRepository.findByEmail(email).orElseThrow();
         CuratedList list = listRepository.findById(id).orElseThrow();
 
-        // Simple toggle logic (in a real app, use a LikeRepository)
         long count = (long) entityManager.createQuery("SELECT COUNT(l) FROM Like l WHERE l.user = :u AND l.list = :list")
                 .setParameter("u", user)
                 .setParameter("list", list)
@@ -57,15 +56,26 @@ public class InteractionController {
             like.setUser(user);
             like.setList(list);
             entityManager.persist(like);
-            
+
             if (!user.getUserId().equals(list.getCreator().getUserId())) {
+                // Delete any existing like notification from this user for this list
+                // so re-liking after unliking replaces it instead of stacking a duplicate
+                String likeLink = "/lists/" + list.getListId();
+                String likeMsg = "❤️ " + user.getUsername() + " liked your list: " + list.getTitle();
+                entityManager.createQuery(
+                        "DELETE FROM Notification n WHERE n.user = :owner AND n.linkUrl = :link AND n.message = :msg")
+                        .setParameter("owner", list.getCreator())
+                        .setParameter("link", likeLink)
+                        .setParameter("msg", likeMsg)
+                        .executeUpdate();
+
                 com.listitup.api.model.Notification n = new com.listitup.api.model.Notification();
                 n.setUser(list.getCreator());
-                n.setMessage("❤️ " + user.getUsername() + " liked your list: " + list.getTitle());
-                n.setLinkUrl("/lists/" + list.getListId());
+                n.setMessage(likeMsg);
+                n.setLinkUrl(likeLink);
                 notificationRepository.save(n);
             }
-            
+
             return ResponseEntity.ok(Map.of("status", "liked"));
         }
     }
@@ -78,7 +88,7 @@ public class InteractionController {
                 "SELECT l FROM Like l WHERE l.list = :list ORDER BY l.createdAt DESC", Like.class)
                 .setParameter("list", list)
                 .getResultList();
-        
+
         return likes.stream().map(l -> {
             User u = l.getUser();
             java.util.Map<String, Object> map = new java.util.HashMap<>();
@@ -155,13 +165,14 @@ public class InteractionController {
 
         return ResponseEntity.ok(Map.of("status", nextPin ? "pinned" : "unpinned"));
     }
+
     @org.springframework.web.bind.annotation.RequestMapping(value = "/users/{username}/follow", method = {org.springframework.web.bind.annotation.RequestMethod.POST, org.springframework.web.bind.annotation.RequestMethod.DELETE})
     @Transactional
     public ResponseEntity<?> toggleFollow(@PathVariable String username, @AuthenticationPrincipal OAuth2User oauthUser, jakarta.servlet.http.HttpServletRequest request) {
         if (oauthUser == null) return ResponseEntity.status(401).build();
         User follower = userRepository.findByEmail(oauthUser.getAttribute("email")).orElseThrow();
         User followee = userRepository.findByUsername(username).orElseThrow();
-        
+
         if (follower.getUserId().equals(followee.getUserId())) {
             return ResponseEntity.badRequest().build();
         }
@@ -183,10 +194,21 @@ public class InteractionController {
                 follow.setFollowee(followee);
                 entityManager.persist(follow);
 
+                // Delete any existing follow notification from this follower to this followee
+                // so re-following after unfollowing replaces it instead of stacking a duplicate
+                String followLink = "/users/" + follower.getUsername();
+                String followMsg = "👋 " + follower.getUsername() + " started following you!";
+                entityManager.createQuery(
+                        "DELETE FROM Notification n WHERE n.user = :followee AND n.linkUrl = :link AND n.message = :msg")
+                        .setParameter("followee", followee)
+                        .setParameter("link", followLink)
+                        .setParameter("msg", followMsg)
+                        .executeUpdate();
+
                 com.listitup.api.model.Notification n = new com.listitup.api.model.Notification();
                 n.setUser(followee);
-                n.setMessage("👋 " + follower.getUsername() + " started following you!");
-                n.setLinkUrl("/users/" + follower.getUsername());
+                n.setMessage(followMsg);
+                n.setLinkUrl(followLink);
                 notificationRepository.save(n);
             }
             return ResponseEntity.ok(Map.of("status", "followed"));
