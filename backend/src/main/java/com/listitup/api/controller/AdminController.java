@@ -17,6 +17,8 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 
+import com.listitup.api.repository.CommentRepository;
+
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -29,13 +31,15 @@ public class AdminController {
     private final com.listitup.api.repository.ReportRepository reportRepository;
     private final CategoryRepository categoryRepository;
     private final CategoryProposalRepository categoryProposalRepository;
+    private final CommentRepository commentRepository;
 
-    public AdminController(UserRepository userRepository, CuratedListService listService, com.listitup.api.repository.ReportRepository reportRepository, CategoryRepository categoryRepository, CategoryProposalRepository categoryProposalRepository) {
+    public AdminController(UserRepository userRepository, CuratedListService listService, com.listitup.api.repository.ReportRepository reportRepository, CategoryRepository categoryRepository, CategoryProposalRepository categoryProposalRepository, CommentRepository commentRepository) {
         this.userRepository = userRepository;
         this.listService = listService;
         this.reportRepository = reportRepository;
         this.categoryRepository = categoryRepository;
         this.categoryProposalRepository = categoryProposalRepository;
+        this.commentRepository = commentRepository;
     }
 
     @GetMapping("/admin")
@@ -172,6 +176,26 @@ public class AdminController {
         final User finalAdmin = admin;
         reportRepository.findById(id).ifPresent(report -> {
             report.setStatus("DISMISSED");
+            if (finalAdmin != null) {
+                report.setReviewedByAdmin(finalAdmin);
+            }
+            reportRepository.save(report);
+        });
+        return "redirect:/admin/reports";
+    }
+
+    @PostMapping("/admin/reports/{reportId}/delete-comment/{commentId}")
+    @org.springframework.transaction.annotation.Transactional
+    public String deleteReportedComment(@PathVariable UUID reportId, @PathVariable UUID commentId, @AuthenticationPrincipal OAuth2User oauthUser) {
+        User admin = null;
+        if (oauthUser != null) {
+            String email = oauthUser.getAttribute("email");
+            admin = userRepository.findByEmail(email).orElse(null);
+        }
+        final User finalAdmin = admin;
+        commentRepository.findById(commentId).ifPresent(commentRepository::delete);
+        reportRepository.findById(reportId).ifPresent(report -> {
+            report.setStatus("RESOLVED");
             if (finalAdmin != null) {
                 report.setReviewedByAdmin(finalAdmin);
             }

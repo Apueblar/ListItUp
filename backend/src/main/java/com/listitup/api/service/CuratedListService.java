@@ -58,74 +58,9 @@ public class CuratedListService {
     }
 
     @Transactional
-    public CuratedList getOrCreateUnavailableList() {
-        User systemUser = userRepository.findByEmail("system@listitup.com")
-                .orElseGet(() -> {
-                    User u = new User();
-                    u.setUsername("System");
-                    u.setEmail("system@listitup.com");
-                    u.setRole("STANDARD");
-                    u.setAuthProvider("SYSTEM");
-                    return userRepository.save(u);
-                });
-
-        Category defaultCategory = categoryRepository.findAll().stream().findFirst()
-                .orElseGet(() -> {
-                    Category cat = new Category();
-                    cat.setName("General");
-                    cat.setIcon("📁");
-                    return categoryRepository.save(cat);
-                });
-
-        return listRepository.findByTitleContainingIgnoreCase("List no longer available").stream().findFirst()
-                .orElseGet(() -> {
-                    CuratedList placeholder = new CuratedList();
-                    placeholder.setTitle("List no longer available");
-                    placeholder.setDescription("This list has been deleted by its creator and is no longer available.");
-                    placeholder.setCategory(defaultCategory);
-                    placeholder.setCreator(systemUser);
-                    placeholder.setVisibility("PRIVATE");
-                    return listRepository.save(placeholder);
-                });
-    }
-
-    @Transactional
     public void deleteList(UUID id) {
         CuratedList listToDelete = listRepository.findById(id).orElse(null);
         if (listToDelete != null) {
-            CuratedList unavailableList = getOrCreateUnavailableList();
-            
-            // Reassign likes
-            entityManager.createQuery("DELETE FROM Like l WHERE l.list = :listToDelete AND l.user IN (SELECT l2.user FROM Like l2 WHERE l2.list = :unavailableList)")
-                    .setParameter("listToDelete", listToDelete)
-                    .setParameter("unavailableList", unavailableList)
-                    .executeUpdate();
-            entityManager.createQuery("UPDATE Like l SET l.list = :unavailableList WHERE l.list = :listToDelete")
-                    .setParameter("unavailableList", unavailableList)
-                    .setParameter("listToDelete", listToDelete)
-                    .executeUpdate();
-
-            // Reassign saved lists
-            entityManager.createQuery("DELETE FROM SavedList s WHERE s.list = :listToDelete AND s.user IN (SELECT s2.user FROM SavedList s2 WHERE s2.list = :unavailableList)")
-                    .setParameter("listToDelete", listToDelete)
-                    .setParameter("unavailableList", unavailableList)
-                    .executeUpdate();
-            entityManager.createQuery("UPDATE SavedList s SET s.list = :unavailableList WHERE s.list = :listToDelete")
-                    .setParameter("unavailableList", unavailableList)
-                    .setParameter("listToDelete", listToDelete)
-                    .executeUpdate();
-
-            // Delete comments
-            entityManager.createQuery("DELETE FROM Comment c WHERE c.list = :listToDelete")
-                    .setParameter("listToDelete", listToDelete)
-                    .executeUpdate();
-
-            // Delete reports
-            entityManager.createQuery("DELETE FROM Report r WHERE r.targetList = :listToDelete")
-                .setParameter("listToDelete", listToDelete)
-                .executeUpdate();
-
-            // Delete list
             listRepository.delete(listToDelete);
         }
     }
@@ -145,13 +80,49 @@ public class CuratedListService {
             return;
         }
 
-        // Delete all lists of the user via deleteList to trigger placeholder logic for other users' saves/likes
+        // 1. Delete all lists owned by this user
         List<CuratedList> userLists = listRepository.findByCreatorOrderByCreatedAtDesc(user);
         for (CuratedList list : userLists) {
-            deleteList(list.getListId());
+            // Delete reports targeting this list
+            entityManager.createQuery("DELETE FROM Report r WHERE r.targetList = :list")
+                    .setParameter("list", list)
+                    .executeUpdate();
+            listRepository.delete(list);
         }
 
-        // Delete the user record (cascading deletes comments, likes, notifications, follows, reports from DB)
+        // 2. Delete reports targeting comments by this user
+        entityManager.createQuery("DELETE FROM Report r WHERE r.targetComment IN (SELECT c FROM Comment c WHERE c.author = :user)")
+                .setParameter("user", user)
+                .executeUpdate();
+
+        // 3. Delete comments, likes, saved lists, and notifications of the user
+        entityManager.createQuery("DELETE FROM Comment c WHERE c.author = :user")
+                .setParameter("user", user)
+                .executeUpdate();
+
+        entityManager.createQuery("DELETE FROM Like l WHERE l.user = :user")
+                .setParameter("user", user)
+                .executeUpdate();
+
+        entityManager.createQuery("DELETE FROM SavedList s WHERE s.user = :user")
+                .setParameter("user", user)
+                .executeUpdate();
+
+        entityManager.createQuery("DELETE FROM Notification n WHERE n.user = :user")
+                .setParameter("user", user)
+                .executeUpdate();
+
+        // 4. Delete follows
+        entityManager.createQuery("DELETE FROM Follow f WHERE f.follower = :user OR f.followee = :user")
+                .setParameter("user", user)
+                .executeUpdate();
+
+        // 5. Delete reports submitted or reviewed by this user
+        entityManager.createQuery("DELETE FROM Report r WHERE r.submittedByUser = :user OR r.reviewedByAdmin = :user")
+                .setParameter("user", user)
+                .executeUpdate();
+
+        // 6. Finally delete the user record
         userRepository.delete(user);
     }
 }

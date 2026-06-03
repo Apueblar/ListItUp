@@ -29,7 +29,7 @@
                 <thead>
                     <tr>
                         <th>Date</th>
-                        <th>List</th>
+                        <th>Target Content</th>
                         <th>Reporter</th>
                         <th>Reason</th>
                         <th>Details</th>
@@ -40,7 +40,23 @@
                     <tr th:each="report : ${pendingReports}">
                         <td th:text="${#temporals.format(report.createdAt, 'dd MMM yyyy')}">Date</td>
                         <td>
-                            <a th:href="@{/lists/{id}(id=${report.targetList.listId})}" th:text="${report.targetList.title}" class="admin-list-link">List</a>
+                            <!-- List Report -->
+                            <div th:if="${report.targetList != null}">
+                                📄 List: 
+                                <a th:href="@{/lists/{id}(id=${report.targetList.listId})}" th:text="${report.targetList.title}" class="admin-list-link">List</a>
+                            </div>
+                            <!-- Comment Report -->
+                            <div th:if="${report.targetComment != null}">
+                                💬 Comment: <em th:text="'&quot;' + ${report.targetComment.text} + '&quot;'">"Comment text"</em>
+                                <br/>
+                                <small>On list: <a th:href="@{/lists/{id}(id=${report.targetComment.list.listId})}" th:text="${report.targetComment.list.title}" class="admin-list-link">List</a></small>
+                            </div>
+                            <!-- Item Report -->
+                            <div th:if="${report.targetItem != null}">
+                                📦 Item: <strong th:text="${report.targetItem.title}">Item</strong>
+                                <br/>
+                                <small>On list: <a th:href="@{/lists/{id}(id=${report.targetItem.list.listId})}" th:text="${report.targetItem.list.title}" class="admin-list-link">List</a></small>
+                            </div>
                         </td>
                         <td th:text="${report.submittedByUser.username}">Reporter</td>
                         <td>
@@ -49,6 +65,10 @@
                         <td th:text="${report.details}">Details</td>
                         <td>
                             <div class="td-actions">
+                                <!-- Delete Comment Action (for Comment Reports) -->
+                                <form th:if="${report.targetComment != null}" th:action="@{/admin/reports/{reportId}/delete-comment/{commentId}(reportId=${report.reportId}, commentId=${report.targetComment.commentId})}" method="post" class="form-inline" onsubmit="return confirm('Are you sure you want to delete this comment?')">
+                                    <button type="submit" class="btn-action btn-danger-action">Delete Comment</button>
+                                </form>
                                 <form th:action="@{/admin/reports/{id}/resolve(id=${report.reportId})}" method="post" class="form-inline">
                                     <button type="submit" class="btn-action btn-unblock">Resolve</button>
                                 </form>
@@ -69,13 +89,26 @@
                 <div class="admin-history-item-header">
                     <div class="admin-history-item-content">
                         <span class="badge-verified">RESOLVED</span>
-                        <a th:href="@{/lists/{id}(id=${report.targetList.listId})}" th:text="${report.targetList.title}" class="admin-list-link">List</a>
+                        <!-- List Report -->
+                        <span th:if="${report.targetList != null}">
+                            📄 List: <a th:href="@{/lists/{id}(id=${report.targetList.listId})}" th:text="${report.targetList.title}" class="admin-list-link">List</a>
+                        </span>
+                        <!-- Comment Report -->
+                        <span th:if="${report.targetComment != null}">
+                            💬 Comment on: <a th:href="@{/lists/{id}(id=${report.targetComment.list.listId})}" th:text="${report.targetComment.list.title}" class="admin-list-link">List</a>
+                        </span>
+                        <!-- Item Report -->
+                        <span th:if="${report.targetItem != null}">
+                            📦 Item on: <a th:href="@{/lists/{id}(id=${report.targetItem.list.listId})}" th:text="${report.targetItem.list.title}" class="admin-list-link">List</a>
+                        </span>
                     </div>
                     <span th:text="${#temporals.format(report.createdAt, 'dd MMM yyyy')}" class="admin-history-date">Date</span>
                 </div>
                 <div class="admin-history-item-details">
                     <span><strong>Reason:</strong> <span th:text="${report.reason}">SPAM</span></span>
                     <span><strong>Reporter:</strong> <span th:text="${report.submittedByUser != null ? report.submittedByUser.username : 'Unknown'}">Reporter</span></span>
+                    <span th:if="${report.targetComment != null}"><strong>Comment:</strong> <span th:text="${report.targetComment.text}">Text</span></span>
+                    <span th:if="${report.targetItem != null}"><strong>Item:</strong> <span th:text="${report.targetItem.title}">Item Title</span></span>
                     <span><strong>Details:</strong> <span th:text="${!#strings.isEmpty(report.details) ? report.details : 'None'}">Details</span></span>
                     <span><strong>Moderator:</strong> <span th:text="${report.reviewedByAdmin != null ? report.reviewedByAdmin.username : 'System'}">Admin</span></span>
                 </div>
@@ -84,13 +117,26 @@
                 <div class="admin-history-item-header">
                     <div class="admin-history-item-content">
                         <span class="badge-dismissed">DISMISSED</span>
-                        <a th:href="@{/lists/{id}(id=${report.targetList.listId})}" th:text="${report.targetList.title}" class="admin-list-link">List</a>
+                        <!-- List Report -->
+                        <span th:if="${report.targetList != null}">
+                            📄 List: <a th:href="@{/lists/{id}(id=${report.targetList.listId})}" th:text="${report.targetList.title}" class="admin-list-link">List</a>
+                        </span>
+                        <!-- Comment Report -->
+                        <span th:if="${report.targetComment != null}">
+                            💬 Comment on: <a th:href="@{/lists/{id}(id=${report.targetComment.list.listId})}" th:text="${report.targetComment.list.title}" class="admin-list-link">List</a>
+                        </span>
+                        <!-- Item Report -->
+                        <span th:if="${report.targetItem != null}">
+                            📦 Item on: <a th:href="@{/lists/{id}(id=${report.targetItem.list.listId})}" th:text="${report.targetItem.list.title}" class="admin-list-link">List</a>
+                        </span>
                     </div>
                     <span th:text="${#temporals.format(report.createdAt, 'dd MMM yyyy')}" class="admin-history-date">Date</span>
                 </div>
                 <div class="admin-history-item-details">
                     <span><strong>Reason:</strong> <span th:text="${report.reason}">SPAM</span></span>
                     <span><strong>Reporter:</strong> <span th:text="${report.submittedByUser != null ? report.submittedByUser.username : 'Unknown'}">Reporter</span></span>
+                    <span th:if="${report.targetComment != null}"><strong>Comment:</strong> <span th:text="${report.targetComment.text}">Text</span></span>
+                    <span th:if="${report.targetItem != null}"><strong>Item:</strong> <span th:text="${report.targetItem.title}">Item Title</span></span>
                     <span><strong>Details:</strong> <span th:text="${!#strings.isEmpty(report.details) ? report.details : 'None'}">Details</span></span>
                     <span><strong>Moderator:</strong> <span th:text="${report.reviewedByAdmin != null ? report.reviewedByAdmin.username : 'System'}">Admin</span></span>
                 </div>
