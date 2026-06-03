@@ -84,7 +84,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 var unreadClass = n.isRead ? '' : ' notif-unread';
                 var link = n.linkUrl ? n.linkUrl : '#';
                 return '<li class="notif-item' + unreadClass + '">' +
-                    '<a href="' + link + '">' + escapeHtml(n.message) + '</a>' +
+                    '<a href="' + link + '" data-id="' + n.id + '" class="notif-link">' + escapeHtml(n.message) + '</a>' +
                 '</li>';
             }).join('');
         }
@@ -124,6 +124,34 @@ document.addEventListener('DOMContentLoaded', function () {
                 .replace(/</g, '&lt;')
                 .replace(/>/g, '&gt;')
                 .replace(/"/g, '&quot;');
+        }
+
+        /* Handle clicking on individual notification links */
+        if (notifList) {
+            notifList.addEventListener('click', function(e) {
+                var linkEl = e.target.closest('.notif-link');
+                if (!linkEl) return;
+                
+                var notifId = linkEl.getAttribute('data-id');
+                var listItem = linkEl.closest('li');
+                
+                if (notifId && listItem.classList.contains('notif-unread')) {
+                    e.preventDefault(); // Stop immediate navigation
+                    var xsrf = getCsrfToken();
+                    
+                    fetch('/api/notifications/' + notifId + '/mark-read', {
+                        method: 'POST',
+                        credentials: 'same-origin',
+                        headers: { 'X-XSRF-TOKEN': xsrf || '' }
+                    })
+                    .then(function() {
+                        window.location.href = linkEl.href;
+                    })
+                    .catch(function() {
+                        window.location.href = linkEl.href;
+                    });
+                }
+            });
         }
 
         /* Toggle dropdown on bell click */

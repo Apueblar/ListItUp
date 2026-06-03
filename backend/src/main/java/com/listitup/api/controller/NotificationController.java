@@ -59,6 +59,21 @@ public class NotificationController {
         return ResponseEntity.ok(Map.of("status", "ok"));
     }
 
+    @PostMapping("/{id}/mark-read")
+    public ResponseEntity<?> markSingleAsRead(@PathVariable java.util.UUID id, @AuthenticationPrincipal OAuth2User oauthUser) {
+        if (oauthUser == null) return ResponseEntity.status(401).build();
+        User user = userRepository.findByEmail(oauthUser.getAttribute("email")).orElseThrow();
+        
+        notificationRepository.findById(id).ifPresent(n -> {
+            if (n.getUser().getUserId().equals(user.getUserId()) && !n.getIsRead()) {
+                n.setIsRead(true);
+                notificationRepository.save(n);
+            }
+        });
+        
+        return ResponseEntity.ok(Map.of("status", "ok"));
+    }
+
     @DeleteMapping("/clear-all")
     @org.springframework.transaction.annotation.Transactional
     public ResponseEntity<?> clearAll(@AuthenticationPrincipal OAuth2User oauthUser) {
