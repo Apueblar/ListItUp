@@ -69,6 +69,7 @@ document.addEventListener('DOMContentLoaded', function () {
     var notifBadge   = document.getElementById('notifBadge');
     var notifList    = document.getElementById('notifList');
     var markReadBtn  = document.getElementById('notifMarkRead');
+    var clearAllBtn  = document.getElementById('notifClearAll');
 
     if (bellBtn && notifDropdown) {
 
@@ -148,6 +149,27 @@ document.addEventListener('DOMContentLoaded', function () {
                     document.querySelectorAll('.notif-unread').forEach(function(el) {
                         el.classList.remove('notif-unread');
                     });
+                    if (notifBadge) notifBadge.classList.remove('show-badge');
+                })
+                .catch(function() {});
+            });
+        }
+
+        /* Clear all notifications */
+        if (clearAllBtn) {
+            clearAllBtn.addEventListener('click', function (e) {
+                e.stopPropagation();
+                if (!window.confirm('Are you sure you want to clear all your notifications? This cannot be undone.')) {
+                    return;
+                }
+                var xsrf = getCsrfToken();
+                fetch('/api/notifications/clear-all', {
+                    method: 'DELETE',
+                    credentials: 'same-origin',
+                    headers: { 'X-XSRF-TOKEN': xsrf || '' }
+                })
+                .then(function() {
+                    renderNotifications([]);
                     if (notifBadge) notifBadge.classList.remove('show-badge');
                 })
                 .catch(function() {});

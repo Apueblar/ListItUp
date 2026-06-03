@@ -58,4 +58,13 @@ public class NotificationController {
         
         return ResponseEntity.ok(Map.of("status", "ok"));
     }
+
+    @DeleteMapping("/clear-all")
+    @org.springframework.transaction.annotation.Transactional
+    public ResponseEntity<?> clearAll(@AuthenticationPrincipal OAuth2User oauthUser) {
+        if (oauthUser == null) return ResponseEntity.status(401).build();
+        User user = userRepository.findByEmail(oauthUser.getAttribute("email")).orElseThrow();
+        notificationRepository.deleteAllByUser(user);
+        return ResponseEntity.ok(Map.of("status", "cleared"));
+    }
 }

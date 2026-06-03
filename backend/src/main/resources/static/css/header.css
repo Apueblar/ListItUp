@@ -356,10 +356,15 @@ nav {
     color: var(--text-primary);
 }
 
-.notif-mark-read {
+.notif-actions {
+    display: flex;
+    gap: 0.75rem;
+    align-items: center;
+}
+
+.notif-mark-read, .notif-clear-all {
     background: transparent;
     border: none;
-    color: var(--accent-color);
     font-size: 0.78rem;
     cursor: pointer;
     font-family: var(--font-family);
@@ -367,8 +372,20 @@ nav {
     transition: color 0.2s;
 }
 
+.notif-mark-read {
+    color: var(--accent-color);
+}
+
 .notif-mark-read:hover {
     color: var(--accent-hover, #818cf8);
+}
+
+.notif-clear-all {
+    color: #ef4444; /* red for clear/delete */
+}
+
+.notif-clear-all:hover {
+    color: #f87171;
 }
 
 .notif-list {
