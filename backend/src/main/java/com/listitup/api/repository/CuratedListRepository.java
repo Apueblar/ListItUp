@@ -31,11 +31,17 @@ public interface CuratedListRepository extends JpaRepository<CuratedList, UUID> 
     List<CuratedList> findListsFromFollowedUsersByCategoryOrderByCreatedAtDesc(@org.springframework.data.repository.query.Param("follower") User follower, @org.springframework.data.repository.query.Param("category") String category);
 
     // Search Queries
-    @org.springframework.data.jpa.repository.Query("SELECT l FROM CuratedList l WHERE LOWER(l.title) LIKE LOWER(CONCAT('%', :query, '%')) OR LOWER(l.description) LIKE LOWER(CONCAT('%', :query, '%'))")
+    @org.springframework.data.jpa.repository.Query("SELECT l FROM CuratedList l WHERE l.isDraft = false AND l.visibility = 'PUBLIC' AND l.title != 'List no longer available' AND (LOWER(l.title) LIKE LOWER(CONCAT('%', :query, '%')) OR LOWER(l.description) LIKE LOWER(CONCAT('%', :query, '%')))")
     org.springframework.data.domain.Page<CuratedList> searchLists(@org.springframework.data.repository.query.Param("query") String query, org.springframework.data.domain.Pageable pageable);
 
-    @org.springframework.data.jpa.repository.Query("SELECT l FROM CuratedList l WHERE LOWER(l.category.name) = LOWER(:category) AND (LOWER(l.title) LIKE LOWER(CONCAT('%', :query, '%')) OR LOWER(l.description) LIKE LOWER(CONCAT('%', :query, '%')))")
+    @org.springframework.data.jpa.repository.Query("SELECT l FROM CuratedList l WHERE l.isDraft = false AND l.visibility = 'PUBLIC' AND l.title != 'List no longer available' AND LOWER(l.category.name) = LOWER(:category) AND (LOWER(l.title) LIKE LOWER(CONCAT('%', :query, '%')) OR LOWER(l.description) LIKE LOWER(CONCAT('%', :query, '%')))")
     org.springframework.data.domain.Page<CuratedList> searchListsByCategory(@org.springframework.data.repository.query.Param("query") String query, @org.springframework.data.repository.query.Param("category") String category, org.springframework.data.domain.Pageable pageable);
+
+    @org.springframework.data.jpa.repository.Query("SELECT l FROM CuratedList l WHERE l.isDraft = false AND l.visibility = 'PUBLIC' AND l.title != 'List no longer available'")
+    org.springframework.data.domain.Page<CuratedList> findAllPublicSearchable(org.springframework.data.domain.Pageable pageable);
+
+    @org.springframework.data.jpa.repository.Query("SELECT l FROM CuratedList l WHERE l.isDraft = false AND l.visibility = 'PUBLIC' AND l.title != 'List no longer available' AND LOWER(l.category.name) = LOWER(:category)")
+    org.springframework.data.domain.Page<CuratedList> findByCategoryPublicSearchable(@org.springframework.data.repository.query.Param("category") String category, org.springframework.data.domain.Pageable pageable);
 
     @org.springframework.data.jpa.repository.Modifying
     @org.springframework.transaction.annotation.Transactional

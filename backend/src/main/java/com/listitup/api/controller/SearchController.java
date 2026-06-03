@@ -37,9 +37,9 @@ public class SearchController {
         org.springframework.data.domain.Page<CuratedList> listsPage;
         if (q == null || q.trim().isEmpty()) {
             if ("All".equalsIgnoreCase(category)) {
-                listsPage = listRepository.findAll(pageable);
+                listsPage = listRepository.findAllPublicSearchable(pageable);
             } else {
-                listsPage = listRepository.findByCategoryNameIgnoreCase(category, pageable);
+                listsPage = listRepository.findByCategoryPublicSearchable(category, pageable);
             }
         } else {
             if ("All".equalsIgnoreCase(category)) {

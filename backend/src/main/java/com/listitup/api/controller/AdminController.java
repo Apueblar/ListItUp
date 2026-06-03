@@ -92,6 +92,12 @@ public class AdminController {
         return "redirect:/admin";
     }
 
+    @PostMapping("/admin/users/{userId}/delete")
+    public String deleteUserAccount(@PathVariable UUID userId) {
+        listService.deleteUser(userId);
+        return "redirect:/admin";
+    }
+
     private void syncPrivileges(User user) {
         String role = user.getRole();
         if ("VERIFIED".equals(role)) {

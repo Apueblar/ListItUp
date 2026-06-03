@@ -134,4 +134,24 @@ public class CuratedListService {
     public void updateCategoryForAll(com.listitup.api.model.Category oldCategory, com.listitup.api.model.Category newCategory) {
         listRepository.updateCategoryForAll(oldCategory, newCategory);
     }
+
+    @Transactional
+    public void deleteUser(UUID userId) {
+        User user = userRepository.findById(userId).orElse(null);
+        if (user == null) {
+            return;
+        }
+        if (user.getEmail().equalsIgnoreCase("alvaropueblaruisanchez@gmail.com")) {
+            return;
+        }
+
+        // Delete all lists of the user via deleteList to trigger placeholder logic for other users' saves/likes
+        List<CuratedList> userLists = listRepository.findByCreatorOrderByCreatedAtDesc(user);
+        for (CuratedList list : userLists) {
+            deleteList(list.getListId());
+        }
+
+        // Delete the user record (cascading deletes comments, likes, notifications, follows, reports from DB)
+        userRepository.delete(user);
+    }
 }

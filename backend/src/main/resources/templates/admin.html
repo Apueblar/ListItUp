@@ -99,6 +99,15 @@
                                     Verify
                                 </button>
                             </form>
+
+                            <!-- Delete User Form -->
+                            <form th:action="@{/admin/users/{id}/delete(id=${user.userId})}" method="post" class="form-inline"
+                                  th:if="${user.email != 'alvaropueblaruisanchez@gmail.com'}"
+                                  onsubmit="return confirm('Are you sure you want to delete this account? All associated lists, comments, likes, and reports will be removed.')">
+                                <button type="submit" class="btn-action btn-delete-user">
+                                    Delete
+                                </button>
+                            </form>
                         </div>
                     </td>
                 </tr>
