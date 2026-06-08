@@ -75,6 +75,16 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
         authorities.add(new SimpleGrantedAuthority("ROLE_" + dbUser.getRole()));
 
         String userNameAttributeName = userRequest.getClientRegistration().getProviderDetails().getUserInfoEndpoint().getUserNameAttributeName();
-        return new DefaultOAuth2User(authorities, oauth2User.getAttributes(), userNameAttributeName);
+        
+        // IMPORTANT: Controllers look up the user by calling oauthUser.getAttribute("email").
+        // If the email was private on GitHub, we generated a fallback one, but we MUST
+        // inject it into the attributes map returned by the UserDetailsService, otherwise
+        // it will still be null in the controllers.
+        java.util.Map<String, Object> attributes = new java.util.HashMap<>(oauth2User.getAttributes());
+        if (attributes.get("email") == null) {
+            attributes.put("email", email);
+        }
+        
+        return new DefaultOAuth2User(authorities, attributes, userNameAttributeName);
     }
 }
