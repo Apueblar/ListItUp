@@ -47,6 +47,15 @@ public class WebController {
         return "redirect:/feed";
     }
 
+    @GetMapping("/login")
+    public String loginPage(@AuthenticationPrincipal OAuth2User oauthUser) {
+        // Already logged in — send to feed
+        if (oauthUser != null) {
+            return "redirect:/feed";
+        }
+        return "login";
+    }
+
     @GetMapping("/feed")
     public String feed(@RequestParam(required = false) String category, 
                        @RequestParam(required = false, defaultValue = "recent") String sort,

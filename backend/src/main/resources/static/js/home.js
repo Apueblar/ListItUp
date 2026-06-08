@@ -13,7 +13,13 @@ document.addEventListener('DOMContentLoaded', function() {
         btn.addEventListener('click', async function(e) {
             e.preventDefault();
             var listId = btn.getAttribute('data-list-id');
+            var isAuthenticated = btn.getAttribute('data-authenticated') === 'true';
             var span = btn.querySelector('span');
+
+            if (!isAuthenticated) {
+                window.location.href = '/login';
+                return;
+            }
             
             var wasActive = btn.classList.contains('btn-interaction--active');
             if (wasActive) {
@@ -42,7 +48,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         btn.classList.remove('btn-interaction--active');
                     }
                     if (response.status === 401 || response.status === 403) {
-                        window.location.href = '/oauth2/authorization/google';
+                        window.location.href = '/login';
                     }
                 }
             } catch (err) {

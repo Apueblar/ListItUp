@@ -163,21 +163,44 @@ public class AdminController {
         }
         final User finalAdmin = admin;
         reportRepository.findById(id).ifPresent(report -> {
-            report.setStatus("RESOLVED");
-            if (finalAdmin != null) {
-                report.setReviewedByAdmin(finalAdmin);
-            }
             
-            // Delete the reported content
+            // 1. Resolve all reports for this same content, and nullify the target so we can delete it
             if (report.getTargetList() != null) {
-                listService.deleteList(report.getTargetList().getListId());
+                CuratedList target = report.getTargetList();
+                List<Report> linkedReports = reportRepository.findByTargetList(target);
+                for(Report r : linkedReports) {
+                    r.setStatus("RESOLVED");
+                    if (finalAdmin != null) r.setReviewedByAdmin(finalAdmin);
+                    r.setTargetList(null);
+                    reportRepository.save(r);
+                }
+                listService.deleteList(target.getListId());
             } else if (report.getTargetItem() != null) {
-                itemRepository.delete(report.getTargetItem());
+                Item target = report.getTargetItem();
+                List<Report> linkedReports = reportRepository.findByTargetItem(target);
+                for(Report r : linkedReports) {
+                    r.setStatus("RESOLVED");
+                    if (finalAdmin != null) r.setReviewedByAdmin(finalAdmin);
+                    r.setTargetItem(null);
+                    reportRepository.save(r);
+                }
+                itemRepository.delete(target);
             } else if (report.getTargetComment() != null) {
-                commentRepository.delete(report.getTargetComment());
+                Comment target = report.getTargetComment();
+                List<Report> linkedReports = reportRepository.findByTargetComment(target);
+                for(Report r : linkedReports) {
+                    r.setStatus("RESOLVED");
+                    if (finalAdmin != null) r.setReviewedByAdmin(finalAdmin);
+                    r.setTargetComment(null);
+                    reportRepository.save(r);
+                }
+                commentRepository.delete(target);
+            } else {
+                // Failsafe if target is already null
+                report.setStatus("RESOLVED");
+                if (finalAdmin != null) report.setReviewedByAdmin(finalAdmin);
+                reportRepository.save(report);
             }
-
-            reportRepository.save(report);
         });
         return "redirect:/admin/reports";
     }

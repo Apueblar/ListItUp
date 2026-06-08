@@ -38,7 +38,7 @@ public class SecurityConfig {
                 .requestMatchers(org.springframework.http.HttpMethod.POST, "/lists/*/pin").authenticated()
                 .requestMatchers(org.springframework.http.HttpMethod.POST, "/lists/*/comments").authenticated()
                 // Public endpoints
-                .requestMatchers("/", "/feed", "/search", "/categories", "/lists/**", "/users/**", "/css/**", "/js/**", "/images/**", "/uploads/**", "/error", "/logout", "/actuator/health", "/og").permitAll()
+                .requestMatchers("/", "/feed", "/search", "/login", "/categories", "/lists/**", "/users/**", "/css/**", "/js/**", "/images/**", "/uploads/**", "/error", "/logout", "/actuator/health", "/og").permitAll()
                 // Admin endpoints
                 .requestMatchers("/admin/**").hasRole("ADMIN")
                 // Analytics endpoints
@@ -47,12 +47,13 @@ public class SecurityConfig {
                 .anyRequest().authenticated()
             )
             .oauth2Login(oauth2 -> oauth2
+                .loginPage("/login")
                 .userInfoEndpoint(userInfo -> userInfo
                     .oidcUserService(customOidcUserService)
                     .userService(customOAuth2UserService)
                 )
                 .defaultSuccessUrl("/feed", true)
-                .failureUrl("/feed?error=true")
+                .failureUrl("/login?error=true")
             )
             .logout(logout -> logout
                 .logoutSuccessUrl("/")

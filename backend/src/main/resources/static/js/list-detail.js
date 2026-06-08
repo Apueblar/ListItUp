@@ -61,7 +61,7 @@ async function toggleInteraction(endpoint, btnId, activeText, inactiveText) {
                 btn.classList.remove('btn-interaction--active');
             }
             if (response.status === 401 || response.status === 403) {
-                window.location.href = '/oauth2/authorization/google';
+                window.location.href = '/login';
             }
         }
     } catch (err) {
@@ -144,7 +144,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     `;
                     container.insertAdjacentHTML('beforeend', commentHtml);
                 } else if (response.status === 401 || response.status === 403) {
-                    window.location.href = '/oauth2/authorization/google';
+                    window.location.href = '/login';
                 }
             } catch (err) {
                 console.error('Comment error:', err);
@@ -267,7 +267,7 @@ document.addEventListener('DOMContentLoaded', function () {
                         reportModal.style.display = 'none';
                         reportForm.reset();
                     } else if (response.status === 401 || response.status === 403) {
-                        window.location.href = '/oauth2/authorization/google';
+                        window.location.href = '/login';
                     } else {
                         showCustomAlert('Failed to submit report. Please try again.');
                     }

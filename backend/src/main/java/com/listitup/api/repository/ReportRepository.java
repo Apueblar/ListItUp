@@ -15,4 +15,8 @@ public interface ReportRepository extends JpaRepository<Report, UUID> {
     boolean existsBySubmittedByUserAndTargetList(User user, CuratedList targetList);
     boolean existsBySubmittedByUserAndTargetItem(User user, Item targetItem);
     boolean existsBySubmittedByUserAndTargetComment(User user, Comment targetComment);
+
+    List<Report> findByTargetList(CuratedList targetList);
+    List<Report> findByTargetItem(Item targetItem);
+    List<Report> findByTargetComment(Comment targetComment);
 }

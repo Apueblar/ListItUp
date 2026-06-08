@@ -73,6 +73,7 @@
                     <div class="card-footer-actions">
                         <span th:text="${list.viewCount + ' views'}">1.2k views</span>
                         <button class="btn-like-feed" th:data-list-id="${list.listId}"
+                                th:attr="data-authenticated=${currentUser != null}"
                                 th:classappend="${likedListIds != null and #lists.contains(likedListIds, list.listId)} ? 'btn-interaction--active' : ''">
                             <span th:text="${likedListIds != null and #lists.contains(likedListIds, list.listId)} ? '❤️' : '🤍'">🤍</span>
                         </button>
