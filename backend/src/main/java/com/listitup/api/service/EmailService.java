@@ -14,6 +14,11 @@ public class EmailService {
     }
 
     public void sendEmail(String to, String subject, String text) {
+        if (to == null || to.endsWith("@github.local")) {
+            System.out.println("Skipping email send to auto-generated fallback address: " + to);
+            return;
+        }
+
         SimpleMailMessage message = new SimpleMailMessage();
         message.setTo(to);
         message.setSubject(subject);
