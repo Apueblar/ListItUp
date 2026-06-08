@@ -170,6 +170,7 @@ public class AdminController {
     }
 
     @PostMapping("/admin/reports/{id}/resolve")
+    @org.springframework.transaction.annotation.Transactional
     public String resolveReport(@PathVariable UUID id, @AuthenticationPrincipal OAuth2User oauthUser) {
         User admin = null;
         if (oauthUser != null) {
@@ -221,6 +222,7 @@ public class AdminController {
     }
 
     @PostMapping("/admin/reports/{id}/dismiss")
+    @org.springframework.transaction.annotation.Transactional
     public String dismissReport(@PathVariable UUID id, @AuthenticationPrincipal OAuth2User oauthUser) {
         User admin = null;
         if (oauthUser != null) {

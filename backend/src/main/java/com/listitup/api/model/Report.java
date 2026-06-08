@@ -52,8 +52,11 @@ public class Report {
         if (targetList != null) targets++;
         if (targetItem != null) targets++;
         if (targetComment != null) targets++;
-        if (targets != 1) {
-            throw new IllegalStateException("Exactly one target (list, item, or comment) must be provided for a report.");
+        if (targets > 1) {
+            throw new IllegalStateException("At most one target (list, item, or comment) can be provided for a report.");
+        }
+        if (targets == 0 && !"RESOLVED".equals(status)) {
+            throw new IllegalStateException("Exactly one target (list, item, or comment) must be provided for an open report.");
         }
     }
 
