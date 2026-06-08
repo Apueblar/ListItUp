@@ -212,8 +212,13 @@ document.addEventListener('DOMContentLoaded', function () {
             });
         }
 
-        /* Notifications are now pre-loaded by Thymeleaf for the badge count.
-           We only fetch when the dropdown is opened. */
+        /* Background polling for notifications.
+           Starts 1 second after load, then runs every 60 seconds. */
+        setTimeout(function() {
+            // Only fetch if the user is logged in (bellBtn exists)
+            fetchNotifications();
+            setInterval(fetchNotifications, 60000);
+        }, 1000);
     }
 
     /* ── Theme Toggle Logic ── */
