@@ -184,9 +184,11 @@ public class AdminController {
             if (report.getTargetList() != null) {
                 CuratedList target = report.getTargetList();
                 List<Report> linkedReports = reportRepository.findByTargetList(target);
+                String authorName = target.getCreator().getUsername();
                 for(Report r : linkedReports) {
                     r.setStatus("RESOLVED");
                     if (finalAdmin != null) r.setReviewedByAdmin(finalAdmin);
+                    r.setDeletedContentAuthor(authorName);
                     r.setTargetList(null);
                     reportRepository.save(r);
                 }
@@ -194,9 +196,11 @@ public class AdminController {
             } else if (report.getTargetItem() != null) {
                 Item target = report.getTargetItem();
                 List<Report> linkedReports = reportRepository.findByTargetItem(target);
+                String authorName = target.getList().getCreator().getUsername();
                 for(Report r : linkedReports) {
                     r.setStatus("RESOLVED");
                     if (finalAdmin != null) r.setReviewedByAdmin(finalAdmin);
+                    r.setDeletedContentAuthor(authorName);
                     r.setTargetItem(null);
                     reportRepository.save(r);
                 }
@@ -204,9 +208,11 @@ public class AdminController {
             } else if (report.getTargetComment() != null) {
                 Comment target = report.getTargetComment();
                 List<Report> linkedReports = reportRepository.findByTargetComment(target);
+                String authorName = target.getAuthor().getUsername();
                 for(Report r : linkedReports) {
                     r.setStatus("RESOLVED");
                     if (finalAdmin != null) r.setReviewedByAdmin(finalAdmin);
+                    r.setDeletedContentAuthor(authorName);
                     r.setTargetComment(null);
                     reportRepository.save(r);
                 }

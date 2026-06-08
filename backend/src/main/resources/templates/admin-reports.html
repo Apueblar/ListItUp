@@ -94,7 +94,7 @@
                             📄 List: <a th:href="@{/lists/{id}(id=${report.targetList.listId})}" th:text="${report.targetList.title}" class="admin-list-link">List</a>
                         </span>
                         <span th:if="${report.targetList == null and report.targetComment == null and report.targetItem == null}">
-                            📄 <em>[Content deleted]</em>
+                            📄 <span th:text="${report.deletedContentAuthor != null ? report.deletedContentAuthor + ': ' : ''}"></span><em>[Content deleted]</em>
                         </span>
                         <!-- Comment Report -->
                         <span th:if="${report.targetComment != null}">

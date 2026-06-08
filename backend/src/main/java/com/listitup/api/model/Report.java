@@ -42,6 +42,12 @@ public class Report {
     @Column(name = "status", nullable = false)
     private String status = "OPEN"; // OPEN, REVIEWED, RESOLVED
 
+    @Column(name = "deleted_content_author")
+    private String deletedContentAuthor;
+
+    public String getDeletedContentAuthor() { return deletedContentAuthor; }
+    public void setDeletedContentAuthor(String deletedContentAuthor) { this.deletedContentAuthor = deletedContentAuthor; }
+
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt = LocalDateTime.now();
 
