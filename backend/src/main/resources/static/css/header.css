@@ -74,6 +74,12 @@ nav {
         font-size: 0.9rem;
     }
 
+    /* Compress buttons on mobile to prevent excessive wrapping */
+    .btn-primary, .btn-secondary, .btn-admin {
+        padding: 0.4rem 0.8rem;
+        font-size: 0.85rem;
+    }
+
     .avatar-btn {
         width: 36px;
         height: 36px;
@@ -85,24 +91,20 @@ nav {
         height: 36px;
     }
 
-    .dropdown-menu {
-        position: fixed;
-        left: 5%;
-        right: 5%;
-        top: 75px;
-        width: 90%;
-        max-width: 350px;
-        margin: 0 auto;
+    /* Break dropdowns out of their parent buttons to position relative to the navbar */
+    .user-dropdown, .notif-wrapper {
+        position: static !important;
     }
 
-    .notif-dropdown {
-        position: fixed;
+    .dropdown-menu, .notif-dropdown {
+        position: absolute;
+        top: calc(100% + 5px);
         left: 5%;
         right: 5%;
-        top: 75px;
         width: 90%;
-        max-width: 350px;
-        margin: 0 auto;
+        max-width: none;
+        transform: none;
+        margin: 0;
     }
 }
 
