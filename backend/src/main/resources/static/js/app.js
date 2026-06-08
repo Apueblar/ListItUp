@@ -90,9 +90,9 @@ document.addEventListener('DOMContentLoaded', function () {
         }
 
         /** Update badge count */
-        function updateBadge(items) {
+        function updateBadge(items, serverUnreadCount) {
             if (!notifBadge) return;
-            var unread = (items || []).filter(function(n) { return !n.isRead; }).length;
+            var unread = serverUnreadCount !== undefined ? serverUnreadCount : (items || []).filter(function(n) { return !n.isRead; }).length;
             if (unread > 0) {
                 notifBadge.textContent = unread > 9 ? '9+' : unread;
                 notifBadge.classList.add('show-badge');
@@ -115,8 +115,10 @@ document.addEventListener('DOMContentLoaded', function () {
                     return r.json();
                 })
                 .then(function(data) {
-                    renderNotifications(data);
-                    updateBadge(data);
+                    var items = data.notifications || [];
+                    var unreadCount = data.unreadCount || 0;
+                    renderNotifications(items);
+                    updateBadge(items, unreadCount);
                 })
                 .catch(function() {
                     if (notifList) notifList.innerHTML = '<li class="notif-empty">Could not load notifications.</li>';

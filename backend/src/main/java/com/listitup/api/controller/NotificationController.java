@@ -40,7 +40,12 @@ public class NotificationController {
                 "createdAt", n.getCreatedAt()
         )).collect(Collectors.toList());
 
-        return ResponseEntity.ok(dtoList);
+        long unreadCount = notificationRepository.countByUserAndIsReadFalse(user);
+        Map<String, Object> response = new java.util.HashMap<>();
+        response.put("notifications", dtoList);
+        response.put("unreadCount", unreadCount);
+
+        return ResponseEntity.ok(response);
     }
 
     @PostMapping("/mark-read")
@@ -48,9 +53,10 @@ public class NotificationController {
         if (oauthUser == null) return ResponseEntity.status(401).build();
         User user = userRepository.findFirstByEmail(oauthUser.getAttribute("email")).orElseThrow();
         
-        List<Notification> notifications = notificationRepository.findTop10ByUserOrderByCreatedAtDesc(user);
-        for (Notification n : notifications) {
-            if (!n.getIsRead()) {
+        // Mark all unread notifications for this user as read
+        List<Notification> allNotifications = notificationRepository.findAll();
+        for (Notification n : allNotifications) {
+            if (n.getUser().getUserId().equals(user.getUserId()) && !n.getIsRead()) {
                 n.setIsRead(true);
                 notificationRepository.save(n);
             }
