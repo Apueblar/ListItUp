@@ -65,9 +65,21 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
         if (userOptional.isEmpty()) {
             dbUser = new User();
             dbUser.setEmail(email);
-            dbUser.setUsername(username);
             dbUser.setAuthProvider("GITHUB");
             dbUser.setHasCompletedSetup(false);
+
+            // Resolve a unique username — GitHub login may clash with an existing account from another provider.
+            // We'll suggest a de-conflicted name; the user can always change it on the setup screen.
+            String resolvedUsername = username;
+            if (userRepository.findFirstByUsername(resolvedUsername).isPresent()) {
+                resolvedUsername = username + "_gh";
+                int counter = 2;
+                while (userRepository.findFirstByUsername(resolvedUsername).isPresent()) {
+                    resolvedUsername = username + "_gh" + counter;
+                    counter++;
+                }
+            }
+            dbUser.setUsername(resolvedUsername);
 
             if (email.equalsIgnoreCase("alvaropueblaruisanchez@gmail.com")) {
                 dbUser.setRole("ADMIN");

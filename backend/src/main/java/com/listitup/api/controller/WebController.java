@@ -72,7 +72,7 @@ public class WebController {
         }
 
         if ("following".equalsIgnoreCase(sort) && currentUser == null) {
-            return "redirect:/oauth2/authorization/google";
+            return "redirect:/login";
         }
 
         List<CuratedList> lists;

@@ -44,9 +44,20 @@ public class CustomOidcUserService extends OidcUserService {
         if (userOptional.isEmpty()) {
             dbUser = new User();
             dbUser.setEmail(email);
-            dbUser.setUsername(username);
             dbUser.setAuthProvider("GOOGLE");
             dbUser.setHasCompletedSetup(false);
+
+            // Resolve a unique username — full name from Google may clash with existing accounts.
+            String resolvedUsername = username;
+            if (resolvedUsername != null && userRepository.findFirstByUsername(resolvedUsername).isPresent()) {
+                resolvedUsername = username + "_g";
+                int counter = 2;
+                while (userRepository.findFirstByUsername(resolvedUsername).isPresent()) {
+                    resolvedUsername = username + "_g" + counter;
+                    counter++;
+                }
+            }
+            dbUser.setUsername(resolvedUsername != null ? resolvedUsername : email.split("@")[0]);
 
             // Promote specific user to Admin automatically
             if (email.equalsIgnoreCase("alvaropueblaruisanchez@gmail.com")) {
