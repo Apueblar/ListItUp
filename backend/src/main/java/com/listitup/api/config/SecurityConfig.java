@@ -4,10 +4,13 @@ import com.listitup.api.security.CustomOidcUserService;
 import com.listitup.api.security.CustomOAuth2UserService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.access.hierarchicalroles.RoleHierarchy;
+import org.springframework.security.access.hierarchicalroles.RoleHierarchyImpl;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
+import org.springframework.security.web.access.expression.DefaultWebSecurityExpressionHandler;
 
 @Configuration
 @EnableWebSecurity
@@ -39,10 +42,10 @@ public class SecurityConfig {
                 .requestMatchers(org.springframework.http.HttpMethod.POST, "/lists/*/comments").authenticated()
                 // Public endpoints
                 .requestMatchers("/", "/feed", "/search", "/login", "/categories", "/lists/**", "/users/**", "/css/**", "/js/**", "/images/**", "/uploads/**", "/error", "/logout", "/actuator/health", "/og").permitAll()
-                // Admin endpoints
-                .requestMatchers("/admin/**").hasRole("ADMIN")
-                // Analytics endpoints
-                .requestMatchers("/analytics/**").hasRole("VERIFIED")
+                // Admin endpoints — only ROLE_ADMIN (explicit authority check, works for both OIDC and OAuth2)
+                .requestMatchers("/admin/**").hasAuthority("ROLE_ADMIN")
+                // Analytics endpoints — only ROLE_VERIFIED
+                .requestMatchers("/analytics/**").hasAuthority("ROLE_VERIFIED")
                 // All other endpoints require authentication
                 .anyRequest().authenticated()
             )
@@ -65,5 +68,12 @@ public class SecurityConfig {
             );
 
         return http.build();
+    }
+
+    @Bean
+    public RoleHierarchy roleHierarchy() {
+        RoleHierarchyImpl hierarchy = new RoleHierarchyImpl();
+        hierarchy.setHierarchy("ROLE_ADMIN > ROLE_VERIFIED > ROLE_STANDARD");
+        return hierarchy;
     }
 }

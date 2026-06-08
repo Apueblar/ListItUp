@@ -50,8 +50,18 @@ public class AdminController {
         this.itemRepository = itemRepository;
     }
 
+    /** Hard server-side guard — rejects anyone who is not ROLE_ADMIN regardless of Security filter outcome */
+    private boolean isAdmin(OAuth2User oauthUser) {
+        if (oauthUser == null) return false;
+        String email = oauthUser.getAttribute("email");
+        if (email == null) return false;
+        User user = userRepository.findFirstByEmail(email).orElse(null);
+        return user != null && "ADMIN".equals(user.getRole());
+    }
+
     @GetMapping("/admin")
-    public String adminPanel(Model model) {
+    public String adminPanel(@AuthenticationPrincipal OAuth2User oauthUser, Model model) {
+        if (!isAdmin(oauthUser)) return "redirect:/feed";
         List<User> users = userRepository.findAll();
         model.addAttribute("users", users);
         return "admin"; // renders admin.html
@@ -133,7 +143,8 @@ public class AdminController {
     }
 
     @GetMapping("/admin/lists")
-    public String adminListsPanel(Model model) {
+    public String adminListsPanel(@AuthenticationPrincipal OAuth2User oauthUser, Model model) {
+        if (!isAdmin(oauthUser)) return "redirect:/feed";
         model.addAttribute("lists", listService.getAllPublicLists());
         return "admin-lists";
     }
@@ -145,7 +156,8 @@ public class AdminController {
     }
 
     @GetMapping("/admin/reports")
-    public String viewReports(Model model) {
+    public String viewReports(@AuthenticationPrincipal OAuth2User oauthUser, Model model) {
+        if (!isAdmin(oauthUser)) return "redirect:/feed";
         List<Report> pendingReports = reportRepository.findByStatusOrderByCreatedAtDesc("PENDING");
         List<Report> resolvedReports = reportRepository.findByStatusOrderByCreatedAtDesc("RESOLVED");
         List<Report> dismissedReports = reportRepository.findByStatusOrderByCreatedAtDesc("DISMISSED");
@@ -247,7 +259,8 @@ public class AdminController {
     }
 
     @GetMapping("/admin/categories")
-    public String adminCategoriesPanel(Model model) {
+    public String adminCategoriesPanel(@AuthenticationPrincipal OAuth2User oauthUser, Model model) {
+        if (!isAdmin(oauthUser)) return "redirect:/feed";
         model.addAttribute("categories", categoryRepository.findAll());
         model.addAttribute("pendingProposals", categoryProposalRepository.findByStatusOrderByCreatedAtDesc("PENDING"));
         return "admin-categories";
