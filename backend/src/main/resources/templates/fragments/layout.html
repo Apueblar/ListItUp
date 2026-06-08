@@ -36,6 +36,9 @@
             <span class="theme-icon-light">🌙</span>
         </button>
         <a th:href="@{/search}" class="nav-link">Search</a>
+        <!-- VERIFIED: show analytics button -->
+        <a th:if="${currentUser != null and currentUser.hasAnalyticsAccess}"
+           th:href="@{/analytics}" class="btn-secondary">Analytics</a>
 
         <!-- Authenticated: show create list button -->
         <a th:if="${currentUser != null}"
@@ -88,7 +91,6 @@
                 <a th:href="@{/profile}" class="dropdown-item">Edit Profile Dashboard</a>
                 <a th:href="@{/users/{username}(username=${currentUser.username})}" class="dropdown-item">Public Profile</a>
                 <a th:href="@{/profile/drafts}" class="dropdown-item">My Drafts</a>
-                <a th:if="${currentUser.hasAnalyticsAccess}" th:href="@{/analytics}" class="dropdown-item">Analytics</a>
                 <div class="dropdown-divider"></div>
                 <form th:action="@{/profile/update-username}" method="post" class="username-update-form">
                     <!-- Include CSRF token explicitly for non-thymeleaf generated raw form elements if needed, but th:action handles it! -->

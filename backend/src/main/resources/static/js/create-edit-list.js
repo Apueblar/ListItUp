@@ -17,7 +17,13 @@ function createItemRow() {
     div.setAttribute('draggable', 'true');
 
     div.innerHTML =
-        '<div class="drag-handle" style="cursor: grab; display: inline-block; margin-right: 10px;">☰</div>' +
+        '<div class="drag-handle" title="Drag to reorder">' +
+            '<span>☰</span>' +
+            '<div class="order-controls">' +
+                '<button type="button" class="btn-move-up" title="Move up" aria-label="Move up">▲</button>' +
+                '<button type="button" class="btn-move-down" title="Move down" aria-label="Move down">▼</button>' +
+            '</div>' +
+        '</div>' +
         '<button type="button" class="btn-remove-item" aria-label="Remove item">&times;</button>' +
         '<div class="item-row-field">' +
             '<label>Item Title</label>' +
@@ -53,6 +59,28 @@ function attachItemEventListeners(div) {
     if (removeBtn) {
         removeBtn.addEventListener('click', function () {
             div.remove();
+        });
+    }
+
+    var moveUpBtn = div.querySelector('.btn-move-up');
+    if (moveUpBtn) {
+        moveUpBtn.addEventListener('click', function(e) {
+            e.stopPropagation();
+            var prev = div.previousElementSibling;
+            if (prev && prev.classList.contains('item-row')) {
+                div.parentNode.insertBefore(div, prev);
+            }
+        });
+    }
+
+    var moveDownBtn = div.querySelector('.btn-move-down');
+    if (moveDownBtn) {
+        moveDownBtn.addEventListener('click', function(e) {
+            e.stopPropagation();
+            var next = div.nextElementSibling;
+            if (next && next.classList.contains('item-row')) {
+                div.parentNode.insertBefore(next, div);
+            }
         });
     }
 

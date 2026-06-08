@@ -69,7 +69,13 @@
                     <!-- Dynamic items will be appended here -->
                     <th:block th:if="${list != null}">
                         <div th:each="item, stat : ${list.items}" class="item-row">
-                            <div class="drag-handle" title="Drag to reorder">☰</div>
+                            <div class="drag-handle" title="Drag to reorder">
+                                <span>☰</span>
+                                <div class="order-controls">
+                                    <button type="button" class="btn-move-up" title="Move up" aria-label="Move up">▲</button>
+                                    <button type="button" class="btn-move-down" title="Move down" aria-label="Move down">▼</button>
+                                </div>
+                            </div>
                             <button type="button" class="btn-remove-item" aria-label="Remove item">&times;</button>
                             <div class="item-row-field">
                                 <label>Item Title</label>

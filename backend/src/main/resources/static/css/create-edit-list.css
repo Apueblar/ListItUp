@@ -240,6 +240,53 @@
     pointer-events: none;
 }
 
+.drag-handle {
+    cursor: grab;
+    display: inline-flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    margin-right: 15px;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 8px;
+    padding: 6px 4px;
+    border: 1px solid var(--glass-border);
+}
+
+.drag-handle > span {
+    margin-bottom: 6px;
+    color: var(--text-secondary);
+    font-size: 1.2rem;
+    line-height: 1;
+}
+
+.order-controls {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.order-controls button {
+    background: rgba(0, 0, 0, 0.2);
+    border: 1px solid var(--glass-border);
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.7rem;
+    padding: 4px 8px;
+    color: var(--text-secondary);
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.order-controls button:hover {
+    background: var(--accent-color);
+    color: white;
+    border-color: var(--accent-color);
+    box-shadow: 0 0 8px var(--accent-glow);
+}
+
 .drop-zone-input {
     position: absolute;
     top: 0;
