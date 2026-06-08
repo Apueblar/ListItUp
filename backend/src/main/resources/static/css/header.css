@@ -482,3 +482,54 @@ html.theme-light .theme-icon-dark { display: none; }
 html.theme-light .theme-icon-light { display: inline; }
 html:not(.theme-light) .theme-icon-dark { display: inline; }
 html:not(.theme-light) .theme-icon-light { display: none; }
+
+/* ── Light Mode Header Overrides ── */
+:root.theme-light .notif-bell-btn {
+    color: var(--text-secondary);
+}
+
+:root.theme-light .notif-bell-btn:hover {
+    color: var(--text-primary);
+    background: rgba(0, 0, 0, 0.06);
+}
+
+:root.theme-light .btn-theme-toggle {
+    color: var(--text-primary);
+}
+
+:root.theme-light .dropdown-item {
+    color: var(--text-secondary);
+}
+
+:root.theme-light .dropdown-item:hover {
+    color: var(--text-primary);
+}
+
+:root.theme-light .dropdown-menu {
+    background: rgba(255, 255, 255, 0.95);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12);
+}
+
+:root.theme-light .notif-dropdown {
+    background: rgba(255, 255, 255, 0.95);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12);
+}
+
+:root.theme-light .notif-item a {
+    color: var(--text-secondary);
+}
+
+:root.theme-light .notif-item.notif-unread a {
+    color: var(--text-primary);
+}
+
+:root.theme-light .notif-empty {
+    color: var(--text-secondary);
+}
+
+:root.theme-light .username-update-form input {
+    background: rgba(0, 0, 0, 0.04);
+    border-color: rgba(0, 0, 0, 0.15);
+    color: var(--text-primary);
+}
+

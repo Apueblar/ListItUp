@@ -1,6 +1,7 @@
 package com.listitup.api.config;
 
 import com.listitup.api.security.CustomOidcUserService;
+import com.listitup.api.security.CustomOAuth2UserService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -13,9 +14,11 @@ import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
 public class SecurityConfig {
 
     private final CustomOidcUserService customOidcUserService;
+    private final CustomOAuth2UserService customOAuth2UserService;
 
-    public SecurityConfig(CustomOidcUserService customOidcUserService) {
+    public SecurityConfig(CustomOidcUserService customOidcUserService, CustomOAuth2UserService customOAuth2UserService) {
         this.customOidcUserService = customOidcUserService;
+        this.customOAuth2UserService = customOAuth2UserService;
     }
 
     @Bean
@@ -44,7 +47,10 @@ public class SecurityConfig {
                 .anyRequest().authenticated()
             )
             .oauth2Login(oauth2 -> oauth2
-                .userInfoEndpoint(userInfo -> userInfo.oidcUserService(customOidcUserService))
+                .userInfoEndpoint(userInfo -> userInfo
+                    .oidcUserService(customOidcUserService)
+                    .userService(customOAuth2UserService)
+                )
                 .defaultSuccessUrl("/feed", true)
                 .failureUrl("/feed?error=true")
             )

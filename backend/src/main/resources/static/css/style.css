@@ -404,3 +404,51 @@ select option {
     to { opacity: 1; transform: translateY(0); }
 }
 
+/* ── Light Mode Global Overrides ── */
+:root.theme-light .btn-secondary {
+    color: var(--text-primary);
+    border-color: rgba(0, 0, 0, 0.15);
+}
+
+:root.theme-light .btn-secondary:hover {
+    background: rgba(0, 0, 0, 0.05);
+    border-color: var(--text-secondary);
+}
+
+:root.theme-light .filter-pill {
+    color: var(--text-secondary);
+    background: rgba(0, 0, 0, 0.04);
+    border-color: rgba(0, 0, 0, 0.12);
+}
+
+:root.theme-light .filter-pill:hover {
+    color: var(--text-primary);
+    background: rgba(0, 0, 0, 0.08);
+}
+
+:root.theme-light .filter-pill.active {
+    background: var(--text-primary);
+    color: #ffffff;
+    border-color: var(--text-primary);
+}
+
+:root.theme-light .sort-tab-link {
+    color: var(--text-secondary);
+}
+
+:root.theme-light .sort-tab-link.active-tab {
+    color: var(--accent-color);
+    border-bottom-color: var(--accent-color);
+}
+
+:root.theme-light select {
+    background-color: rgba(0, 0, 0, 0.04);
+    color: var(--text-primary);
+    border-color: rgba(0, 0, 0, 0.15);
+}
+
+:root.theme-light .pagination-btn {
+    color: var(--text-primary);
+    border-color: rgba(0, 0, 0, 0.15);
+    background: var(--surface-color);
+}

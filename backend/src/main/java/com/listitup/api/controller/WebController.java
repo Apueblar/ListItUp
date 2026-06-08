@@ -70,24 +70,13 @@ public class WebController {
         boolean hasCategory = category != null && !category.trim().isEmpty() && !category.equalsIgnoreCase("All");
         
         if ("trending".equalsIgnoreCase(sort)) {
-            if (hasCategory) lists = listRepository.findByCategoryNameIgnoreCaseOrderByCreatedAtDesc(category);
-            else lists = listRepository.findAllByOrderByCreatedAtDesc();
-            
-            // Sort by 24h views, then lifetime views, then creation date
-            Map<UUID, Integer> recentViews = trendingService.getRecentViewCounts();
-            lists.sort((l1, l2) -> {
-                int v1 = recentViews.getOrDefault(l1.getListId(), 0);
-                int v2 = recentViews.getOrDefault(l2.getListId(), 0);
-                if (v1 != v2) {
-                    return Integer.compare(v2, v1);
-                }
-                int tv1 = l1.getViewCount() != null ? l1.getViewCount() : 0;
-                int tv2 = l2.getViewCount() != null ? l2.getViewCount() : 0;
-                if (tv1 != tv2) {
-                    return Integer.compare(tv2, tv1);
-                }
-                return l2.getCreatedAt().compareTo(l1.getCreatedAt());
-            });
+            java.time.LocalDateTime since = java.time.LocalDateTime.now().minusHours(24);
+            long threshold = 3;
+            if (hasCategory) {
+                lists = listRepository.findTrendingListsByCategory(since, threshold, category);
+            } else {
+                lists = listRepository.findTrendingLists(since, threshold);
+            }
         } else if ("following".equalsIgnoreCase(sort) && currentUser != null) {
             if (hasCategory) lists = listRepository.findListsFromFollowedUsersByCategoryOrderByCreatedAtDesc(currentUser, category);
             else lists = listRepository.findListsFromFollowedUsersOrderByCreatedAtDesc(currentUser);

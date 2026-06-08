@@ -144,6 +144,63 @@
     color: #a7f3d0;
 }
 
+.username-error-msg {
+    color: #ff4d4f;
+    background: #fff1f0;
+    padding: 10px;
+    border-radius: 4px;
+    border: 1px solid #ffa39e;
+    margin-bottom: 15px;
+}
+
+.username-success-msg {
+    color: #52c41a;
+    background: #f6ffed;
+    padding: 10px;
+    border-radius: 4px;
+    border: 1px solid #b7eb8f;
+    margin-bottom: 15px;
+}
+
+.username-input-row {
+    display: flex;
+    gap: 10px;
+    align-items: flex-start;
+}
+
+.username-input {
+    height: 42px;
+    min-height: 42px;
+    resize: none;
+    flex: 1;
+}
+
+.username-save-btn {
+    height: 42px;
+}
+
+.danger-zone-form {
+    margin-top: 40px;
+    padding-top: 20px;
+    border-top: 1px solid var(--border-color);
+}
+
+.danger-zone-title {
+    color: var(--danger-color);
+    margin-bottom: 10px;
+}
+
+.danger-zone-desc {
+    color: var(--text-light);
+    margin-bottom: 15px;
+    font-size: 0.9rem;
+}
+
+.btn-delete-account {
+    border-color: var(--danger-color);
+    color: var(--danger-color);
+}
+
 /* Inline styles refactored from profile.html */
 .profile-own-avatar img {
     width: 100%;

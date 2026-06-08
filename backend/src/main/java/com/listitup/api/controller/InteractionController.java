@@ -5,15 +5,17 @@ import com.listitup.api.model.Like;
 import com.listitup.api.model.SavedList;
 import com.listitup.api.model.User;
 import com.listitup.api.repository.CuratedListRepository;
+import com.listitup.api.repository.NotificationRepository;
 import com.listitup.api.repository.UserRepository;
+import com.listitup.api.service.EmailService;
+import jakarta.persistence.EntityManager;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.core.user.OAuth2User;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RestController;
-import jakarta.persistence.EntityManager;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Map;
 import java.util.UUID;
@@ -23,14 +25,16 @@ public class InteractionController {
 
     private final CuratedListRepository listRepository;
     private final UserRepository userRepository;
-    private final com.listitup.api.repository.NotificationRepository notificationRepository;
+    private final NotificationRepository notificationRepository;
     private final EntityManager entityManager;
+    private final EmailService emailService;
 
-    public InteractionController(CuratedListRepository listRepository, UserRepository userRepository, com.listitup.api.repository.NotificationRepository notificationRepository, EntityManager entityManager) {
+    public InteractionController(CuratedListRepository listRepository, UserRepository userRepository, NotificationRepository notificationRepository, EntityManager entityManager, EmailService emailService) {
         this.listRepository = listRepository;
         this.userRepository = userRepository;
         this.notificationRepository = notificationRepository;
         this.entityManager = entityManager;
+        this.emailService = emailService;
     }
 
     @PostMapping("/lists/{id}/like")
@@ -74,6 +78,11 @@ public class InteractionController {
                 n.setMessage(likeMsg);
                 n.setLinkUrl(likeLink);
                 notificationRepository.save(n);
+                
+                // Send email
+                java.util.concurrent.CompletableFuture.runAsync(() -> {
+                    emailService.sendEmail(list.getCreator().getEmail(), "Someone liked your list", likeMsg + "\n\nView it here: https://listitup.duckdns.org" + likeLink);
+                });
             }
 
             return ResponseEntity.ok(Map.of("status", "liked"));
@@ -210,6 +219,11 @@ public class InteractionController {
                 n.setMessage(followMsg);
                 n.setLinkUrl(followLink);
                 notificationRepository.save(n);
+                
+                // Send email
+                java.util.concurrent.CompletableFuture.runAsync(() -> {
+                    emailService.sendEmail(followee.getEmail(), "Someone followed you", followMsg + "\n\nView it here: https://listitup.duckdns.org" + followLink);
+                });
             }
             return ResponseEntity.ok(Map.of("status", "followed"));
         }

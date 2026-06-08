@@ -27,7 +27,8 @@ public class DataSeeder implements CommandLineRunner {
                     createCategory("Food", "🍔"),
                     createCategory("Music", "🎵"),
                     createCategory("Games", "🎮"),
-                    createCategory("Sports", "⚽")
+                    createCategory("Sports", "⚽"),
+                    createCategory("Other", "✨")
             );
             categoryRepository.saveAll(defaultCategories);
         }

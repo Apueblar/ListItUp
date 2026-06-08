@@ -99,6 +99,12 @@ document.addEventListener('DOMContentLoaded', function () {
             } else {
                 notifBadge.classList.remove('show-badge');
             }
+            if (clearAllBtn) {
+                clearAllBtn.style.display = (items && items.length > 0) ? 'inline-block' : 'none';
+            }
+            if (markReadBtn) {
+                markReadBtn.style.display = (unread > 0) ? 'inline-block' : 'none';
+            }
         }
 
         /** Fetch notifications from API */
@@ -241,6 +247,13 @@ document.addEventListener('DOMContentLoaded', function () {
             acceptCookiesBtn.addEventListener('click', function() {
                 localStorage.setItem('cookieConsent', 'accepted');
                 cookieBanner.style.display = 'none';
+            });
+        }
+        var learnMoreLink = cookieBanner.querySelector('.cookie-banner-link');
+        if (learnMoreLink) {
+            learnMoreLink.addEventListener('click', function(e) {
+                e.preventDefault();
+                window.showCustomAlert('We use essential cookies to keep you logged in and functional cookies to remember your preferences (like dark mode). We do not sell your data.');
             });
         }
     }

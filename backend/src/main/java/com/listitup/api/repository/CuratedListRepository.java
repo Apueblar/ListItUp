@@ -2,6 +2,7 @@ package com.listitup.api.repository;
 
 import com.listitup.api.model.CuratedList;
 import com.listitup.api.model.User;
+import com.listitup.api.model.Category;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
@@ -23,6 +24,12 @@ public interface CuratedListRepository extends JpaRepository<CuratedList, UUID> 
     List<CuratedList> findAllByOrderByCreatedAtDesc();
     List<CuratedList> findAllByOrderByViewCountDesc();
     List<CuratedList> findByCategoryNameIgnoreCaseOrderByViewCountDesc(String categoryName);
+    
+    @org.springframework.data.jpa.repository.Query("SELECT l FROM CuratedList l JOIN Like k ON k.list = l WHERE k.createdAt > :since AND l.isDraft = false AND l.visibility = 'PUBLIC' AND l.title != 'List no longer available' GROUP BY l HAVING COUNT(k) >= :threshold ORDER BY COUNT(k) DESC, l.createdAt DESC")
+    List<CuratedList> findTrendingLists(@org.springframework.data.repository.query.Param("since") java.time.LocalDateTime since, @org.springframework.data.repository.query.Param("threshold") long threshold);
+
+    @org.springframework.data.jpa.repository.Query("SELECT l FROM CuratedList l JOIN Like k ON k.list = l WHERE k.createdAt > :since AND l.isDraft = false AND l.visibility = 'PUBLIC' AND l.title != 'List no longer available' AND LOWER(l.category.name) = LOWER(:category) GROUP BY l HAVING COUNT(k) >= :threshold ORDER BY COUNT(k) DESC, l.createdAt DESC")
+    List<CuratedList> findTrendingListsByCategory(@org.springframework.data.repository.query.Param("since") java.time.LocalDateTime since, @org.springframework.data.repository.query.Param("threshold") long threshold, @org.springframework.data.repository.query.Param("category") String category);
     
     @org.springframework.data.jpa.repository.Query("SELECT l FROM CuratedList l WHERE l.creator IN (SELECT uf.followee FROM Follow uf WHERE uf.follower = :follower) ORDER BY l.createdAt DESC")
     List<CuratedList> findListsFromFollowedUsersOrderByCreatedAtDesc(@org.springframework.data.repository.query.Param("follower") User follower);
@@ -46,5 +53,5 @@ public interface CuratedListRepository extends JpaRepository<CuratedList, UUID> 
     @org.springframework.data.jpa.repository.Modifying
     @org.springframework.transaction.annotation.Transactional
     @org.springframework.data.jpa.repository.Query("UPDATE CuratedList l SET l.category = :newCategory WHERE l.category = :oldCategory")
-    void updateCategoryForAll(@org.springframework.data.repository.query.Param("oldCategory") com.listitup.api.model.Category oldCategory, @org.springframework.data.repository.query.Param("newCategory") com.listitup.api.model.Category newCategory);
+    void updateCategoryForAll(@org.springframework.data.repository.query.Param("oldCategory") Category oldCategory, @org.springframework.data.repository.query.Param("newCategory") Category newCategory);
 }

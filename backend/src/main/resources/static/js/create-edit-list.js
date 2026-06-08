@@ -78,6 +78,20 @@ function attachItemEventListeners(div) {
         });
     }
 
+    /* Drag-and-drop: only allow dragging from the handle to avoid breaking text selection */
+    var dragHandle = div.querySelector('.drag-handle');
+    if (dragHandle) {
+        dragHandle.addEventListener('mousedown', function() {
+            div.setAttribute('draggable', 'true');
+        });
+        dragHandle.addEventListener('mouseup', function() {
+            div.setAttribute('draggable', 'false');
+        });
+        dragHandle.addEventListener('mouseleave', function() {
+            div.setAttribute('draggable', 'false');
+        });
+    }
+
     /* Drag-and-drop: mark row as being dragged */
     div.addEventListener('dragstart', function(e) {
         div.classList.add('dragging');
@@ -86,6 +100,7 @@ function attachItemEventListeners(div) {
     });
     div.addEventListener('dragend', function() {
         div.classList.remove('dragging');
+        div.setAttribute('draggable', 'false');
     });
     div.addEventListener('dragover', function(e) {
         e.preventDefault();
@@ -142,6 +157,10 @@ function handleFileUpload(e) {
         console.error(err);
         targetInput.value = "";
         alert("Upload failed");
+    })
+    .finally(() => {
+        // Clear the file input so the same file can be selected again
+        e.target.value = "";
     });
 }
 
@@ -207,6 +226,18 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
 
+    var categorySelect = document.getElementById('category');
+    if (categorySelect && proposeContainer) {
+        categorySelect.addEventListener('change', function() {
+            var selectedText = categorySelect.options[categorySelect.selectedIndex].text;
+            if (selectedText.toLowerCase() === 'other') {
+                proposeContainer.style.display = 'block';
+            } else {
+                proposeContainer.style.display = 'none';
+            }
+        });
+    }
+
     if (submitProposalBtn) {
         submitProposalBtn.addEventListener('click', function() {
             var name = proposedCategoryName.value.trim();
@@ -241,6 +272,33 @@ document.addEventListener('DOMContentLoaded', function () {
                 proposalFeedback.style.display = 'block';
                 proposalFeedback.style.color = 'var(--danger-color, #ef4444)';
                 proposalFeedback.innerText = "Error submitting proposal";
+            });
+        });
+    }
+
+    var form = document.querySelector('form');
+    if (form) {
+        form.addEventListener('submit', function() {
+            var rows = document.querySelectorAll('.item-row');
+            rows.forEach(function(row, index) {
+                var inputs = row.querySelectorAll('input, textarea, select');
+                inputs.forEach(function(input) {
+                    if (input.name) {
+                        // Replace items[X] with items[index]
+                        input.name = input.name.replace(/items\[\d+\]/, 'items[' + index + ']');
+                    }
+                });
+                var fileInputs = row.querySelectorAll('.file-upload-input');
+                fileInputs.forEach(function(fi) {
+                    var targetId = fi.getAttribute('data-target');
+                    if (targetId && targetId.startsWith('item-photo-')) {
+                        fi.setAttribute('data-target', 'item-photo-' + index);
+                    }
+                });
+                var urlInputs = row.querySelectorAll('[id^="item-photo-"]');
+                urlInputs.forEach(function(ui) {
+                    ui.id = 'item-photo-' + index;
+                });
             });
         });
     }

@@ -18,6 +18,9 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 
 import com.listitup.api.repository.CommentRepository;
+import com.listitup.api.repository.ItemRepository;
+import com.listitup.api.repository.ReportRepository;
+import com.listitup.api.model.Report;
 
 import java.util.List;
 import java.util.Optional;
@@ -28,18 +31,20 @@ public class AdminController {
 
     private final UserRepository userRepository;
     private final CuratedListService listService;
-    private final com.listitup.api.repository.ReportRepository reportRepository;
+    private final ReportRepository reportRepository;
     private final CategoryRepository categoryRepository;
     private final CategoryProposalRepository categoryProposalRepository;
     private final CommentRepository commentRepository;
+    private final ItemRepository itemRepository;
 
-    public AdminController(UserRepository userRepository, CuratedListService listService, com.listitup.api.repository.ReportRepository reportRepository, CategoryRepository categoryRepository, CategoryProposalRepository categoryProposalRepository, CommentRepository commentRepository) {
+    public AdminController(UserRepository userRepository, CuratedListService listService, ReportRepository reportRepository, CategoryRepository categoryRepository, CategoryProposalRepository categoryProposalRepository, CommentRepository commentRepository, ItemRepository itemRepository) {
         this.userRepository = userRepository;
         this.listService = listService;
         this.reportRepository = reportRepository;
         this.categoryRepository = categoryRepository;
         this.categoryProposalRepository = categoryProposalRepository;
         this.commentRepository = commentRepository;
+        this.itemRepository = itemRepository;
     }
 
     @GetMapping("/admin")
@@ -111,8 +116,9 @@ public class AdminController {
             user.setCanModerateContent(false);
             user.setCanDeleteAny(false);
         } else if ("ADMIN".equals(role)) {
-            user.setCanPinLists(false);
-            user.setHasAnalyticsAccess(false);
+            user.setHasBadge(true);
+            user.setCanPinLists(true);
+            user.setHasAnalyticsAccess(true);
             user.setCanModerateContent(true);
             user.setCanDeleteAny(true);
         } else { // STANDARD
@@ -137,9 +143,9 @@ public class AdminController {
 
     @GetMapping("/admin/reports")
     public String viewReports(Model model) {
-        List<com.listitup.api.model.Report> pendingReports = reportRepository.findByStatusOrderByCreatedAtDesc("PENDING");
-        List<com.listitup.api.model.Report> resolvedReports = reportRepository.findByStatusOrderByCreatedAtDesc("RESOLVED");
-        List<com.listitup.api.model.Report> dismissedReports = reportRepository.findByStatusOrderByCreatedAtDesc("DISMISSED");
+        List<Report> pendingReports = reportRepository.findByStatusOrderByCreatedAtDesc("PENDING");
+        List<Report> resolvedReports = reportRepository.findByStatusOrderByCreatedAtDesc("RESOLVED");
+        List<Report> dismissedReports = reportRepository.findByStatusOrderByCreatedAtDesc("DISMISSED");
 
         model.addAttribute("pendingReports", pendingReports);
         model.addAttribute("resolvedReports", resolvedReports);
@@ -161,6 +167,16 @@ public class AdminController {
             if (finalAdmin != null) {
                 report.setReviewedByAdmin(finalAdmin);
             }
+            
+            // Delete the reported content
+            if (report.getTargetList() != null) {
+                listService.deleteList(report.getTargetList().getListId());
+            } else if (report.getTargetItem() != null) {
+                itemRepository.delete(report.getTargetItem());
+            } else if (report.getTargetComment() != null) {
+                commentRepository.delete(report.getTargetComment());
+            }
+
             reportRepository.save(report);
         });
         return "redirect:/admin/reports";

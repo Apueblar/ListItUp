@@ -68,6 +68,9 @@ public class ReportController {
         if (targetListId != null && !targetListId.isBlank()) {
             Optional<CuratedList> listOpt = listRepository.findById(UUID.fromString(targetListId));
             if (listOpt.isPresent()) {
+                if (reportRepository.existsBySubmittedByUserAndTargetList(reporter, listOpt.get())) {
+                    return ResponseEntity.badRequest().body(Map.of("error", "You have already reported this list."));
+                }
                 report.setTargetList(listOpt.get());
                 targets++;
             }
@@ -75,6 +78,9 @@ public class ReportController {
         if (targetItemId != null && !targetItemId.isBlank()) {
             Optional<Item> itemOpt = itemRepository.findById(UUID.fromString(targetItemId));
             if (itemOpt.isPresent()) {
+                if (reportRepository.existsBySubmittedByUserAndTargetItem(reporter, itemOpt.get())) {
+                    return ResponseEntity.badRequest().body(Map.of("error", "You have already reported this item."));
+                }
                 report.setTargetItem(itemOpt.get());
                 targets++;
             }
@@ -82,6 +88,9 @@ public class ReportController {
         if (targetCommentId != null && !targetCommentId.isBlank()) {
             Optional<Comment> commentOpt = commentRepository.findById(UUID.fromString(targetCommentId));
             if (commentOpt.isPresent()) {
+                if (reportRepository.existsBySubmittedByUserAndTargetComment(reporter, commentOpt.get())) {
+                    return ResponseEntity.badRequest().body(Map.of("error", "You have already reported this comment."));
+                }
                 report.setTargetComment(commentOpt.get());
                 targets++;
             }

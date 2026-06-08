@@ -69,6 +69,7 @@
                     <!-- Dynamic items will be appended here -->
                     <th:block th:if="${list != null}">
                         <div th:each="item, stat : ${list.items}" class="item-row">
+                            <div class="drag-handle" title="Drag to reorder">☰</div>
                             <button type="button" class="btn-remove-item" aria-label="Remove item">&times;</button>
                             <div class="item-row-field">
                                 <label>Item Title</label>

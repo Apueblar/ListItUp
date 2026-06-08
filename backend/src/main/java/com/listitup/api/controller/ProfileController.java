@@ -6,6 +6,8 @@ import com.listitup.api.model.User;
 import com.listitup.api.repository.CuratedListRepository;
 import com.listitup.api.repository.SavedListRepository;
 import com.listitup.api.repository.UserRepository;
+import com.listitup.api.service.CuratedListService;
+import com.listitup.api.model.Follow;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Controller;
@@ -25,12 +27,14 @@ public class ProfileController {
     private final CuratedListRepository listRepository;
     private final SavedListRepository savedListRepository;
     private final jakarta.persistence.EntityManager entityManager;
+    private final CuratedListService listService;
 
-    public ProfileController(UserRepository userRepository, CuratedListRepository listRepository, SavedListRepository savedListRepository, jakarta.persistence.EntityManager entityManager) {
+    public ProfileController(UserRepository userRepository, CuratedListRepository listRepository, SavedListRepository savedListRepository, jakarta.persistence.EntityManager entityManager, CuratedListService listService) {
         this.userRepository = userRepository;
         this.listRepository = listRepository;
         this.savedListRepository = savedListRepository;
         this.entityManager = entityManager;
+        this.listService = listService;
     }
 
     @GetMapping("/profile")
@@ -190,6 +194,21 @@ public class ProfileController {
         return "redirect:/profile";
     }
 
+    @PostMapping("/profile/delete")
+    public String deleteAccount(@AuthenticationPrincipal OAuth2User oauthUser, jakarta.servlet.http.HttpServletRequest request) throws jakarta.servlet.ServletException {
+        if (oauthUser == null) return "redirect:/feed";
+        User user = userRepository.findByEmail(oauthUser.getAttribute("email")).orElseThrow();
+        
+        // Ensure main admin cannot be deleted this way to prevent lockouts
+        if (user.getEmail().equalsIgnoreCase("alvaropueblaruisanchez@gmail.com")) {
+            return "redirect:/profile?error=mainAdminCannotBeDeleted";
+        }
+
+        listService.deleteUser(user.getUserId());
+        request.logout();
+        return "redirect:/";
+    }
+
     @GetMapping("/setup-username")
     public String showSetupUsername(@AuthenticationPrincipal OAuth2User oauthUser, Model model) {
         if (oauthUser == null) {
@@ -261,8 +280,8 @@ public class ProfileController {
     @org.springframework.web.bind.annotation.ResponseBody
     public java.util.List<java.util.Map<String, Object>> getFollowers(@PathVariable String username) {
         User user = userRepository.findByUsername(username).orElseThrow();
-        java.util.List<com.listitup.api.model.Follow> follows = entityManager.createQuery(
-                "SELECT f FROM Follow f WHERE f.followee = :user ORDER BY f.createdAt DESC", com.listitup.api.model.Follow.class)
+        java.util.List<Follow> follows = entityManager.createQuery(
+                "SELECT f FROM Follow f WHERE f.followee = :user ORDER BY f.createdAt DESC", Follow.class)
                 .setParameter("user", user)
                 .getResultList();
         
@@ -280,8 +299,8 @@ public class ProfileController {
     @org.springframework.web.bind.annotation.ResponseBody
     public java.util.List<java.util.Map<String, Object>> getFollowing(@PathVariable String username) {
         User user = userRepository.findByUsername(username).orElseThrow();
-        java.util.List<com.listitup.api.model.Follow> follows = entityManager.createQuery(
-                "SELECT f FROM Follow f WHERE f.follower = :user ORDER BY f.createdAt DESC", com.listitup.api.model.Follow.class)
+        java.util.List<Follow> follows = entityManager.createQuery(
+                "SELECT f FROM Follow f WHERE f.follower = :user ORDER BY f.createdAt DESC", Follow.class)
                 .setParameter("user", user)
                 .getResultList();
         
