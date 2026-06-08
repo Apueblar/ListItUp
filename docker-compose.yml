@@ -37,6 +37,9 @@ services:
       # OAuth2 credentials (set via .env file)
       - GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID:-}
       - GOOGLE_CLIENT_SECRET=${GOOGLE_CLIENT_SECRET:-}
+      - GITHUB_CLIENT_ID=${GITHUB_CLIENT_ID:-}
+      - GITHUB_CLIENT_SECRET=${GITHUB_CLIENT_SECRET:-}
+      - SMTP_PASSWORD=${SMTP_PASSWORD:-}
     depends_on:
       db:
         condition: service_healthy
