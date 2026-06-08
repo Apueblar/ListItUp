@@ -28,7 +28,7 @@ public class GlobalControllerAdvice {
         if (email == null) {
             return null;
         }
-        return userRepository.findByEmail(email).orElse(null);
+        return userRepository.findFirstByEmail(email).orElse(null);
     }
 
     @ModelAttribute("unreadNotificationCount")
@@ -40,7 +40,7 @@ public class GlobalControllerAdvice {
         if (email == null) {
             return 0;
         }
-        User user = userRepository.findByEmail(email).orElse(null);
+        User user = userRepository.findFirstByEmail(email).orElse(null);
         if (user == null) {
             return 0;
         }

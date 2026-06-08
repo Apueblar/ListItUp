@@ -44,7 +44,7 @@ public class CommentController {
         
         String text = payload.get("text");
         String email = oauthUser.getAttribute("email");
-        User author = userRepository.findByEmail(email).orElseThrow();
+        User author = userRepository.findFirstByEmail(email).orElseThrow();
         CuratedList list = listRepository.findById(id).orElseThrow();
 
         Comment comment = new Comment();
@@ -81,7 +81,7 @@ public class CommentController {
     @ResponseBody
     public ResponseEntity<?> deleteComment(@PathVariable UUID listId, @PathVariable UUID commentId, @AuthenticationPrincipal OAuth2User oauthUser) {
         String email = oauthUser.getAttribute("email");
-        User user = userRepository.findByEmail(email).orElseThrow();
+        User user = userRepository.findFirstByEmail(email).orElseThrow();
         Comment comment = commentRepository.findById(commentId).orElseThrow();
         
         if (!comment.getList().getListId().equals(listId)) {

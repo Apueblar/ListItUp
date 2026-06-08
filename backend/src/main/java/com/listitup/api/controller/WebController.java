@@ -68,7 +68,7 @@ public class WebController {
         if (auth != null && auth.getPrincipal() instanceof OAuth2User) {
             oauthPrincipal = (OAuth2User) auth.getPrincipal();
             String email = oauthPrincipal.getAttribute("email");
-            currentUser = userRepository.findByEmail(email).orElse(null);
+            currentUser = userRepository.findFirstByEmail(email).orElse(null);
         }
 
         if ("following".equalsIgnoreCase(sort) && currentUser == null) {
@@ -154,7 +154,7 @@ public class WebController {
             // Add currentUser if logged in
             if (oauthUser != null) {
                 String email = oauthUser.getAttribute("email");
-                Optional<User> currentUser = userRepository.findByEmail(email);
+                Optional<User> currentUser = userRepository.findFirstByEmail(email);
                 currentUser.ifPresent(user -> {
                     model.addAttribute("currentUser", user);
                     
@@ -189,7 +189,7 @@ public class WebController {
             return "redirect:/oauth2/authorization/google";
         }
         String email = oauthUser.getAttribute("email");
-        Optional<User> currentUser = userRepository.findByEmail(email);
+        Optional<User> currentUser = userRepository.findFirstByEmail(email);
         Optional<CuratedList> listOpt = listService.getListById(id);
 
         if (currentUser.isPresent() && listOpt.isPresent()) {
@@ -209,7 +209,7 @@ public class WebController {
             return "redirect:/oauth2/authorization/google";
         }
         String email = oauthUser.getAttribute("email");
-        User currentUser = userRepository.findByEmail(email).orElseThrow();
+        User currentUser = userRepository.findFirstByEmail(email).orElseThrow();
         List<CuratedList> drafts = listRepository.findByCreatorAndIsDraftTrueOrderByCreatedAtDesc(currentUser);
         model.addAttribute("currentUser", currentUser);
         model.addAttribute("drafts", drafts);

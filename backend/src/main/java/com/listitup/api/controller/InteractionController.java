@@ -41,7 +41,7 @@ public class InteractionController {
     @Transactional
     public ResponseEntity<?> toggleLike(@PathVariable UUID id, @AuthenticationPrincipal OAuth2User oauthUser) {
         String email = oauthUser.getAttribute("email");
-        User user = userRepository.findByEmail(email).orElseThrow();
+        User user = userRepository.findFirstByEmail(email).orElseThrow();
         CuratedList list = listRepository.findById(id).orElseThrow();
 
         long count = (long) entityManager.createQuery("SELECT COUNT(l) FROM Like l WHERE l.user = :u AND l.list = :list")
@@ -112,7 +112,7 @@ public class InteractionController {
     @Transactional
     public ResponseEntity<?> toggleSave(@PathVariable UUID id, @AuthenticationPrincipal OAuth2User oauthUser) {
         String email = oauthUser.getAttribute("email");
-        User user = userRepository.findByEmail(email).orElseThrow();
+        User user = userRepository.findFirstByEmail(email).orElseThrow();
         CuratedList list = listRepository.findById(id).orElseThrow();
 
         long count = (long) entityManager.createQuery("SELECT COUNT(s) FROM SavedList s WHERE s.user = :u AND s.list = :list")
@@ -155,7 +155,7 @@ public class InteractionController {
             return ResponseEntity.status(401).body(Map.of("error", "Unauthorized"));
         }
         String email = oauthUser.getAttribute("email");
-        User user = userRepository.findByEmail(email).orElseThrow();
+        User user = userRepository.findFirstByEmail(email).orElseThrow();
         CuratedList list = listRepository.findById(id).orElseThrow();
 
         // Only the creator can pin/unpin their list
@@ -179,8 +179,8 @@ public class InteractionController {
     @Transactional
     public ResponseEntity<?> toggleFollow(@PathVariable String username, @AuthenticationPrincipal OAuth2User oauthUser, jakarta.servlet.http.HttpServletRequest request) {
         if (oauthUser == null) return ResponseEntity.status(401).build();
-        User follower = userRepository.findByEmail(oauthUser.getAttribute("email")).orElseThrow();
-        User followee = userRepository.findByUsername(username).orElseThrow();
+        User follower = userRepository.findFirstByEmail(oauthUser.getAttribute("email")).orElseThrow();
+        User followee = userRepository.findFirstByUsername(username).orElseThrow();
 
         if (follower.getUserId().equals(followee.getUserId())) {
             return ResponseEntity.badRequest().build();

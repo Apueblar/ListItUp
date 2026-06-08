@@ -59,7 +59,7 @@ public class ListController {
                              @AuthenticationPrincipal OAuth2User oauthUser) {
 
         String email = oauthUser.getAttribute("email");
-        User creator = userRepository.findByEmail(email)
+        User creator = userRepository.findFirstByEmail(email)
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
         Category category = categoryRepository.findById(dto.getCategoryId())
@@ -87,7 +87,7 @@ public class ListController {
                            @RequestParam(required = false) String action,
                            @AuthenticationPrincipal OAuth2User oauthUser) {
         String email = oauthUser.getAttribute("email");
-        User currentUser = userRepository.findByEmail(email).orElseThrow();
+        User currentUser = userRepository.findFirstByEmail(email).orElseThrow();
         CuratedList list = listService.getListById(id).orElseThrow();
 
         if (!list.getCreator().getUserId().equals(currentUser.getUserId())) {
@@ -116,7 +116,7 @@ public class ListController {
     @PostMapping("/lists/{id}/publish")
     public String publishDraft(@PathVariable UUID id, @AuthenticationPrincipal OAuth2User oauthUser) {
         String email = oauthUser.getAttribute("email");
-        User currentUser = userRepository.findByEmail(email).orElseThrow();
+        User currentUser = userRepository.findFirstByEmail(email).orElseThrow();
         CuratedList list = listService.getListById(id).orElseThrow();
 
         if (!list.getCreator().getUserId().equals(currentUser.getUserId())) {
@@ -131,7 +131,7 @@ public class ListController {
     @PostMapping("/lists/{id}/delete")
     public String deleteList(@PathVariable UUID id, @AuthenticationPrincipal OAuth2User oauthUser) {
         String email = oauthUser.getAttribute("email");
-        User currentUser = userRepository.findByEmail(email).orElseThrow();
+        User currentUser = userRepository.findFirstByEmail(email).orElseThrow();
         CuratedList list = listService.getListById(id).orElseThrow();
 
         if (!list.getCreator().getUserId().equals(currentUser.getUserId())) {

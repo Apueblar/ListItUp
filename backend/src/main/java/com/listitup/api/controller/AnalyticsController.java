@@ -32,7 +32,7 @@ public class AnalyticsController {
 
     @GetMapping
     public String viewAnalytics(@AuthenticationPrincipal OAuth2User oauthUser, Model model) {
-        User user = userRepository.findByEmail(oauthUser.getAttribute("email")).orElseThrow();
+        User user = userRepository.findFirstByEmail(oauthUser.getAttribute("email")).orElseThrow();
 
         // Get all lists created by this verified creator
         List<CuratedList> userLists = listRepository.findByCreatorOrderByCreatedAtDesc(user);

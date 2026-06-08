@@ -162,7 +162,7 @@ public class AdminController {
         User admin = null;
         if (oauthUser != null) {
             String email = oauthUser.getAttribute("email");
-            admin = userRepository.findByEmail(email).orElse(null);
+            admin = userRepository.findFirstByEmail(email).orElse(null);
         }
         final User finalAdmin = admin;
         reportRepository.findById(id).ifPresent(report -> {
@@ -213,7 +213,7 @@ public class AdminController {
         User admin = null;
         if (oauthUser != null) {
             String email = oauthUser.getAttribute("email");
-            admin = userRepository.findByEmail(email).orElse(null);
+            admin = userRepository.findFirstByEmail(email).orElse(null);
         }
         final User finalAdmin = admin;
         reportRepository.findById(id).ifPresent(report -> {
@@ -232,7 +232,7 @@ public class AdminController {
         User admin = null;
         if (oauthUser != null) {
             String email = oauthUser.getAttribute("email");
-            admin = userRepository.findByEmail(email).orElse(null);
+            admin = userRepository.findFirstByEmail(email).orElse(null);
         }
         final User finalAdmin = admin;
         commentRepository.findById(commentId).ifPresent(commentRepository::delete);

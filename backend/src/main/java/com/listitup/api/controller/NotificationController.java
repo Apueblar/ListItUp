@@ -28,7 +28,7 @@ public class NotificationController {
     @GetMapping
     public ResponseEntity<?> getNotifications(@AuthenticationPrincipal OAuth2User oauthUser) {
         if (oauthUser == null) return ResponseEntity.status(401).build();
-        User user = userRepository.findByEmail(oauthUser.getAttribute("email")).orElseThrow();
+        User user = userRepository.findFirstByEmail(oauthUser.getAttribute("email")).orElseThrow();
         
         List<Notification> notifications = notificationRepository.findTop10ByUserOrderByCreatedAtDesc(user);
         
@@ -46,7 +46,7 @@ public class NotificationController {
     @PostMapping("/mark-read")
     public ResponseEntity<?> markAsRead(@AuthenticationPrincipal OAuth2User oauthUser) {
         if (oauthUser == null) return ResponseEntity.status(401).build();
-        User user = userRepository.findByEmail(oauthUser.getAttribute("email")).orElseThrow();
+        User user = userRepository.findFirstByEmail(oauthUser.getAttribute("email")).orElseThrow();
         
         List<Notification> notifications = notificationRepository.findTop10ByUserOrderByCreatedAtDesc(user);
         for (Notification n : notifications) {
@@ -62,7 +62,7 @@ public class NotificationController {
     @PostMapping("/{id}/mark-read")
     public ResponseEntity<?> markSingleAsRead(@PathVariable java.util.UUID id, @AuthenticationPrincipal OAuth2User oauthUser) {
         if (oauthUser == null) return ResponseEntity.status(401).build();
-        User user = userRepository.findByEmail(oauthUser.getAttribute("email")).orElseThrow();
+        User user = userRepository.findFirstByEmail(oauthUser.getAttribute("email")).orElseThrow();
         
         notificationRepository.findById(id).ifPresent(n -> {
             if (n.getUser().getUserId().equals(user.getUserId()) && !n.getIsRead()) {
@@ -78,7 +78,7 @@ public class NotificationController {
     @org.springframework.transaction.annotation.Transactional
     public ResponseEntity<?> clearAll(@AuthenticationPrincipal OAuth2User oauthUser) {
         if (oauthUser == null) return ResponseEntity.status(401).build();
-        User user = userRepository.findByEmail(oauthUser.getAttribute("email")).orElseThrow();
+        User user = userRepository.findFirstByEmail(oauthUser.getAttribute("email")).orElseThrow();
         notificationRepository.deleteAllByUser(user);
         return ResponseEntity.ok(Map.of("status", "cleared"));
     }

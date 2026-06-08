@@ -28,7 +28,7 @@ public class CategoryProposalController {
         if (oauthUser == null) return ResponseEntity.status(401).build();
         
         String email = oauthUser.getAttribute("email");
-        User user = userRepository.findByEmail(email).orElse(null);
+        User user = userRepository.findFirstByEmail(email).orElse(null);
         if (user == null) return ResponseEntity.status(401).build();
 
         if (proposedName == null || proposedName.trim().isEmpty()) {

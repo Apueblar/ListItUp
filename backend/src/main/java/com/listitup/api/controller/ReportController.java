@@ -46,7 +46,7 @@ public class ReportController {
         if (oauthUser == null) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         
         String email = oauthUser.getAttribute("email");
-        User reporter = userRepository.findByEmail(email).orElseThrow();
+        User reporter = userRepository.findFirstByEmail(email).orElseThrow();
         
         String targetListId = payload.get("targetListId");
         String targetItemId = payload.get("targetItemId");

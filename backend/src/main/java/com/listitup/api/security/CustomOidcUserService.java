@@ -39,7 +39,7 @@ public class CustomOidcUserService extends OidcUserService {
         }
 
         User dbUser;
-        Optional<User> userOptional = userRepository.findByEmail(email);
+        Optional<User> userOptional = userRepository.findFirstByEmail(email);
 
         if (userOptional.isEmpty()) {
             dbUser = new User();

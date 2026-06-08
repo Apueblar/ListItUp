@@ -35,7 +35,7 @@ public class SetupInterceptor implements HandlerInterceptor {
             OAuth2User oauthUser = (OAuth2User) auth.getPrincipal();
             String email = oauthUser.getAttribute("email");
             if (email != null) {
-                User user = userRepository.findByEmail(email).orElse(null);
+                User user = userRepository.findFirstByEmail(email).orElse(null);
                 if (user != null && !Boolean.TRUE.equals(user.getHasCompletedSetup())) {
                     response.sendRedirect("/setup-username");
                     return false;

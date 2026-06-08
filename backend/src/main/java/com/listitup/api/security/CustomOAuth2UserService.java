@@ -37,15 +37,30 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
             username = email.split("@")[0];
         }
 
+        final String githubLogin = username; // save the login handle before any fallback
+
         if (email == null) {
-            // Sometimes GitHub emails are private, ideally we'd fetch them from the /emails endpoint,
-            // but for simplicity we rely on the user having a public email or use the login.
-            // If email is truly null, we can try to mock one or fail.
-            email = username + "@github.local"; 
+            // GitHub email is private — try to find an existing account by GitHub login first
+            // to avoid creating duplicate ghost rows on every login.
+            Optional<User> byLogin = userRepository.findFirstByUsernameAndAuthProvider(githubLogin, "GITHUB");
+            if (byLogin.isPresent()) {
+                User existing = byLogin.get();
+                if (Boolean.TRUE.equals(existing.getIsBlocked())) {
+                    throw new OAuth2AuthenticationException("account_blocked");
+                }
+                Set<GrantedAuthority> authorities = new HashSet<>(oauth2User.getAuthorities());
+                authorities.add(new SimpleGrantedAuthority("ROLE_" + existing.getRole()));
+                String userNameAttributeName = userRequest.getClientRegistration().getProviderDetails().getUserInfoEndpoint().getUserNameAttributeName();
+                java.util.Map<String, Object> attrs = new java.util.HashMap<>(oauth2User.getAttributes());
+                attrs.put("email", existing.getEmail());
+                return new DefaultOAuth2User(authorities, attrs, userNameAttributeName);
+            }
+            // No existing account — generate a stable placeholder email
+            email = githubLogin + "@github.local";
         }
 
         User dbUser;
-        Optional<User> userOptional = userRepository.findByEmail(email);
+        Optional<User> userOptional = userRepository.findFirstByEmail(email);
 
         if (userOptional.isEmpty()) {
             dbUser = new User();

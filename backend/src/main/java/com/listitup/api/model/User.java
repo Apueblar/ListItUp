@@ -13,7 +13,7 @@ public class User {
     @Column(name = "user_id", updatable = false, nullable = false)
     private UUID userId;
 
-    @Column(nullable = false)
+    @Column(nullable = false, unique = true)
     private String username;
 
     @Column(nullable = false, unique = true)

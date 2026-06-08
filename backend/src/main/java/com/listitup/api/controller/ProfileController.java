@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 import java.util.List;
 import java.util.stream.Collectors;
+import org.springframework.dao.DataIntegrityViolationException;
 
 @Controller
 public class ProfileController {
@@ -40,7 +41,7 @@ public class ProfileController {
     @GetMapping("/profile")
     public String viewProfile(@AuthenticationPrincipal OAuth2User oauthUser, Model model) {
         String email = oauthUser.getAttribute("email");
-        User user = userRepository.findByEmail(email).orElseThrow();
+        User user = userRepository.findFirstByEmail(email).orElseThrow();
 
         // Sort by Pinned status first
         List<CuratedList> myLists = listRepository.findByCreatorOrderByIsPinnedDescCreatedAtDesc(user);
@@ -72,7 +73,7 @@ public class ProfileController {
 
     @GetMapping("/users/{username}")
     public String viewPublicProfile(@PathVariable String username, Model model, @AuthenticationPrincipal OAuth2User oauthUser) {
-        java.util.Optional<User> userOpt = userRepository.findByUsername(username);
+        java.util.Optional<User> userOpt = userRepository.findFirstByUsername(username);
         if (userOpt.isEmpty()) {
             return "redirect:/feed?userNotFound=true";
         }
@@ -82,7 +83,7 @@ public class ProfileController {
         boolean isOwner = false;
         if (oauthUser != null) {
             String email = oauthUser.getAttribute("email");
-            java.util.Optional<User> currentUserOpt = userRepository.findByEmail(email);
+            java.util.Optional<User> currentUserOpt = userRepository.findFirstByEmail(email);
             if (currentUserOpt.isPresent() && currentUserOpt.get().getUserId().equals(user.getUserId())) {
                 isOwner = true;
             }
@@ -102,7 +103,7 @@ public class ProfileController {
         boolean isFollowing = false;
         if (oauthUser != null) {
             String email = oauthUser.getAttribute("email");
-            java.util.Optional<User> currentUserOpt = userRepository.findByEmail(email);
+            java.util.Optional<User> currentUserOpt = userRepository.findFirstByEmail(email);
             if (currentUserOpt.isPresent()) {
                 User currentUser = currentUserOpt.get();
                 model.addAttribute("currentUser", currentUser);
@@ -134,7 +135,7 @@ public class ProfileController {
             return "redirect:/feed";
         }
         String email = oauthUser.getAttribute("email");
-        User user = userRepository.findByEmail(email).orElseThrow();
+        User user = userRepository.findFirstByEmail(email).orElseThrow();
 
         if (username == null || username.trim().isEmpty()) {
             redirectAttributes.addFlashAttribute("usernameError", "Username cannot be empty.");
@@ -149,16 +150,20 @@ public class ProfileController {
             return "redirect:/profile";
         }
 
-        // Check if username is already in use
-        java.util.Optional<User> existingUser = userRepository.findByUsername(newUsername);
+        // Check if username is already in use (application-level check)
+        java.util.Optional<User> existingUser = userRepository.findFirstByUsername(newUsername);
         if (existingUser.isPresent() && !existingUser.get().getUserId().equals(user.getUserId())) {
-            redirectAttributes.addFlashAttribute("usernameError", "Username is already in use!");
+            redirectAttributes.addFlashAttribute("usernameError", "Username '" + newUsername + "' is already taken. Please choose another.");
             return "redirect:/profile";
         }
 
-        user.setUsername(newUsername);
-        userRepository.save(user);
-        redirectAttributes.addFlashAttribute("usernameSuccess", "Username successfully updated to " + newUsername + "!");
+        try {
+            user.setUsername(newUsername);
+            userRepository.save(user);
+            redirectAttributes.addFlashAttribute("usernameSuccess", "Username successfully updated to " + newUsername + "!");
+        } catch (DataIntegrityViolationException e) {
+            redirectAttributes.addFlashAttribute("usernameError", "Username '" + newUsername + "' is already taken. Please choose another.");
+        }
         return "redirect:/profile";
     }
 
@@ -167,7 +172,7 @@ public class ProfileController {
                                @RequestParam String profilePicture,
                                org.springframework.web.servlet.mvc.support.RedirectAttributes redirectAttributes) {
         if (oauthUser == null) return "redirect:/feed";
-        User user = userRepository.findByEmail(oauthUser.getAttribute("email")).orElseThrow();
+        User user = userRepository.findFirstByEmail(oauthUser.getAttribute("email")).orElseThrow();
         
         String url = profilePicture.trim();
         if (!url.isEmpty() && !url.startsWith("http://") && !url.startsWith("https://") && !url.startsWith("/uploads/")) {
@@ -186,7 +191,7 @@ public class ProfileController {
                             @RequestParam String biography,
                             org.springframework.web.servlet.mvc.support.RedirectAttributes redirectAttributes) {
         if (oauthUser == null) return "redirect:/feed";
-        User user = userRepository.findByEmail(oauthUser.getAttribute("email")).orElseThrow();
+        User user = userRepository.findFirstByEmail(oauthUser.getAttribute("email")).orElseThrow();
         
         user.setBiography(biography.trim());
         userRepository.save(user);
@@ -197,7 +202,7 @@ public class ProfileController {
     @PostMapping("/profile/delete")
     public String deleteAccount(@AuthenticationPrincipal OAuth2User oauthUser, jakarta.servlet.http.HttpServletRequest request) throws jakarta.servlet.ServletException {
         if (oauthUser == null) return "redirect:/feed";
-        User user = userRepository.findByEmail(oauthUser.getAttribute("email")).orElseThrow();
+        User user = userRepository.findFirstByEmail(oauthUser.getAttribute("email")).orElseThrow();
         
         // Ensure main admin cannot be deleted this way to prevent lockouts
         if (user.getEmail().equalsIgnoreCase("alvaropueblaruisanchez@gmail.com")) {
@@ -215,7 +220,7 @@ public class ProfileController {
             return "redirect:/";
         }
         String email = oauthUser.getAttribute("email");
-        User user = userRepository.findByEmail(email).orElseThrow();
+        User user = userRepository.findFirstByEmail(email).orElseThrow();
 
         if (Boolean.TRUE.equals(user.getHasCompletedSetup())) {
             return "redirect:/feed";
@@ -242,7 +247,7 @@ public class ProfileController {
             return "redirect:/";
         }
         String email = oauthUser.getAttribute("email");
-        User user = userRepository.findByEmail(email).orElseThrow();
+        User user = userRepository.findFirstByEmail(email).orElseThrow();
 
         if (Boolean.TRUE.equals(user.getHasCompletedSetup())) {
             return "redirect:/feed";
@@ -262,16 +267,22 @@ public class ProfileController {
             return "setup-username";
         }
 
-        java.util.Optional<User> existingUser = userRepository.findByUsername(cleanedUsername);
+        java.util.Optional<User> existingUser = userRepository.findFirstByUsername(cleanedUsername);
         if (existingUser.isPresent() && !existingUser.get().getUserId().equals(user.getUserId())) {
-            model.addAttribute("error", "Username is already in use! Please try another one.");
+            model.addAttribute("error", "Username '" + cleanedUsername + "' is already taken. Please try another.");
             model.addAttribute("suggestedUsername", cleanedUsername);
             return "setup-username";
         }
 
-        user.setUsername(cleanedUsername);
-        user.setHasCompletedSetup(true);
-        userRepository.save(user);
+        try {
+            user.setUsername(cleanedUsername);
+            user.setHasCompletedSetup(true);
+            userRepository.save(user);
+        } catch (DataIntegrityViolationException e) {
+            model.addAttribute("error", "Username '" + cleanedUsername + "' is already taken. Please try another.");
+            model.addAttribute("suggestedUsername", cleanedUsername);
+            return "setup-username";
+        }
 
         return "redirect:/feed";
     }
@@ -279,7 +290,7 @@ public class ProfileController {
     @GetMapping("/users/{username}/followers")
     @org.springframework.web.bind.annotation.ResponseBody
     public java.util.List<java.util.Map<String, Object>> getFollowers(@PathVariable String username) {
-        User user = userRepository.findByUsername(username).orElseThrow();
+        User user = userRepository.findFirstByUsername(username).orElseThrow();
         java.util.List<Follow> follows = entityManager.createQuery(
                 "SELECT f FROM Follow f WHERE f.followee = :user ORDER BY f.createdAt DESC", Follow.class)
                 .setParameter("user", user)
@@ -298,7 +309,7 @@ public class ProfileController {
     @GetMapping("/users/{username}/following")
     @org.springframework.web.bind.annotation.ResponseBody
     public java.util.List<java.util.Map<String, Object>> getFollowing(@PathVariable String username) {
-        User user = userRepository.findByUsername(username).orElseThrow();
+        User user = userRepository.findFirstByUsername(username).orElseThrow();
         java.util.List<Follow> follows = entityManager.createQuery(
                 "SELECT f FROM Follow f WHERE f.follower = :user ORDER BY f.createdAt DESC", Follow.class)
                 .setParameter("user", user)
