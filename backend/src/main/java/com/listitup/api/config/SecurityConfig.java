@@ -79,7 +79,10 @@ public class SecurityConfig {
                 .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
             )
             .sessionManagement(session -> session
-                .sessionRegistry(sessionRegistry())
+                .sessionConcurrency(concurrency -> concurrency
+                    .sessionRegistry(sessionRegistry())
+                    .maximumSessions(-1)
+                )
             );
 
         return http.build();
