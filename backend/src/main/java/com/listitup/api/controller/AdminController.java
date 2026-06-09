@@ -19,6 +19,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.core.user.OAuth2User;
+import org.springframework.security.core.session.SessionInformation;
+import org.springframework.security.core.session.SessionRegistry;
 
 import com.listitup.api.repository.CommentRepository;
 import com.listitup.api.repository.ItemRepository;
@@ -39,8 +41,9 @@ public class AdminController {
     private final CategoryProposalRepository categoryProposalRepository;
     private final CommentRepository commentRepository;
     private final ItemRepository itemRepository;
+    private final SessionRegistry sessionRegistry;
 
-    public AdminController(UserRepository userRepository, CuratedListService listService, ReportRepository reportRepository, CategoryRepository categoryRepository, CategoryProposalRepository categoryProposalRepository, CommentRepository commentRepository, ItemRepository itemRepository) {
+    public AdminController(UserRepository userRepository, CuratedListService listService, ReportRepository reportRepository, CategoryRepository categoryRepository, CategoryProposalRepository categoryProposalRepository, CommentRepository commentRepository, ItemRepository itemRepository, SessionRegistry sessionRegistry) {
         this.userRepository = userRepository;
         this.listService = listService;
         this.reportRepository = reportRepository;
@@ -48,6 +51,20 @@ public class AdminController {
         this.categoryProposalRepository = categoryProposalRepository;
         this.commentRepository = commentRepository;
         this.itemRepository = itemRepository;
+        this.sessionRegistry = sessionRegistry;
+    }
+
+    private void invalidateUserSessions(String email) {
+        for (Object principal : sessionRegistry.getAllPrincipals()) {
+            if (principal instanceof OAuth2User) {
+                String principalEmail = ((OAuth2User) principal).getAttribute("email");
+                if (email.equalsIgnoreCase(principalEmail)) {
+                    for (SessionInformation session : sessionRegistry.getAllSessions(principal, false)) {
+                        session.expireNow();
+                    }
+                }
+            }
+        }
     }
 
     /** Hard server-side guard — rejects anyone who is not ROLE_ADMIN regardless of Security filter outcome */
@@ -77,6 +94,7 @@ public class AdminController {
                 user.setRole(role);
                 syncPrivileges(user);
                 userRepository.save(user);
+                invalidateUserSessions(user.getEmail());
             }
         }
         return "redirect:/admin";
@@ -91,6 +109,7 @@ public class AdminController {
             if (!user.getEmail().equalsIgnoreCase("alvaropueblaruisanchez@gmail.com")) {
                 user.setIsBlocked(!Boolean.TRUE.equals(user.getIsBlocked()));
                 userRepository.save(user);
+                invalidateUserSessions(user.getEmail());
             }
         }
         return "redirect:/admin";
@@ -110,6 +129,7 @@ public class AdminController {
             }
             syncPrivileges(user);
             userRepository.save(user);
+            invalidateUserSessions(user.getEmail());
         }
         return "redirect:/admin";
     }
