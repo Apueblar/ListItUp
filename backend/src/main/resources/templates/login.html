@@ -11,8 +11,13 @@
     <main class="login-main">
         <div class="login-card">
 
+            <!-- Session Expired Alert (admin changed your role/privileges) -->
+            <div th:if="${param.expired != null}" class="login-alert login-alert--warning">
+                <p>⚠️ Your session has been refreshed due to a change in your account permissions. Please sign in again to continue.</p>
+            </div>
+
             <!-- Error Alert -->
-            <div th:if="${param.error != null}" class="error-alert" style="margin-bottom: 1.5rem; background: rgba(248, 113, 113, 0.1); border: 1px solid #f87171; color: #f87171; padding: 0.75rem; border-radius: var(--border-radius-sm); font-size: 0.9rem;">
+            <div th:if="${param.error != null}" class="login-alert login-alert--error">
                 <p th:if="${session.SPRING_SECURITY_LAST_EXCEPTION != null and session.SPRING_SECURITY_LAST_EXCEPTION.message == 'account_blocked'}">
                     Your account has been suspended by an administrator.
                 </p>

@@ -82,6 +82,7 @@ public class SecurityConfig {
                 .sessionConcurrency(concurrency -> concurrency
                     .sessionRegistry(sessionRegistry())
                     .maximumSessions(-1)
+                    .expiredUrl("/login?expired=true")
                 )
             );
 
