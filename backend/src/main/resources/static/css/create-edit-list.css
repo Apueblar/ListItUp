@@ -243,18 +243,18 @@
 .drag-handle {
     cursor: grab;
     display: inline-flex;
-    flex-direction: column;
+    flex-direction: row;
     align-items: center;
     justify-content: center;
     margin-right: 15px;
     background: rgba(255, 255, 255, 0.05);
     border-radius: 8px;
-    padding: 6px 4px;
+    padding: 4px 6px;
     border: 1px solid var(--glass-border);
 }
 
 .drag-handle > span {
-    margin-bottom: 6px;
+    margin-right: 6px;
     color: var(--text-secondary);
     font-size: 1.2rem;
     line-height: 1;
@@ -262,7 +262,7 @@
 
 .order-controls {
     display: flex;
-    flex-direction: column;
+    flex-direction: row;
     gap: 4px;
 }
 

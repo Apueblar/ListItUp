@@ -51,6 +51,11 @@ async function toggleInteraction(endpoint, btnId, activeText, inactiveText) {
             }
         });
 
+        if (response.redirected && response.url.includes('/login')) {
+            window.location.href = '/login';
+            return;
+        }
+
         if (!response.ok) {
             // Revert on error
             if (wasActive) {
