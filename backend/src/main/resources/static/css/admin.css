@@ -1,0 +1,817 @@
+/* =========================================================
+   admin.css — styles for the Admin Dashboard page
+   ========================================================= */
+
+/* ---------- Admin Table ---------- */
+.admin-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 2rem;
+    background: var(--glass-bg);
+    border: 1px solid var(--glass-border);
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+    backdrop-filter: blur(5px);
+}
+
+.admin-table th,
+.admin-table td {
+    padding: 1rem;
+    text-align: left;
+    border-bottom: 1px solid var(--glass-border);
+}
+
+.admin-table th {
+    background-color: rgba(255, 255, 255, 0.05);
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.admin-table tr:last-child td {
+    border-bottom: none;
+}
+
+/* ---------- Role / Status Badges ---------- */
+.badge-verified {
+    background: rgba(16, 185, 129, 0.2);
+    color: #10b981;
+    padding: 0.25rem 0.5rem;
+    border-radius: 6px;
+    font-size: 0.8rem;
+    font-weight: 600;
+}
+
+.badge-active {
+    background: rgba(16, 185, 129, 0.1);
+    color: #34d399;
+    padding: 0.25rem 0.5rem;
+    border-radius: 6px;
+    font-size: 0.8rem;
+    font-weight: 600;
+}
+
+.badge-blocked {
+    background: rgba(239, 68, 68, 0.2);
+    color: #ef4444;
+    padding: 0.25rem 0.5rem;
+    border-radius: 6px;
+    font-size: 0.8rem;
+    font-weight: 600;
+}
+
+.badge-admin {
+    background: rgba(99, 102, 241, 0.2);
+    color: #6366f1;
+    padding: 0.25rem 0.5rem;
+    border-radius: 6px;
+    font-size: 0.8rem;
+    font-weight: 600;
+}
+
+/* ---------- Admin Select ---------- */
+select.admin-select {
+    background: var(--bg-primary);
+    color: var(--text-primary);
+    border: 1px solid var(--glass-border);
+    padding: 0.4rem 0.8rem;
+    border-radius: 8px;
+    outline: none;
+    cursor: pointer;
+    font-family: inherit;
+}
+
+/* ---------- Action Buttons ---------- */
+.btn-action {
+    padding: 0.4rem 0.8rem;
+    border-radius: 8px;
+    border: none;
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 0.85rem;
+    transition: all 0.2s;
+}
+
+.btn-block {
+    background-color: rgba(239, 68, 68, 0.2);
+    color: #ef4444;
+    border: 1px solid rgba(239, 68, 68, 0.4);
+}
+
+.btn-block:hover {
+    background-color: rgba(239, 68, 68, 0.4);
+}
+
+.btn-unblock {
+    background-color: rgba(16, 185, 129, 0.2);
+    color: #10b981;
+    border: 1px solid rgba(16, 185, 129, 0.4);
+}
+
+.btn-unblock:hover {
+    background-color: rgba(16, 185, 129, 0.4);
+}
+
+.btn-badge {
+    background-color: rgba(245, 158, 11, 0.2);
+    color: #f59e0b;
+    border: 1px solid rgba(245, 158, 11, 0.4);
+}
+
+.btn-badge:hover {
+    background-color: rgba(245, 158, 11, 0.4);
+}
+
+.btn-danger-action {
+    background-color: rgba(220, 38, 38, 0.2);
+    color: #dc2626;
+    border: 1px solid rgba(220, 38, 38, 0.4);
+}
+
+.btn-danger-action:hover {
+    background-color: rgba(220, 38, 38, 0.4);
+}
+
+/* ---------- Admin Main Layout ---------- */
+.admin-main {
+    max-width: 1000px;
+    margin: 2rem auto;
+    padding: 0 1rem;
+}
+
+.admin-header {
+    margin-bottom: 2rem;
+}
+
+.admin-header p {
+    color: var(--text-secondary);
+    margin-bottom: 1.5rem;
+}
+
+/* ---------- Table utility classes ---------- */
+.td-username {
+    font-weight: 500;
+}
+
+.td-email {
+    color: var(--text-secondary);
+}
+
+.td-actions {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.form-inline {
+    display: inline-block;
+}
+
+/* ---------- Admin Navigation Tabs ---------- */
+.admin-nav {
+    margin-bottom: 2rem;
+    display: flex;
+    gap: 1rem;
+}
+.admin-nav a {
+    text-decoration: none;
+}
+
+/* ---------- Admin Table Wrapper ---------- */
+.admin-table-wrapper {
+    overflow-x: auto;
+}
+
+/* ---------- Verification "None" text ---------- */
+.verification-none {
+    font-size: 0.9rem;
+}
+
+/* ---------- Admin Categories ---------- */
+.admin-categories-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 1rem;
+    margin-top: 1rem;
+}
+.admin-category-card {
+    background: var(--glass-bg);
+    border: 1px solid var(--glass-border);
+    border-radius: 12px;
+    padding: 1rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+.admin-category-info {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+.admin-category-icon {
+    font-size: 1.5rem;
+}
+.admin-category-name {
+    font-weight: 600;
+}
+.admin-category-actions {
+    display: flex;
+    gap: 0.5rem;
+}
+.admin-category-actions .btn-action {
+    font-size: 0.8rem;
+    padding: 0.3rem 0.6rem;
+}
+.admin-btn-delete {
+    background-color: rgba(239, 68, 68, 0.2);
+    color: #ef4444;
+    border: 1px solid rgba(239, 68, 68, 0.4);
+}
+.admin-btn-delete:hover {
+    background-color: rgba(239, 68, 68, 0.4);
+}
+
+/* ---------- Admin Section Heading ---------- */
+.admin-section-heading {
+    margin-top: 2rem;
+    margin-bottom: 1rem;
+    font-size: 1.3rem;
+}
+
+/* ---------- Admin Add Category Form ---------- */
+.admin-add-form {
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 1.5rem;
+    flex-wrap: wrap;
+}
+.admin-add-form input[type="text"] {
+    padding: 0.5rem 0.75rem;
+    border-radius: 8px;
+    border: 1px solid var(--glass-border);
+    background: var(--bg-primary);
+    color: var(--text-primary);
+    font-family: inherit;
+}
+.admin-add-form .btn-primary {
+    padding: 0.5rem 1rem;
+}
+
+/* ---------- Admin Proposals ---------- */
+.admin-proposals-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    margin-top: 1rem;
+}
+.admin-proposal-card {
+    background: var(--glass-bg);
+    border: 1px solid var(--glass-border);
+    border-radius: 12px;
+    padding: 1rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+.admin-proposal-info {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+.admin-proposal-name {
+    font-weight: 600;
+    font-size: 1rem;
+}
+.admin-proposal-meta {
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+}
+.admin-proposal-actions {
+    display: flex;
+    gap: 0.5rem;
+}
+.admin-btn-approve {
+    background-color: rgba(16, 185, 129, 0.2);
+    color: #10b981;
+    border: 1px solid rgba(16, 185, 129, 0.4);
+}
+.admin-btn-approve:hover {
+    background-color: rgba(16, 185, 129, 0.4);
+}
+.admin-btn-reject {
+    background-color: rgba(239, 68, 68, 0.2);
+    color: #ef4444;
+    border: 1px solid rgba(239, 68, 68, 0.4);
+}
+.admin-btn-reject:hover {
+    background-color: rgba(239, 68, 68, 0.4);
+}
+.admin-empty-text {
+    color: var(--text-secondary);
+    font-style: italic;
+}
+
+/* ---------- Admin Reports ---------- */
+.admin-reports-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    margin-top: 1rem;
+}
+.admin-report-card {
+    background: var(--glass-bg);
+    border: 1px solid var(--glass-border);
+    border-radius: 12px;
+    padding: 1.25rem;
+}
+.admin-report-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.75rem;
+}
+.admin-report-reason {
+    font-weight: 600;
+}
+.admin-report-body {
+    margin-bottom: 0.75rem;
+}
+.admin-report-detail {
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+    margin-bottom: 0.25rem;
+}
+.admin-report-actions {
+    display: flex;
+    gap: 0.5rem;
+    margin-top: 0.75rem;
+}
+
+/* ---------- Admin Lists ---------- */
+.admin-lists-table-wrapper {
+    overflow-x: auto;
+}
+.admin-list-cover-thumb {
+    width: 60px;
+    height: 40px;
+    object-fit: cover;
+    border-radius: 4px;
+}
+.badge-draft {
+    background: rgba(245, 158, 11, 0.2);
+    color: #f59e0b;
+    padding: 0.25rem 0.5rem;
+    border-radius: 6px;
+    font-size: 0.8rem;
+    font-weight: 600;
+}
+.badge-published {
+    background: rgba(16, 185, 129, 0.1);
+    color: #34d399;
+    padding: 0.25rem 0.5rem;
+    border-radius: 6px;
+    font-size: 0.8rem;
+    font-weight: 600;
+}
+
+/* ---------- Admin Alerts ---------- */
+.admin-alert-success {
+    background-color: rgba(16, 185, 129, 0.15);
+    border: 1px solid #10b981;
+    color: #10b981;
+    padding: 1rem;
+    border-radius: 8px;
+    margin-bottom: 1.5rem;
+}
+.admin-alert-error {
+    background-color: rgba(239, 68, 68, 0.15);
+    border: 1px solid #ef4444;
+    color: #ef4444;
+    padding: 1rem;
+    border-radius: 8px;
+    margin-bottom: 1.5rem;
+}
+
+/* ---------- Admin Category Create Form ---------- */
+.admin-create-section {
+    margin-bottom: 3rem;
+}
+.admin-create-form {
+    display: flex;
+    gap: 1rem;
+    align-items: flex-end;
+    background: var(--surface-color);
+    padding: 1.5rem;
+    border-radius: 12px;
+    border: 1px solid var(--glass-border);
+}
+.admin-create-form .form-field {
+    flex: 1;
+}
+.admin-create-form .form-field-icon {
+    flex: 0 0 100px;
+}
+.admin-create-form label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: bold;
+}
+.admin-create-form input[type="text"] {
+    width: 100%;
+    padding: 0.75rem;
+    border: 1px solid var(--glass-border);
+    border-radius: 8px;
+    background: var(--bg-primary);
+    color: var(--text-primary);
+}
+.admin-create-form .btn-primary {
+    padding: 0.75rem 1.5rem;
+}
+
+/* ---------- Proposals Table ---------- */
+.admin-proposals-section {
+    margin-bottom: 3rem;
+}
+.admin-proposals-table {
+    width: 100%;
+    border-collapse: collapse;
+    background: var(--surface-color);
+    border-radius: 12px;
+    overflow: hidden;
+    border: 1px solid var(--glass-border);
+}
+.admin-proposals-table thead tr {
+    border-bottom: 2px solid var(--glass-border);
+    text-align: left;
+    background: rgba(0,0,0,0.2);
+}
+.admin-proposals-table th,
+.admin-proposals-table td {
+    padding: 1rem;
+}
+.admin-proposals-table td.td-bold {
+    font-weight: bold;
+}
+.admin-proposals-table tbody tr {
+    border-bottom: 1px solid var(--glass-border);
+}
+.admin-proposal-action-cell {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+}
+.admin-proposal-action-cell form {
+    display: flex;
+    gap: 0.5rem;
+}
+.admin-proposal-action-cell input[type="text"] {
+    width: 60px;
+    padding: 0.5rem;
+    border: 1px solid var(--glass-border);
+    border-radius: 6px;
+    background: var(--bg-primary);
+    color: var(--text-primary);
+}
+.btn-approve-sm {
+    padding: 0.5rem 1rem;
+    font-size: 0.8rem;
+    background-color: var(--success-color, #10b981);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+}
+.btn-reject-sm {
+    padding: 0.5rem 1rem;
+    font-size: 0.8rem;
+    background-color: var(--danger-color, #ef4444);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+}
+
+/* ---------- Category Card Grid ---------- */
+.admin-cat-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1.5rem;
+}
+.admin-cat-card {
+    padding: 1.25rem;
+    border: 1px solid var(--glass-border);
+    border-radius: 12px;
+    background: var(--surface-color);
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    min-width: 280px;
+    flex: 1 1 300px;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+.admin-cat-card-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+}
+.admin-cat-card-info {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+.admin-cat-card-icon {
+    font-size: 1.75rem;
+}
+.admin-cat-card-name {
+    font-weight: bold;
+    font-size: 1.1rem;
+}
+.admin-cat-card-actions {
+    display: flex;
+    gap: 0.5rem;
+}
+.btn-edit-cat {
+    padding: 0.4rem 0.8rem;
+    font-size: 0.8rem;
+    background-color: var(--surface-color);
+    border: 1px solid var(--glass-border);
+    color: var(--text-primary);
+    border-radius: 8px;
+    cursor: pointer;
+}
+.btn-delete-cat {
+    padding: 0.4rem 0.8rem;
+    font-size: 0.8rem;
+    background-color: var(--danger-color, #ef4444);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+}
+
+/* ---------- Category Edit/Delete Hidden Panels ---------- */
+.admin-cat-panel {
+    display: none;
+    padding-top: 1rem;
+    border-top: 1px solid var(--glass-border);
+}
+.admin-cat-panel h4 {
+    margin: 0 0 0.75rem 0;
+    font-size: 0.95rem;
+}
+.admin-cat-panel h4.danger {
+    color: var(--danger-color, #ef4444);
+}
+.admin-cat-panel p {
+    margin: 0 0 1rem 0;
+    font-size: 0.85rem;
+    color: var(--text-muted, #888);
+}
+.admin-cat-panel form {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+.admin-cat-panel .field-row {
+    display: flex;
+    gap: 0.5rem;
+}
+.admin-cat-panel .field-flex {
+    flex: 1;
+}
+.admin-cat-panel .field-icon {
+    width: 70px;
+}
+.admin-cat-panel label {
+    display: block;
+    font-size: 0.8rem;
+    margin-bottom: 0.25rem;
+}
+.admin-cat-panel label.bold {
+    font-weight: bold;
+}
+.admin-cat-panel input[type="text"],
+.admin-cat-panel select {
+    width: 100%;
+    padding: 0.5rem;
+    border: 1px solid var(--glass-border);
+    border-radius: 6px;
+    background: var(--bg-primary);
+    color: var(--text-primary);
+    font-size: 0.9rem;
+}
+.admin-cat-panel .actions-row {
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.5rem;
+}
+.btn-cancel-cat {
+    padding: 0.4rem 0.8rem;
+    font-size: 0.8rem;
+    background-color: transparent;
+    border: 1px solid var(--glass-border);
+    color: var(--text-primary);
+    border-radius: 8px;
+    cursor: pointer;
+}
+.btn-save-cat {
+    padding: 0.4rem 0.8rem;
+    font-size: 0.8rem;
+}
+.btn-confirm-delete {
+    padding: 0.4rem 0.8rem;
+    font-size: 0.8rem;
+    background-color: var(--danger-color, #ef4444);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+}
+
+/* ---------- Admin Reports Table ---------- */
+.admin-reports-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 2rem;
+}
+.admin-reports-table thead tr {
+    border-bottom: 2px solid var(--border-color);
+    text-align: left;
+}
+.admin-reports-table th,
+.admin-reports-table td {
+    padding: 0.5rem;
+}
+.admin-reports-table tbody tr {
+    border-bottom: 1px solid var(--border-color);
+}
+.admin-reports-table .td-actions-flex {
+    display: flex;
+    gap: 0.5rem;
+}
+.btn-resolve-sm {
+    padding: 0.25rem 0.5rem;
+    font-size: 0.8rem;
+    background-color: var(--success-color, #10b981);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+}
+.btn-dismiss-sm {
+    padding: 0.25rem 0.5rem;
+    font-size: 0.8rem;
+    background-color: var(--surface-color);
+    color: var(--text-color);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    cursor: pointer;
+}
+
+/* ---------- Reports History List ---------- */
+.admin-history-title {
+    margin-top: 3rem;
+}
+.admin-history-list {
+    margin-top: 1.5rem;
+    list-style-type: none;
+    padding: 0;
+}
+.admin-history-item {
+    background: var(--glass-bg);
+    border: 1px solid var(--glass-border);
+    padding: 1rem;
+    border-radius: 12px;
+    margin-bottom: 0.75rem;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: space-between;
+    backdrop-filter: blur(5px);
+    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.05);
+}
+.admin-history-item-content {
+    display: flex;
+    align-items: center;
+}
+.admin-history-item-content .badge-verified,
+.admin-history-item-content .badge-dismissed {
+    margin-right: 0.75rem;
+}
+.admin-history-item-content span.history-text {
+    color: var(--text-secondary);
+    margin-left: 0.5rem;
+}
+.admin-history-date {
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+}
+.badge-reason {
+    background: rgba(239, 68, 68, 0.1);
+    color: #ef4444;
+    border: 1px solid rgba(239, 68, 68, 0.2);
+    padding: 0.25rem 0.5rem;
+    border-radius: 6px;
+    font-size: 0.8rem;
+    font-weight: 600;
+}
+.badge-dismissed {
+    background: rgba(255, 255, 255, 0.1);
+    color: var(--text-primary);
+    border: 1px solid var(--glass-border);
+    padding: 0.25rem 0.5rem;
+    border-radius: 6px;
+    font-size: 0.8rem;
+    font-weight: 600;
+}
+.btn-dismiss {
+    background: rgba(255, 255, 255, 0.05);
+    color: var(--text-primary);
+    border: 1px solid var(--glass-border);
+}
+.btn-dismiss:hover {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.admin-list-link {
+    color: var(--primary-color);
+    font-weight: bold;
+    text-decoration: none;
+}
+
+/* ---------- Admin Search Filters ---------- */
+.admin-search-container {
+    display: flex;
+    gap: 1.5rem;
+    background: var(--glass-bg);
+    border: 1px solid var(--glass-border);
+    padding: 1.25rem 1.5rem;
+    border-radius: 12px;
+    margin-bottom: 2rem;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.05);
+    backdrop-filter: blur(5px);
+}
+
+.search-group {
+    flex: 1 1 200px;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.search-label {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--text-secondary);
+}
+
+.search-input {
+    padding: 0.6rem 0.8rem;
+    border-radius: 8px;
+    border: 1px solid var(--glass-border);
+    background: var(--bg-primary);
+    color: var(--text-primary);
+    font-family: inherit;
+    font-size: 0.9rem;
+    outline: none;
+    transition: border-color 0.2s ease;
+    width: 100%;
+}
+
+.search-input:focus {
+    border-color: var(--accent-color);
+}
+
+.search-input.select-input {
+    cursor: pointer;
+    appearance: none;
+    -webkit-appearance: none;
+    background-image: url("data:image/svg+xml;utf8,<svg fill='white' height='24' viewBox='0 0 24 24' width='24' xmlns='http://www.w3.org/2000/svg'><path d='M7 10l5 5 5-5z'/><path d='M0 0h24v24H0z' fill='none'/></svg>");
+    background-repeat: no-repeat;
+    background-position: right 10px center;
+    background-size: 20px;
+    padding-right: 30px;
+}
+
+.admin-history-item-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+}
+
+.admin-history-item-details {
+    width: 100%;
+    margin-top: 0.75rem;
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1.5rem;
+    padding-top: 0.75rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.05);
+}

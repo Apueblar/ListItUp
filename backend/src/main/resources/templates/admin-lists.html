@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <th:block th:replace="~{fragments/layout :: head('Admin Lists Panel - ListItUp')}"></th:block>
+    <link rel="stylesheet" th:href="@{/css/admin.css}">
+</head>
+<body>
+
+    <nav th:replace="~{fragments/layout :: navbar}"></nav>
+
+    <main class="animate-in admin-main">
+        <header class="admin-header">
+            <h1>List Management</h1>
+            <p>Manage all curated lists across the platform. You can delete any list here.</p>
+
+            <div class="admin-nav">
+                <a href="/admin" class="btn-secondary">Users</a>
+                <a href="/admin/lists" class="btn-primary btn-interaction--active">Lists</a>
+                <a href="/admin/reports" class="btn-secondary">Reports</a>
+                <a href="/admin/categories" class="btn-secondary">Categories</a>
+            </div>
+        </header>
+
+        <!-- Search Filters Section -->
+        <div class="admin-search-container">
+            <div class="search-group">
+                <label for="search-title" class="search-label">Title</label>
+                <input type="text" id="search-title" placeholder="Filter by title..." class="search-input" />
+            </div>
+            <div class="search-group">
+                <label for="search-creator" class="search-label">Creator</label>
+                <input type="text" id="search-creator" placeholder="Filter by creator..." class="search-input" />
+            </div>
+            <div class="search-group">
+                <label for="search-category" class="search-label">Category</label>
+                <input type="text" id="search-category" placeholder="Filter by category..." class="search-input" />
+            </div>
+        </div>
+
+        <div class="admin-table-wrapper">
+            <table class="admin-table">
+                <thead>
+                    <tr>
+                        <th>Title</th>
+                        <th>Creator</th>
+                        <th>Category</th>
+                        <th>Views</th>
+                        <th>Pinned?</th>
+                        <th>Date</th>
+                        <th>Link</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="list : ${lists}">
+                        <td class="td-title"><a th:href="@{/lists/{id}(id=${list.listId})}" th:text="${list.title}" class="list-card-link">Title</a></td>
+                        <td class="td-creator" th:text="${list.creator.username}">Creator</td>
+                        <td class="td-category" th:text="${list.category.name}">Category</td>
+                        <td th:text="${list.viewCount}">0</td>
+                        <td th:text="${list.isPinned ? 'Yes' : 'No'}">No</td>
+                        <td th:text="${#temporals.format(list.createdAt, 'dd MMM yyyy')}">Date</td>
+                        <td><a th:href="@{/lists/{id}(id=${list.listId})}" target="_blank" class="admin-list-link">🔗 View</a></td>
+                        <td>
+                            <div class="td-actions">
+                                <form th:action="@{/admin/lists/{id}/delete(id=${list.listId})}" method="post" class="form-inline">
+                                    <button type="submit" class="btn-action btn-block btn-confirm-delete">Delete</button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr th:if="${#lists.isEmpty(lists)}">
+                        <td colspan="8" class="admin-empty-text">No lists found.</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </main>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const searchTitle = document.getElementById('search-title');
+            const searchCreator = document.getElementById('search-creator');
+            const searchCategory = document.getElementById('search-category');
+            const rows = document.querySelectorAll('.admin-table tbody tr');
+
+            function filterLists() {
+                const titleQuery = searchTitle.value.toLowerCase().trim();
+                const creatorQuery = searchCreator.value.toLowerCase().trim();
+                const categoryQuery = searchCategory.value.toLowerCase().trim();
+
+                rows.forEach(row => {
+                    // Skip the empty list message row
+                    if (row.querySelector('.admin-empty-text')) return;
+
+                    const titleTd = row.querySelector('.td-title');
+                    const creatorTd = row.querySelector('.td-creator');
+                    const categoryTd = row.querySelector('.td-category');
+
+                    const titleText = titleTd ? titleTd.textContent.toLowerCase() : '';
+                    const creatorText = creatorTd ? creatorTd.textContent.toLowerCase() : '';
+                    const categoryText = categoryTd ? categoryTd.textContent.toLowerCase() : '';
+
+                    const titleMatch = titleText.includes(titleQuery);
+                    const creatorMatch = creatorText.includes(creatorQuery);
+                    const categoryMatch = categoryText.includes(categoryQuery);
+
+                    if (titleMatch && creatorMatch && categoryMatch) {
+                        row.style.display = '';
+                    } else {
+                        row.style.display = 'none';
+                    }
+                });
+            }
+
+            if (searchTitle) searchTitle.addEventListener('input', filterLists);
+            if (searchCreator) searchCreator.addEventListener('input', filterLists);
+            if (searchCategory) searchCategory.addEventListener('input', filterLists);
+        });
+    </script>
+    <footer th:replace="~{fragments/layout :: footer}"></footer>
+</body>
+</html>

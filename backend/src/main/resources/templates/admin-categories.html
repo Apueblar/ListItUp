@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <th:block th:replace="~{fragments/layout :: head('Admin Categories - ListItUp')}"></th:block>
+    <link rel="stylesheet" th:href="@{/css/admin.css(v=1.1)}"/>
+</head>
+<body>
+
+    <nav th:replace="~{fragments/layout :: navbar}"></nav>
+
+    <main class="animate-in admin-main">
+        <header class="admin-header">
+            <h1>Category Taxonomy</h1>
+            <p>Create and edit list categories, approve community category proposals, or manage taxonomy rules.</p>
+
+            <div class="admin-nav">
+                <a href="/admin" class="btn-secondary">Users</a>
+                <a href="/admin/lists" class="btn-secondary">Lists</a>
+                <a href="/admin/reports" class="btn-secondary">Reports</a>
+                <a href="/admin/categories" class="btn-primary btn-interaction--active">Categories</a>
+            </div>
+        </header>
+
+        <!-- Success/Error Messages -->
+        <div th:if="${success}" class="admin-alert-success" th:text="${success}">Success message</div>
+        <div th:if="${error}" class="admin-alert-error" th:text="${error}">Error message</div>
+
+        <section class="admin-create-section">
+            <h2>Create New Category</h2>
+            <form th:action="@{/admin/categories}" method="post" class="admin-create-form">
+                <div class="form-field">
+                    <label for="name">Category Name</label>
+                    <input type="text" id="name" name="name" required>
+                </div>
+                <div class="form-field-icon">
+                    <label for="icon">Icon Emoji</label>
+                    <input type="text" id="icon" name="icon" placeholder="e.g. 🚀">
+                </div>
+                <button type="submit" class="btn-primary">Create</button>
+            </form>
+        </section>
+
+        <section class="admin-proposals-section">
+            <h2>Pending Proposals</h2>
+            <div th:if="${#lists.isEmpty(pendingProposals)}">No pending proposals.</div>
+            <table th:unless="${#lists.isEmpty(pendingProposals)}" class="admin-proposals-table">
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Proposed Name</th>
+                        <th>Proposer</th>
+                        <th>Set Icon &amp; Approve</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="proposal : ${pendingProposals}">
+                        <td th:text="${#temporals.format(proposal.createdAt, 'dd MMM yyyy')}">Date</td>
+                        <td class="td-bold" th:text="${proposal.proposedName}">Name</td>
+                        <td th:text="${proposal.proposer.username}">User</td>
+                        <td>
+                            <div class="admin-proposal-action-cell">
+                                <form th:action="@{/admin/categories/proposals/{id}/approve(id=${proposal.proposalId})}" method="post">
+                                    <input type="text" name="icon" placeholder="Emoji" required>
+                                    <button type="submit" class="btn-approve-sm">Approve</button>
+                                </form>
+                                <form th:action="@{/admin/categories/proposals/{id}/reject(id=${proposal.proposalId})}" method="post">
+                                    <button type="submit" class="btn-reject-sm">Reject</button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+
+        <section>
+            <h2>Existing Categories</h2>
+            <div class="admin-cat-grid">
+                <div th:each="category : ${categories}" class="admin-cat-card">
+                    <div class="admin-cat-card-header">
+                        <div class="admin-cat-card-info">
+                            <span class="admin-cat-card-icon" th:text="${category.icon}">icon</span>
+                            <span class="admin-cat-card-name" th:text="${category.name}">name</span>
+                        </div>
+                        <div class="admin-cat-card-actions">
+                            <button type="button" class="edit-btn btn-edit-cat" th:data-id="${category.categoryId}">Edit</button>
+                            <button type="button" class="delete-btn btn-delete-cat" th:data-id="${category.categoryId}">Delete</button>
+                        </div>
+                    </div>
+
+                    <!-- Edit Form (Hidden by default) -->
+                    <div th:id="'edit-form-' + ${category.categoryId}" class="admin-cat-panel">
+                        <h4>Edit Category</h4>
+                        <form th:action="@{/admin/categories/{id}/edit(id=${category.categoryId})}" method="post">
+                            <div class="field-row">
+                                <div class="field-flex">
+                                    <label>Name</label>
+                                    <input type="text" name="name" th:value="${category.name}" required>
+                                </div>
+                                <div class="field-icon">
+                                    <label>Icon</label>
+                                    <input type="text" name="icon" th:value="${category.icon}">
+                                </div>
+                            </div>
+                            <div class="actions-row">
+                                <button type="button" class="edit-cancel-btn btn-cancel-cat" th:data-id="${category.categoryId}">Cancel</button>
+                                <button type="submit" class="btn-primary btn-save-cat">Save</button>
+                            </div>
+                        </form>
+                    </div>
+
+                    <!-- Delete Form (Hidden by default) -->
+                    <div th:id="'delete-form-' + ${category.categoryId}" class="admin-cat-panel">
+                        <h4 class="danger">Delete Category</h4>
+                        <p>
+                            If any lists are in this category, select a replacement category to move them to.
+                        </p>
+                        <form th:action="@{/admin/categories/{id}/delete(id=${category.categoryId})}" method="post">
+                            <div>
+                                <label class="bold">Replacement Category</label>
+                                <select name="replacementCategoryId">
+                                    <option value="" selected>No replacement (only if category has no lists)</option>
+                                    <option th:each="otherCat : ${categories}" th:if="${otherCat.categoryId != category.categoryId}" th:value="${otherCat.categoryId}" th:text="${otherCat.icon != null ? otherCat.icon + ' ' + otherCat.name : otherCat.name}">Category</option>
+                                </select>
+                            </div>
+                            <div class="actions-row">
+                                <button type="button" class="delete-cancel-btn btn-cancel-cat" th:data-id="${category.categoryId}">Cancel</button>
+                                <button type="submit" class="btn-confirm-delete">Confirm Delete</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <script th:src="@{/js/admin-categories.js}"></script>
+    <footer th:replace="~{fragments/layout :: footer}"></footer>
+</body>
+</html>

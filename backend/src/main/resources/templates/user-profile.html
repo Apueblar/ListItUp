@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <th:block th:replace="~{fragments/layout :: head(${profileUser.username + ' - Profile'})}"></th:block>
+    <link rel="stylesheet" th:href="@{/css/user-profile.css}"/>
+</head>
+<body>
+
+    <nav th:replace="~{fragments/layout :: navbar}"></nav>
+
+    <main class="animate-in profile-container">
+        <header class="profile-header">
+            <div class="profile-avatar-wrapper">
+                <div class="profile-avatar">
+                    <span th:text="${#strings.substring(profileUser.username, 0, 1).toUpperCase()}" 
+                          class="avatar-fallback-user-profile"
+                          th:style="${profileUser.profilePicture != null and !profileUser.profilePicture.isEmpty() ? 'display: none;' : ''}">U</span>
+                    <img th:if="${profileUser.profilePicture != null and !profileUser.profilePicture.isEmpty()}" 
+                         th:src="${profileUser.profilePicture}" 
+                         alt="Avatar" 
+                         onerror="this.style.display='none'; this.previousElementSibling.style.display='flex';" />
+                </div>
+                <!-- Verification badge inside the avatar wrapper if user is verified -->
+                <div th:if="${profileUser.hasBadge}" class="badge-verified-icon" title="Verified Creator">✓</div>
+            </div>
+            
+            <h1 class="profile-username">
+                <span th:text="${profileUser.username}">Username</span>
+            </h1>
+            <div>
+                <span class="profile-role-pill" th:text="${profileUser.role}">STANDARD</span>
+            </div>
+            
+            <div class="profile-stats-row">
+                <span class="follower-count-link" th:data-username="${profileUser.username}" th:data-type="followers" th:text="${followersCount} + ' followers'">0 followers</span>
+                <span class="follower-count-link" th:data-username="${profileUser.username}" th:data-type="following" th:text="${followingCount} + ' following'">0 following</span>
+                
+                <th:block th:if="${currentUser != null and currentUser.userId != profileUser.userId}">
+                    <button id="btn-follow" class="btn-primary btn-interaction"
+                            th:data-username="${profileUser.username}"
+                            th:classappend="${isFollowing} ? 'btn-interaction--active' : ''"
+                            th:text="${isFollowing} ? 'Following' : 'Follow'">Follow</button>
+                </th:block>
+                <th:block th:if="${currentUser != null and currentUser.userId == profileUser.userId}">
+                    <a th:href="@{/profile}" class="btn-primary btn-interaction">✏️ Edit Profile</a>
+                </th:block>
+            </div>
+            
+            <p th:if="${profileUser.biography != null and !profileUser.biography.isEmpty()}" th:text="${profileUser.biography}" class="profile-bio-text"></p>
+            <p class="profile-joined" th:text="${'Joined ' + #temporals.format(profileUser.createdAt, 'MMMM yyyy')}">Joined May 2026</p>
+        </header>
+
+        <section class="profile-lists-section">
+            <h2 th:text="|${profileUser.username}'s Lists|">Lists</h2>
+            
+            <div class="grid">
+                <a th:each="list : ${myLists}" th:href="@{/lists/{id}(id=${list.listId})}" class="list-card">
+                    <div>
+                        <span class="category-pill" th:text="${list.category.name}">Category</span>
+                        <span th:if="${list.isPinned}" class="pinned-badge pinned-badge-margin">📌 Pinned</span>
+                        <span th:if="${list.isDraft}" class="draft-badge draft-badge-margin">📝 Draft</span>
+                    </div>
+                    <h3 th:text="${list.title}">Title</h3>
+                    <p class="card-desc" th:text="${list.description}">Desc</p>
+                    <div class="card-footer-row">
+                        <span th:text="${list.viewCount + ' views'}">0 views</span>
+                        <span th:text="${#temporals.format(list.createdAt, 'dd MMM yyyy')}">Date</span>
+                    </div>
+                </a>
+            </div>
+            
+            <div th:if="${#lists.isEmpty(myLists)}" class="empty-grid-msg">
+                This user has not created any lists yet.
+            </div>
+        </section>
+    </main>
+
+    <!-- Followers / Following Modal -->
+    <div id="follow-modal" class="modal">
+        <div class="modal-content">
+            <span class="close-modal" id="close-follow-modal">&times;</span>
+            <h2 id="follow-modal-title">Followers</h2>
+            <div id="follow-modal-list" class="follow-modal-list-container">
+                <!-- User rows injected here -->
+            </div>
+        </div>
+    </div>
+
+    <script th:src="@{/js/profile.js}"></script>
+    <script th:src="@{/js/user-profile.js}"></script>
+    <footer th:replace="~{fragments/layout :: footer}"></footer>
+</body>
+</html>

@@ -1,0 +1,323 @@
+/* =========================================================
+   list-detail.css — styles for the List Detail page
+   ========================================================= */
+
+.list-header {
+    text-align: center;
+    margin-bottom: 3rem;
+}
+
+.list-header p {
+    color: var(--text-secondary);
+    margin-bottom: 1rem;
+}
+
+.list-meta {
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+}
+
+.list-meta span {
+    color: var(--text-primary);
+}
+
+.list-actions {
+    margin-top: 2rem;
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+}
+
+.btn-interaction {
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid var(--glass-border);
+    min-width: 100px;
+    color: var(--text-primary);
+}
+
+/* Light mode: make interaction buttons legible */
+:root.theme-light .btn-interaction {
+    background: rgba(0, 0, 0, 0.06);
+    color: var(--text-primary);
+}
+
+:root.theme-light .btn-interaction:hover {
+    background: rgba(0, 0, 0, 0.1);
+}
+
+.btn-interaction--active {
+    background: var(--accent-color);
+    border-color: var(--accent-color);
+}
+
+/* ---------- Item Cards ---------- */
+.item-card {
+    background: var(--glass-bg);
+    border: 1px solid var(--glass-border);
+    border-radius: var(--border-radius);
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+    display: flex;
+    gap: 1.5rem;
+    align-items: flex-start;
+}
+
+.rank-badge {
+    background: var(--accent-color);
+    color: white;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    font-size: 1.2rem;
+    flex-shrink: 0;
+    box-shadow: var(--shadow-glow);
+}
+
+.item-content {
+    flex: 1;
+}
+
+.item-title {
+    font-size: 1.5rem;
+    margin-bottom: 0.5rem;
+    color: var(--text-primary);
+    user-select: text;
+    cursor: text;
+}
+
+.item-desc {
+    color: var(--text-secondary);
+    margin-bottom: 1rem;
+    user-select: text;
+    cursor: text;
+}
+
+.item-link {
+    color: var(--accent-color);
+    text-decoration: none;
+    font-weight: 500;
+}
+
+.item-link:hover {
+    text-decoration: underline;
+}
+
+/* ---------- Comments Section ---------- */
+.comments-section {
+    margin-top: 3rem;
+    border-top: 1px solid var(--glass-border);
+    padding-top: 2rem;
+}
+
+.comment-form {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 2rem;
+    margin-top: 1rem;
+}
+
+.comment-input {
+    flex: 1;
+    padding: 0.8rem;
+    background: rgba(0, 0, 0, 0.2);
+    border: 1px solid var(--glass-border);
+    border-radius: 8px;
+    color: white;
+    font-family: var(--font-family);
+}
+
+.comment-card {
+    background: var(--glass-bg);
+    padding: 1rem;
+    border-radius: 8px;
+    border: 1px solid var(--glass-border);
+    margin-bottom: 1rem;
+}
+
+.comment-author {
+    font-weight: bold;
+    margin-bottom: 0.5rem;
+    color: var(--accent-color);
+}
+
+.comment-text {
+    color: var(--text-primary);
+}
+
+.comment-date {
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+    margin-top: 0.5rem;
+}
+
+.sign-in-prompt {
+    margin-bottom: 2rem;
+    margin-top: 1rem;
+    color: var(--text-secondary);
+}
+
+.sign-in-prompt a {
+    color: var(--accent-color);
+}
+
+.empty-message {
+    text-align: center;
+    padding: 2rem;
+    color: var(--text-secondary);
+}
+
+.empty-comments {
+    color: var(--text-secondary);
+    text-align: center;
+    margin-top: 2rem;
+}
+
+.category-pill-mb {
+    margin-bottom: 1rem;
+}
+
+.detail-main {
+    max-width: 800px;
+}
+
+/* Inline styles refactored from list-detail.html */
+.list-cover-photo {
+    display: block;
+    max-width: 100%;
+    width: 100%;
+    max-height: 500px;
+    min-height: 200px;
+    object-fit: cover;
+    border-radius: 12px;
+    margin: 0 auto 1rem auto;
+}
+
+.btn-delete-list, .btn-report-list {
+    background: rgba(239, 68, 68, 0.2);
+    color: #f87171;
+}
+
+.item-photo {
+    max-width: 200px;
+    min-width: 80px;
+    max-height: 200px;
+    min-height: 80px;
+    object-fit: cover;
+    border-radius: 8px;
+    display: block;
+    margin-bottom: 0.5rem;
+}
+
+.item-report-wrapper {
+    margin-top: 0.5rem;
+}
+
+.btn-report-item {
+    background: none;
+    border: none;
+    color: #f87171;
+    cursor: pointer;
+    font-size: 0.85rem;
+}
+
+.comment-header-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.5rem;
+}
+
+.comment-author-link {
+    text-decoration: none;
+    font-weight: bold;
+}
+
+.comment-actions {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+}
+
+.btn-report-comment {
+    background: none;
+    border: none;
+    color: #f87171;
+    cursor: pointer;
+    padding: 0;
+    font-size: 0.85rem;
+}
+
+.btn-delete-comment-action {
+    background: none;
+    border: none;
+    color: #f87171;
+    cursor: pointer;
+    padding: 0;
+}
+
+/* Modal styling */
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    align-items: center;
+    justify-content: center;
+}
+
+.modal-content {
+    background-color: var(--surface-color, var(--bg-secondary));
+    padding: 2rem;
+    border-radius: 12px;
+    max-width: 500px;
+    width: 90%;
+    position: relative;
+}
+
+.close-modal {
+    position: absolute;
+    right: 1.5rem;
+    top: 1.5rem;
+    font-size: 1.5rem;
+    cursor: pointer;
+    color: var(--text-secondary);
+}
+
+.report-form {
+    margin-top: 1rem;
+}
+
+.form-group {
+    margin-bottom: 1rem;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: bold;
+}
+
+.form-group select, .form-group textarea {
+    width: 100%;
+    padding: 0.75rem;
+    border-radius: 8px;
+    border: 1px solid var(--glass-border);
+    background: rgba(0, 0, 0, 0.2);
+    color: var(--text-primary);
+}
+
+.w-100 {
+    width: 100%;
+}
+
+.delete-form-inline {
+    display: inline;
+}

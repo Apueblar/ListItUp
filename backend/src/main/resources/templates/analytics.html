@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <th:block th:replace="~{fragments/layout :: head('Platform Analytics - ListItUp')}"></th:block>
+    <link rel="stylesheet" th:href="@{/css/analytics.css(v=1.2)}"/>
+    <!-- Load Chart.js for rendering dynamic graphs -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+
+    <nav th:replace="~{fragments/layout :: navbar}"></nav>
+
+    <main class="animate-in analytics-main">
+        <h1 class="analytics-title">My Creator Analytics</h1>
+
+        <!-- Metrics Summary Grid -->
+        <div class="analytics-summary-cards">
+            <div class="analytics-summary-card">
+                <h3>Total Lists</h3>
+                <p th:text="${totalLists}">0</p>
+            </div>
+            <div class="analytics-summary-card">
+                <h3>Total Views</h3>
+                <p th:text="${totalViews}">0</p>
+            </div>
+            <div class="analytics-summary-card">
+                <h3>Total Likes</h3>
+                <p th:text="${totalLikes}">0</p>
+            </div>
+            <div class="analytics-summary-card">
+                <h3>Total Saves</h3>
+                <p th:text="${totalSaves}">0</p>
+            </div>
+            <div class="analytics-summary-card">
+                <h3>Followers</h3>
+                <p th:text="${followersCount}">0</p>
+            </div>
+            <div class="analytics-summary-card">
+                <h3>Following</h3>
+                <p th:text="${followingCount}">0</p>
+            </div>
+        </div>
+
+        <div th:if="${totalLists == 0}" class="analytics-empty">
+            You haven't created any lists yet. Create your first list to view detailed analytics graphs!
+        </div>
+
+        <div th:if="${totalLists > 0}">
+            <!-- Charts Section -->
+            <div class="analytics-charts-grid">
+                <!-- Social Reach Doughnut Chart -->
+                <div class="analytics-chart-container">
+                    <h3>Social Reach</h3>
+                    <div class="chart-wrapper">
+                        <canvas id="socialChart"></canvas>
+                    </div>
+                </div>
+
+                <!-- Category Distribution Doughnut Chart -->
+                <div class="analytics-chart-container">
+                    <h3>Lists by Category</h3>
+                    <div class="chart-wrapper">
+                        <canvas id="categoryChart"></canvas>
+                    </div>
+                </div>
+
+                <!-- List Performance Bar Chart (Full Width) -->
+                <div class="analytics-chart-container analytics-chart-full">
+                    <h3>List Performance (Views, Likes &amp; Saves)</h3>
+                    <div class="chart-wrapper" style="max-height: 400px; height: 350px;">
+                        <canvas id="performanceChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- List Performance Table -->
+            <h2>Detailed List Performance</h2>
+            <div class="analytics-table-wrapper">
+                <table class="analytics-table">
+                    <thead>
+                        <tr>
+                            <th>List Title</th>
+                            <th>Views</th>
+                            <th>Likes</th>
+                            <th>Saves</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="item : ${listData}">
+                            <td><a th:href="@{/lists/{id}(id=${item.listId})}" th:text="${item.title}" class="analytics-list-link">Title</a></td>
+                            <td th:text="${item.views}">0</td>
+                            <td th:text="${item.likes}">0</td>
+                            <td th:text="${item.saves}">0</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+
+    <!-- Injection of Thymeleaf variables into Javascript for rendering charts -->
+    <script th:inline="javascript">
+        /*<![CDATA[*/
+        const listData = /*[[${listData}]]*/ [];
+        const categoryData = /*[[${categoryData}]]*/ {};
+        const followersCount = /*[[${followersCount}]]*/ 0;
+        const followingCount = /*[[${followingCount}]]*/ 0;
+        /*]]>*/
+
+        document.addEventListener('DOMContentLoaded', function() {
+            if (!listData || listData.length === 0) return;
+
+            // 1. Social Reach Chart
+            const socialCtx = document.getElementById('socialChart').getContext('2d');
+            new Chart(socialCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Followers', 'Following'],
+                    datasets: [{
+                        data: [followersCount, followingCount],
+                        backgroundColor: ['rgba(99, 102, 241, 0.75)', 'rgba(139, 92, 246, 0.75)'],
+                        borderColor: ['#6366f1', '#8b5cf6'],
+                        borderWidth: 2
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: { color: '#a0a0b0', font: { family: 'Outfit' } }
+                        }
+                    }
+                }
+            });
+
+            // 2. Category Distribution Chart
+            const categoryLabels = Object.keys(categoryData);
+            const categoryCounts = Object.values(categoryData);
+            
+            // Palette of harmonized colors
+            const palette = [
+                'rgba(99, 102, 241, 0.75)',
+                'rgba(16, 185, 129, 0.75)',
+                'rgba(245, 158, 11, 0.75)',
+                'rgba(239, 68, 68, 0.75)',
+                'rgba(59, 130, 246, 0.75)',
+                'rgba(139, 92, 246, 0.75)'
+            ];
+            const borderPalette = [
+                '#6366f1',
+                '#10b981',
+                '#f59e0b',
+                '#ef4444',
+                '#3b82f6',
+                '#8b5cf6'
+            ];
+
+            const categoryCtx = document.getElementById('categoryChart').getContext('2d');
+            new Chart(categoryCtx, {
+                type: 'polarArea',
+                data: {
+                    labels: categoryLabels,
+                    datasets: [{
+                        data: categoryCounts,
+                        backgroundColor: palette.slice(0, categoryLabels.length),
+                        borderColor: borderPalette.slice(0, categoryLabels.length),
+                        borderWidth: 2
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        r: {
+                            grid: { color: 'rgba(255, 255, 255, 0.05)' },
+                            angleLines: { color: 'rgba(255, 255, 255, 0.05)' },
+                            pointLabels: { color: '#a0a0b0', font: { family: 'Outfit' } }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: { color: '#a0a0b0', font: { family: 'Outfit' } }
+                        }
+                    }
+                }
+            });
+
+            // 3. List Performance Multi-Bar Chart
+            const listLabels = listData.map(item => item.title.length > 20 ? item.title.substring(0, 18) + '...' : item.title);
+            const listViews = listData.map(item => item.views);
+            const listLikes = listData.map(item => item.likes);
+            const listSaves = listData.map(item => item.saves);
+
+            const performanceCtx = document.getElementById('performanceChart').getContext('2d');
+            new Chart(performanceCtx, {
+                type: 'bar',
+                data: {
+                    labels: listLabels,
+                    datasets: [
+                        {
+                            label: 'Views',
+                            data: listViews,
+                            backgroundColor: 'rgba(99, 102, 241, 0.7)',
+                            borderColor: '#6366f1',
+                            borderWidth: 1
+                        },
+                        {
+                            label: 'Likes',
+                            data: listLikes,
+                            backgroundColor: 'rgba(16, 185, 129, 0.7)',
+                            borderColor: '#10b981',
+                            borderWidth: 1
+                        },
+                        {
+                            label: 'Saves',
+                            data: listSaves,
+                            backgroundColor: 'rgba(245, 158, 11, 0.7)',
+                            borderColor: '#f59e0b',
+                            borderWidth: 1
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        x: {
+                            grid: { color: 'rgba(255, 255, 255, 0.05)' },
+                            ticks: { color: '#a0a0b0', font: { family: 'Outfit' } }
+                        },
+                        y: {
+                            grid: { color: 'rgba(255, 255, 255, 0.05)' },
+                            ticks: { color: '#a0a0b0', font: { family: 'Outfit' } }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            labels: { color: '#a0a0b0', font: { family: 'Outfit' } }
+                        }
+                    }
+                }
+            });
+        });
+    </script>
+
+    <footer th:replace="~{fragments/layout :: footer}"></footer>
+</body>
+</html>

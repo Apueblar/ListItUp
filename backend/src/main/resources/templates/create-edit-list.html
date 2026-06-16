@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <th:block th:replace="~{fragments/layout :: head('Create List - ListItUp')}"></th:block>
+    <link rel="stylesheet" th:href="@{/css/create-edit-list.css}"/>
+</head>
+<body>
+
+    <nav th:replace="~{fragments/layout :: navbar}"></nav>
+
+    <main class="animate-in">
+        <div class="editor-container">
+            <div class="editor-title-row">
+                <h1 class="editor-title" th:text="${list != null} ? 'Edit List' : 'Create a New List'">Create a New List</h1>
+                <a th:href="${list != null} ? @{/lists/{id}(id=${list.listId})} : @{/feed}" class="btn-cancel-top">&times; Cancel</a>
+            </div>
+            
+            <form th:action="${list != null} ? @{/lists/{id}/edit(id=${list.listId})} : @{/lists}" method="POST">
+                <div class="form-group">
+                    <label for="title">List Title</label>
+                    <input type="text" id="title" name="title" th:value="${list != null ? list.title : ''}" placeholder="e.g. My Favorite Sci-Fi Novels" required/>
+                </div>
+                
+                <div class="form-group">
+                    <label for="description">Description</label>
+                    <textarea id="description" name="description" rows="3" th:text="${list != null ? list.description : ''}" placeholder="Tell people what this list is about..."></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label for="category" class="category-label">
+                        <span>Category</span>
+                        <a href="javascript:void(0)" id="propose-category-link" class="propose-category-link">Can't find it? Propose a new one</a>
+                    </label>
+                    <select id="category" name="categoryId" required>
+                        <option value="">Select a category</option>
+                        <option th:each="cat : ${categories}" th:value="${cat.categoryId}" th:text="${cat.name}" th:selected="${list != null and list.category.categoryId == cat.categoryId}"></option>
+                    </select>
+                    <div id="propose-category-container" class="propose-category-container">
+                        <label for="proposedCategoryName" class="propose-category-label">Proposed Category Name</label>
+                        <div class="propose-input-row">
+                            <input type="text" id="proposedCategoryName" class="propose-input" placeholder="e.g. Science">
+                            <button type="button" id="submit-proposal-btn" class="btn-primary propose-submit-btn">Submit</button>
+                        </div>
+                        <p id="proposal-feedback" class="proposal-feedback"></p>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="coverPhoto">Cover Photo (Optional)</label>
+                    <div class="file-upload-zone" id="cover-drop-zone">
+                        <span class="drop-zone-text">Drag & Drop an image here or click to select</span>
+                        <input type="file" id="coverPhotoFile" accept="image/*" class="file-upload-input drop-zone-input" data-target="coverPhoto" />
+                    </div>
+                    <div class="url-input-zone">
+                        <span>OR provide a URL:</span>
+                        <input type="text" id="coverPhoto" name="coverPhoto" th:value="${list != null ? list.coverPhoto : ''}" placeholder="https://..." />
+                    </div>
+                </div>
+                
+                <hr class="editor-divider">
+                
+                <div class="items-header">
+                    <h3>List Items</h3>
+                    <button type="button" id="add-item-btn" class="btn-primary btn-add-item">+ Add Item</button>
+                </div>
+                
+                <div id="items-container">
+                    <!-- Dynamic items will be appended here -->
+                    <th:block th:if="${list != null}">
+                        <div th:each="item, stat : ${list.items}" class="item-row">
+                            <div class="drag-handle" title="Drag to reorder">
+                                <span>☰</span>
+                                <div class="order-controls">
+                                    <button type="button" class="btn-move-up" title="Move up" aria-label="Move up">▲</button>
+                                    <button type="button" class="btn-move-down" title="Move down" aria-label="Move down">▼</button>
+                                </div>
+                            </div>
+                            <button type="button" class="btn-remove-item" aria-label="Remove item">&times;</button>
+                            <div class="item-row-field">
+                                <label>Item Title</label>
+                                <input type="text" th:name="'items[' + ${stat.index} + '].title'" th:value="${item.title}" required/>
+                            </div>
+                            <div class="item-row-field">
+                                <label>Description</label>
+                                <textarea th:name="'items[' + ${stat.index} + '].description'" rows="2" th:text="${item.description}"></textarea>
+                            </div>
+                            <div class="item-row-field">
+                                <label>Photo (Optional)</label>
+                                <div class="file-upload-zone">
+                                    <span class="drop-zone-text">Drag & Drop an image here or click to select</span>
+                                    <input type="file" accept="image/*" class="file-upload-input drop-zone-input" th:attr="data-target='item-photo-' + ${stat.index}" />
+                                </div>
+                                <div class="url-input-zone">
+                                    <span>OR provide a URL:</span>
+                                    <input type="text" th:name="'items[' + ${stat.index} + '].photo'" th:value="${item.photo}" th:id="'item-photo-' + ${stat.index}" placeholder="https://..." />
+                                </div>
+                            </div>
+                            <div class="item-row-field">
+                                <label>External URL (Optional)</label>
+                                <input type="text" th:name="'items[' + ${stat.index} + '].externalUrl'" th:value="${item.externalUrl}" />
+                            </div>
+                        </div>
+                    </th:block>
+                </div>
+
+                <div class="editor-submit-row">
+                    <button type="submit" name="action" value="draft" class="btn-draft-list">Save as Draft</button>
+                    <button type="submit" name="action" value="publish" class="btn-primary btn-submit-list" th:text="${list != null and !list.isDraft} ? 'Save Changes' : 'Publish List'">Publish List</button>
+                </div>
+            </form>
+        </div>
+    </main>
+
+    <script th:src="@{/js/create-edit-list.js}"></script>
+    <footer th:replace="~{fragments/layout :: footer}"></footer>
+</body>
+</html>

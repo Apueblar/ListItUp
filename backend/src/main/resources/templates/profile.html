@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <th:block th:replace="~{fragments/layout :: head(${user.username + ' - Profile'})}"></th:block>
+    <link rel="stylesheet" th:href="@{/css/profile.css}"/>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css"/>
+</head>
+<body>
+
+    <nav th:replace="~{fragments/layout :: navbar}"></nav>
+
+    <main class="animate-in">
+        <header class="profile-own-header">
+            <div class="profile-own-avatar" id="avatar-container" title="Change Profile Picture">
+                <span th:text="${#strings.substring(user.username,0,1).toUpperCase()}" 
+                      id="main-avatar-text" 
+                      th:style="${user.profilePicture != null and !user.profilePicture.isEmpty() ? 'display: none;' : ''}">U</span>
+                <img th:if="${user.profilePicture != null and !user.profilePicture.isEmpty()}" 
+                     th:src="${user.profilePicture}" 
+                     alt="Avatar" 
+                     id="main-avatar-img" 
+                     onerror="this.style.display='none'; document.getElementById('main-avatar-text').style.display='flex';" />
+                <div class="avatar-overlay">
+                    <span class="avatar-overlay-text">📷 Change</span>
+                </div>
+            </div>
+            <input type="file" id="avatar-file-input" accept="image/*" />
+            <input type="hidden" id="profilePictureInput" th:value="${user.profilePicture}" />
+            <h1 class="section-heading profile-username" th:text="${user.username}">Username</h1>
+            <p class="profile-own-role" th:text="${'Role: ' + user.role}">Role</p>
+            <div class="profile-stats-row">
+                <span class="follower-count-link" th:data-username="${user.username}" th:data-type="followers" th:text="${followersCount} + ' followers'">0 followers</span> | 
+                <span class="follower-count-link" th:data-username="${user.username}" th:data-type="following" th:text="${followingCount} + ' following'">0 following</span>
+            </div>
+            <p th:if="${user.biography != null and !user.biography.isEmpty()}" th:text="${user.biography}" class="profile-bio-text"></p>
+            <div th:if="${profileSuccess}" class="profile-success-msg" th:text="${profileSuccess}"></div>
+        </header>
+
+        <section class="profile-section edit-profile-section">
+            <h2 class="section-heading edit-profile-title">Edit Profile</h2>
+
+            <div th:if="${usernameError}" class="username-error-msg" th:text="${usernameError}"></div>
+            <div th:if="${usernameSuccess}" class="username-success-msg" th:text="${usernameSuccess}"></div>
+
+            <form th:action="@{/profile/update-username}" method="post" class="profile-edit-form profile-edit-form--mb">
+                <label class="form-label-bold">Username</label>
+                <div class="username-input-row">
+                    <input type="text" name="username" class="profile-textarea username-input" th:value="${user.username}" />
+                    <button type="submit" class="btn-primary username-save-btn">Save</button>
+                </div>
+            </form>
+
+            <form th:action="@{/profile/update-bio}" method="post" class="profile-edit-form profile-edit-form--mb">
+                <label class="form-label-bold">Bio</label>
+                <textarea name="biography" rows="3" placeholder="Tell us about yourself..." class="profile-textarea" th:text="${user.biography}"></textarea>
+                <button type="submit" class="btn-primary btn-save-bio">Save Bio</button>
+            </form>
+            
+            <form th:action="@{/profile/delete}" method="post" class="profile-edit-form danger-zone-form" onsubmit="return confirm('Are you sure you want to permanently delete your account? All your lists, likes, and comments will be permanently removed. This cannot be undone.');">
+                <h3 class="danger-zone-title">Danger Zone</h3>
+                <p class="danger-zone-desc">Once you delete your account, there is no going back. Please be certain.</p>
+                <button type="submit" class="btn-secondary btn-delete-account">Delete Account</button>
+            </form>
+        </section>
+
+        <!-- Tabs Container -->
+        <div class="profile-tabs-container">
+            <div class="profile-tabs-header">
+                <button class="profile-tab-btn active" data-tab="my-lists">My Created Lists</button>
+                <button class="profile-tab-btn" data-tab="saved-lists">My Saved Lists</button>
+                <button class="profile-tab-btn" data-tab="liked-lists">My Liked Lists</button>
+            </div>
+
+            <div class="profile-tab-content active" id="my-lists">
+                <div class="grid">
+                    <a th:each="list : ${myLists}" th:href="@{/lists/{id}(id=${list.listId})}" class="list-card">
+                        <div>
+                            <span class="category-pill" th:text="${list.category.name}">Category</span>
+                            <span th:if="${list.isPinned}" class="pinned-badge pinned-badge-margin">📌 Pinned</span>
+                            <span th:if="${list.isDraft}" class="draft-badge draft-badge-margin">📝 Draft</span>
+                        </div>
+                        <h3 th:text="${list.title}">Title</h3>
+                        <p class="card-desc" th:text="${list.description}">Desc</p>
+                        <div class="card-footer-row">
+                            <span th:text="${list.viewCount + ' views'}">0 views</span>
+                            <span th:text="${#temporals.format(list.createdAt, 'dd MMM yyyy')}">Date</span>
+                        </div>
+                    </a>
+                    <div th:if="${#lists.isEmpty(myLists)}" class="empty-grid-msg">You haven't created any lists yet.</div>
+                </div>
+            </div>
+
+            <div class="profile-tab-content" id="saved-lists">
+                <div class="grid">
+                    <a th:each="list : ${savedLists}" th:href="@{/lists/{id}(id=${list.listId})}" class="list-card">
+                        <div><span class="category-pill" th:text="${list.category.name}">Category</span></div>
+                        <h3 th:text="${list.title}">Title</h3>
+                        <p class="card-desc" th:text="${list.description}">Desc</p>
+                        <div class="card-footer-row">
+                            <span th:text="${'By ' + list.creator.username}">Creator</span>
+                        </div>
+                    </a>
+                    <div th:if="${#lists.isEmpty(savedLists)}" class="empty-grid-msg">No saved lists. Go explore!</div>
+                </div>
+            </div>
+
+            <div class="profile-tab-content" id="liked-lists">
+                <div class="grid">
+                    <a th:each="list : ${likedLists}" th:href="@{/lists/{id}(id=${list.listId})}" class="list-card">
+                        <div><span class="category-pill" th:text="${list.category.name}">Category</span></div>
+                        <h3 th:text="${list.title}">Title</h3>
+                        <p class="card-desc" th:text="${list.description}">Desc</p>
+                        <div class="card-footer-row">
+                            <span th:text="${'By ' + list.creator.username}">Creator</span>
+                        </div>
+                    </a>
+                    <div th:if="${#lists.isEmpty(likedLists)}" class="empty-grid-msg">No liked lists. Go explore!</div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Followers / Following Modal -->
+    <div id="follow-modal" class="modal">
+        <div class="modal-content">
+            <span class="close-modal" id="close-follow-modal">&times;</span>
+            <h2 id="follow-modal-title">Followers</h2>
+            <div id="follow-modal-list" class="follow-modal-list-container">
+                <!-- User rows injected here -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Cropper Modal -->
+    <div id="cropper-modal" class="modal">
+        <div class="modal-content">
+            <span class="close-modal" id="close-cropper-modal">&times;</span>
+            <h2 id="cropper-modal-title">Crop Profile Picture</h2>
+            <div class="cropper-container-wrapper">
+                <img id="cropper-image" src="">
+            </div>
+            <div class="cropper-actions-row">
+                <button type="button" class="btn-secondary" id="btn-cancel-crop">Cancel</button>
+                <button type="button" class="btn-primary" id="btn-save-crop">Save Picture</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
+    <script th:src="@{/js/profile.js}"></script>
+    <footer th:replace="~{fragments/layout :: footer}"></footer>
+</body>
+</html>

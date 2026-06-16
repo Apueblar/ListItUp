@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<!-- =====================================================
+     head fragment
+     Usage: th:replace="~{fragments/layout :: head('Page Title', 'page.css')}"
+     Pass null as second arg for pages with no extra CSS.
+     ===================================================== -->
+<head th:fragment="head(title)">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="_csrf" th:content="${_csrf.token}"/>
+    <meta name="_csrf_header" th:content="${_csrf.headerName}"/>
+    <title th:text="${title}">ListItUp</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&family=Outfit:wght@500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/style.css(v=1.1)}">
+    <link rel="stylesheet" th:href="@{/css/header.css(v=1.1)}">
+    <link rel="stylesheet" th:href="@{/css/footer.css(v=1.1)}">
+    <!-- Apply theme synchronously to avoid flash of dark mode -->
+    <script th:src="@{/js/theme-init.js}"></script>
+    <script th:src="@{/js/app.js}" defer="defer"></script>
+</head>
+
+<body>
+
+<!-- =====================================================
+     navbar fragment
+     ===================================================== -->
+<nav th:fragment="navbar">
+    <a th:href="@{/feed}" class="nav-brand">List<span>It</span>Up</a>
+    <div class="nav-links">
+        <button id="theme-toggle" class="btn-theme-toggle" aria-label="Toggle Theme">
+            <span class="theme-icon-dark">☀️</span>
+            <span class="theme-icon-light">🌙</span>
+        </button>
+        <a th:href="@{/search}" class="nav-link">Search</a>
+        <!-- VERIFIED: show analytics button -->
+        <a th:if="${currentUser != null and currentUser.hasAnalyticsAccess}"
+           th:href="@{/analytics}" class="btn-secondary">Analytics</a>
+
+        <!-- Authenticated: show create list button -->
+        <a th:if="${currentUser != null}"
+           th:href="@{/lists/new}" class="btn-primary">+ Create List</a>
+
+        <!-- ADMIN: show admin panel -->
+        <a th:if="${currentUser != null and currentUser.role == 'ADMIN'}"
+           th:href="@{/admin}" class="btn-primary btn-admin">Admin Panel</a>
+
+        <!-- Authenticated: show notification bell -->
+        <div th:if="${currentUser != null}" class="notif-wrapper">
+            <button class="notif-bell-btn" id="notifBellBtn" aria-label="Notifications">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+                <span class="notif-badge" id="notifBadge" 
+                      th:classappend="${unreadNotificationCount > 0 ? 'show-badge' : ''}"
+                      th:text="${unreadNotificationCount > 9 ? '9+' : unreadNotificationCount}"></span>
+            </button>
+            <div class="notif-dropdown" id="notifDropdown">
+                <div class="notif-header">
+                    <span>Notifications</span>
+                    <div class="notif-actions">
+                        <button class="notif-mark-read" id="notifMarkRead" style="display: none;">Mark all read</button>
+                        <button class="notif-clear-all" id="notifClearAll" style="display: none;">Clear all</button>
+                    </div>
+                </div>
+                <ul class="notif-list" id="notifList">
+                    <li class="notif-empty">Loading...</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Authenticated: show user avatar dropdown -->
+        <div th:if="${currentUser != null}" class="user-dropdown">
+            <button class="avatar-btn" id="avatarDropdownBtn">
+                <span th:text="${#strings.substring(currentUser.username, 0, 1).toUpperCase()}" 
+                      class="avatar-fallback-header"
+                      th:style="${currentUser.profilePicture != null and !currentUser.profilePicture.isEmpty() ? 'display: none;' : ''}">U</span>
+                <img th:if="${currentUser.profilePicture != null and !currentUser.profilePicture.isEmpty()}" 
+                     th:src="${currentUser.profilePicture}" 
+                     alt="Avatar" 
+                     class="avatar-img-header" 
+                     onerror="this.style.display='none'; this.previousElementSibling.style.display='flex';" />
+            </button>
+            <div class="dropdown-menu" id="avatarDropdownMenu">
+                <div class="dropdown-header">
+                    <span class="user-name" th:text="${currentUser.username}">Username</span>
+                    <span class="user-email" th:text="${currentUser.email}">user@example.com</span>
+                </div>
+                <div class="dropdown-divider"></div>
+                <a th:href="@{/profile}" class="dropdown-item">Edit Profile Dashboard</a>
+                <a th:href="@{/users/{username}(username=${currentUser.username})}" class="dropdown-item">Public Profile</a>
+                <a th:href="@{/profile/drafts}" class="dropdown-item">My Drafts</a>
+                <div class="dropdown-divider"></div>
+                <form th:action="@{/profile/update-username}" method="post" class="username-update-form">
+                    <!-- Include CSRF token explicitly for non-thymeleaf generated raw form elements if needed, but th:action handles it! -->
+                    <label class="form-label">Change Username</label>
+                    <div class="input-group">
+                        <input type="text" name="username" th:value="${currentUser.username}" required placeholder="New username">
+                        <button type="submit" class="btn-save-username">Save</button>
+                    </div>
+                </form>
+                <div class="dropdown-divider"></div>
+                <form th:action="@{/logout}" method="post" class="logout-form">
+                    <button type="submit" class="dropdown-item btn-logout-direct">Logout</button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Guest: show sign in -->
+        <a th:unless="${currentUser != null}"
+           th:href="@{/login}" class="btn-primary">Sign In</a>
+    </div>
+</nav>
+
+<!-- =====================================================
+     footer fragment
+     ===================================================== -->
+<footer th:fragment="footer" class="site-footer">
+    <p>&copy; 2026 ListItUp &mdash; Curated lists, shared with the world.</p>
+    
+    <!-- Cookie Consent Banner -->
+    <div id="cookie-banner" class="cookie-banner">
+        <p class="cookie-banner-text">We use cookies to ensure you get the best experience on our website. <a href="#" class="cookie-banner-link">Learn more</a></p>
+        <button id="btn-accept-cookies" class="btn-primary cookie-banner-btn">Got it!</button>
+    </div>
+
+    <!-- Custom Alert Modal -->
+    <div id="alert-modal" class="modal">
+        <div class="modal-content" style="text-align: center;">
+            <span class="close-modal" id="close-alert-modal">&times;</span>
+            <h2 id="alert-modal-title" style="margin-bottom: 0.5rem; color: var(--accent-color);">Notification</h2>
+            <p id="alert-modal-message" style="margin: 1.5rem 0; font-size: 1.1rem; color: var(--text-primary); line-height: 1.5;"></p>
+            <button type="button" class="btn-primary" id="btn-alert-ok" style="width: 100%; padding: 0.75rem; font-weight: 600; border-radius: 8px;">OK</button>
+        </div>
+    </div>
+</footer>
+
+</body>
+</html>

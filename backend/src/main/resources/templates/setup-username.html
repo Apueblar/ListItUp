@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <th:block th:replace="~{fragments/layout :: head('Set Up Username - ListItUp')}"></th:block>
+    <link rel="stylesheet" th:href="@{/css/setup-username.css}"/>
+</head>
+<body>
+
+    <main class="animate-in setup-wrapper">
+        <div class="setup-container">
+            <div class="setup-logo">List<span>It</span>Up</div>
+            <h2 class="setup-title">Welcome aboard!</h2>
+            <p class="setup-description">
+                Before you start exploring and creating lists, please choose a unique username. Your username must not contain spaces (Instagram-style).
+            </p>
+
+            <div th:if="${error}" class="setup-error-banner" th:text="${error}">
+                Error message
+            </div>
+
+            <form th:action="@{/setup-username}" method="post">
+                <div class="setup-form-group">
+                    <label class="setup-form-label" for="username">Choose Username</label>
+                    <div class="setup-input-wrapper">
+                        <!-- Suggested Google/GitHub username is passed as suggestedUsername -->
+                        <input type="text" 
+                               id="username" 
+                               name="username" 
+                               th:value="${suggestedUsername}" 
+                               th:placeholder="${placeholderUsername}" 
+                               class="setup-input" 
+                               required 
+                               pattern="^[a-zA-Z0-9_.]+$"
+                               title="Only alphanumeric characters, underscores, and periods are allowed. No spaces.">
+                        <span class="input-hint">Only letters, numbers, underscores (_), and periods (.) allowed. No spaces.</span>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn-primary btn-setup">Confirm Username</button>
+            </form>
+        </div>
+    </main>
+    
+    <!-- Include global app.js which contains cleanUsernameInput logic -->
+    <script th:src="@{/js/app.js}"></script>
+</body>
+</html>

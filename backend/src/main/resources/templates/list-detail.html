@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <th:block th:replace="~{fragments/layout :: head(${list.title + ' - ListItUp'})}"></th:block>
+    <link rel="stylesheet" th:href="@{/css/list-detail.css}"/>
+</head>
+<body>
+
+    <nav th:replace="~{fragments/layout :: navbar}"></nav>
+
+    <main class="animate-in detail-main" th:data-list-id="${list.listId}">
+        <header class="list-header">
+            <img th:if="${list.coverPhoto != null and !list.coverPhoto.isEmpty()}" th:src="${list.coverPhoto}" alt="Cover" class="list-cover-photo" />
+            <span class="category-pill category-pill-mb" th:text="${list.category.name}">Category</span>
+            <h1 th:text="${list.title}">List Title</h1>
+            <p th:text="${list.description}">List description</p>
+            <div class="list-meta">
+                By <span th:text="${list.creator.username}">Creator</span> • 
+                <span th:text="${list.viewCount}">0</span> views • 
+                <span th:if="${currentUser == null or currentUser.userId != list.creator.userId}" th:text="${totalLikes != null ? totalLikes : 0}">0</span>
+                <a th:if="${currentUser != null and currentUser.userId == list.creator.userId}" href="javascript:void(0)" id="likes-count-link" th:text="${totalLikes != null ? totalLikes : 0}" class="likes-link" th:data-list-id="${list.listId}">0</a> likes
+            </div>
+            
+            <div class="list-actions">
+                <button id="btn-like" class="btn-primary btn-interaction"
+                        th:classappend="${isLiked != null and isLiked ? 'btn-interaction--active' : ''}"
+                        th:text="${isLiked != null and isLiked ? '❤️ Liked' : '🤍 Like'}">🤍 Like</button>
+                <button id="btn-save" class="btn-primary btn-interaction"
+                        th:classappend="${isSaved != null and isSaved ? 'btn-interaction--active' : ''}"
+                        th:text="${isSaved != null and isSaved ? '🏷️ Saved' : '🔖 Save'}">🔖 Save</button>
+                
+                <!-- Pin action (only for verified list creators) -->
+                <button th:if="${currentUser != null and currentUser.userId == list.creator.userId and currentUser.role == 'VERIFIED'}" 
+                        id="btn-pin" class="btn-primary btn-interaction"
+                        th:classappend="${list.isPinned ? 'btn-interaction--active' : ''}"
+                        th:text="${list.isPinned ? '📌 Pinned' : '📌 Pin'}">📌 Pin</button>
+                        
+                <a th:if="${currentUser != null and currentUser.userId == list.creator.userId}" 
+                   th:href="@{/lists/{id}/edit(id=${list.listId})}" 
+                   class="btn-primary btn-interaction">✏️ Edit</a>
+                
+                <form th:if="${currentUser != null and currentUser.userId == list.creator.userId}"
+                      th:action="@{/lists/{id}/delete(id=${list.listId})}" method="POST" class="delete-form-inline">
+                    <button type="submit" class="btn-primary btn-interaction btn-delete-list btn-confirm-delete">🗑️ Delete</button>
+                </form>
+
+                <button th:if="${currentUser != null and currentUser.userId != list.creator.userId}"
+                        class="btn-primary btn-interaction btn-report-modal btn-report-list" th:data-target-id="${list.listId}" th:data-target-type="LIST">🚩 Report</button>
+            </div>
+        </header>
+
+        <section class="items-container">
+            <div th:each="item, iterStat : ${list.items}" class="item-card">
+                <div class="rank-badge" th:text="${iterStat.count}">1</div>
+                <div class="item-content">
+                    <img th:if="${item.photo != null and !item.photo.isEmpty()}" th:src="${item.photo}" alt="Item photo" class="item-photo" />
+                    <h3 class="item-title" th:text="${item.title}">Item Title</h3>
+                    <p class="item-desc" th:text="${item.description}">Item description goes here...</p>
+                    <a th:if="${item.externalUrl != null and !item.externalUrl.isEmpty()}" th:href="${item.externalUrl}" target="_blank" class="item-link track-click" th:data-item-id="${item.itemId}">Visit Link →</a>
+                    <div class="item-report-wrapper" th:if="${currentUser != null and currentUser.userId != list.creator.userId}">
+                        <button class="btn-report-modal btn-report-item" th:data-target-id="${item.itemId}" th:data-target-type="ITEM">🚩 Report Item</button>
+                    </div>
+                </div>
+            </div>
+            
+            <div th:if="${#lists.isEmpty(list.items)}" class="empty-message">
+                This list doesn't have any items yet.
+            </div>
+        </section>
+
+        <!-- Comments Section -->
+        <section class="comments-section">
+            <h2>Comments</h2>
+            
+            <div th:if="${#authorization.expression('isAuthenticated()')}">
+                <form id="comment-form" th:action="@{/lists/{id}/comments(id=${list.listId})}" method="POST" class="comment-form">
+                    <input type="text" name="text" id="comment-input" placeholder="Add a comment..." required="required" class="comment-input"/>
+                    <button type="submit" class="btn-primary">Post</button>
+                </form>
+            </div>
+            
+            <div th:unless="${#authorization.expression('isAuthenticated()')}" class="sign-in-prompt">
+                <a th:href="@{/oauth2/authorization/google}">Sign in</a> to leave a comment.
+            </div>
+
+            <div id="comments-container">
+                <div th:each="comment : ${comments}" class="comment-card" th:id="'comment-' + ${comment.commentId}">
+                    <div class="comment-header comment-header-row">
+                        <a class="comment-author comment-author-link" th:href="@{/users/{username}(username=${comment.author.username})}" th:text="${comment.author.username}">Author</a>
+                        <div class="comment-actions">
+                            <button th:if="${currentUser != null and currentUser.userId != comment.author.userId}"
+                                    class="btn-report-modal btn-report-comment" th:data-target-id="${comment.commentId}" th:data-target-type="COMMENT">🚩 Report</button>
+                            <button th:if="${currentUser != null and (currentUser.userId == comment.author.userId or currentUser.userId == list.creator.userId or currentUser.role == 'ADMIN')}"
+                                    class="btn-delete-comment btn-delete-comment-action" th:data-comment-id="${comment.commentId}">🗑️ Delete</button>
+                        </div>
+                    </div>
+                    <div class="comment-text" th:text="${comment.text}">Comment text</div>
+                    <div class="comment-date" th:text="${#temporals.format(comment.createdAt, 'dd MMM yyyy HH:mm')}">Date</div>
+                </div>
+            </div>
+            
+            <div th:if="${#lists.isEmpty(comments)}" class="empty-comments" id="empty-comments-msg">
+                No comments yet. Be the first to comment!
+            </div>
+        </section>
+    </main>
+
+    <!-- Report Modal -->
+    <div id="report-modal" class="modal">
+        <div class="modal-content">
+            <span class="close-modal">&times;</span>
+            <h2>Report Content</h2>
+            <form id="report-form" class="report-form">
+                <input type="hidden" id="report-target-id" name="targetId" value="">
+                <input type="hidden" id="report-target-type" name="targetType" value="">
+                <div class="form-group">
+                    <label for="report-reason">Reason</label>
+                    <select id="report-reason" name="reason" required>
+                        <option value="">Select a reason</option>
+                        <option value="SPAM">Spam or misleading</option>
+                        <option value="INAPPROPRIATE">Inappropriate content</option>
+                        <option value="HARASSMENT">Harassment</option>
+                        <option value="OTHER">Other</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="report-details">Details (Optional)</label>
+                    <textarea id="report-details" name="details" rows="3"></textarea>
+                </div>
+                <button type="submit" class="btn-primary w-100">Submit Report</button>
+            </form>
+        </div>
+        </div>
+    </div>
+
+    <!-- Likes Modal -->
+    <div id="likes-modal" class="modal">
+        <div class="modal-content">
+            <span class="close-modal" id="close-likes-modal">&times;</span>
+            <h2>Likes</h2>
+            <div id="likes-modal-list" class="follow-modal-list-container">
+                <!-- User rows injected here -->
+            </div>
+        </div>
+    </div>
+
+
+
+    <!-- Interactions JS -->
+    <script th:src="@{/js/list-detail.js}"></script>
+    <footer th:replace="~{fragments/layout :: footer}"></footer>
+</body>
+</html>

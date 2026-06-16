@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <th:block th:replace="~{fragments/layout :: head('Search Lists - ListItUp')}"></th:block>
+    <link rel="stylesheet" th:href="@{/css/search.css}"/>
+</head>
+<body>
+
+    <nav th:replace="~{fragments/layout :: navbar}"></nav>
+
+    <main class="animate-in">
+        <header class="search-header">
+            <h1>Search Curated Lists</h1>
+            <div class="search-form-wrapper">
+                <form action="/search" method="get" class="search-form">
+                    <input type="text" name="q" th:value="${query}" placeholder="Search lists by title..." class="search-input" />
+                    <button type="submit" class="btn-primary btn-search">Search</button>
+                </form>
+            </div>
+        </header>
+
+        <!-- Sort and Category Filters -->
+        <div class="filters-container">
+            <div class="sort-tabs">
+                <a th:href="@{/search(q=${query}, sort='relevance', category=${selectedCategory != 'All' ? selectedCategory : null})}" 
+                   class="sort-tab-link"
+                   th:classappend="${selectedSort == 'relevance'} ? 'active-tab' : ''">Relevance</a>
+                <a th:href="@{/search(q=${query}, sort='recency', category=${selectedCategory != 'All' ? selectedCategory : null})}" 
+                   class="sort-tab-link"
+                   th:classappend="${selectedSort == 'recency'} ? 'active-tab' : ''">Recency</a>
+            </div>
+
+            <div class="category-filters">
+                <a th:href="@{/search(q=${query}, category='All', sort=${selectedSort != 'relevance' ? selectedSort : null})}" 
+                   class="filter-pill" 
+                   th:classappend="${selectedCategory == 'All'} ? 'active' : ''">All</a>
+                <a th:each="cat : ${categories}" 
+                   th:href="@{/search(q=${query}, category=${cat.name}, sort=${selectedSort != 'relevance' ? selectedSort : null})}" 
+                   class="filter-pill" 
+                   th:classappend="${selectedCategory == cat.name} ? 'active' : ''"
+                   th:text="${cat.name}">Category</a>
+            </div>
+        </div>
+
+        <section class="grid">
+            <!-- Iterate over search results -->
+            <a th:each="list : ${listsPage.content}" th:href="@{/lists/{id}(id=${list.listId})}" class="list-card">
+                <div>
+                    <span class="category-pill" th:text="${list.category.name}">Category</span>
+                </div>
+                <h3 th:text="${list.title}" class="card-title-lg">Title</h3>
+                <p th:text="${list.description}" class="card-desc">
+                    Description...
+                </p>
+                <div class="card-footer-row">
+                    <span th:text="${'Views: ' + list.viewCount}">Views: 0</span>
+                    <span th:text="${#temporals.format(list.createdAt, 'dd MMM yyyy')}">Date</span>
+                </div>
+            </a>
+            
+            <!-- Message if no results -->
+            <div th:if="${listsPage.totalElements == 0 and query != null and !query.isEmpty()}" class="empty-grid-msg">
+                <p>No lists match your search query: <strong th:text="${query}"></strong></p>
+            </div>
+            
+            <!-- Default message when search page is loaded but no query is run yet -->
+            <div th:if="${query == null or query.isEmpty()}" class="empty-grid-msg">
+                <p>Type a keyword above to find curated lists.</p>
+            </div>
+        </section>
+
+        <!-- Pagination -->
+        <div th:if="${listsPage.totalPages > 1}" class="pagination-container">
+            <a th:if="${listsPage.hasPrevious()}" 
+               th:href="@{/search(q=${query}, category=${selectedCategory}, sort=${selectedSort}, page=${listsPage.number - 1})}" 
+               class="btn-primary pagination-btn">&laquo; Previous</a>
+               
+            <span class="pagination-label" th:text="${'Page ' + (listsPage.number + 1) + ' of ' + listsPage.totalPages}">Page 1 of 5</span>
+            
+            <a th:if="${listsPage.hasNext()}" 
+               th:href="@{/search(q=${query}, category=${selectedCategory}, sort=${selectedSort}, page=${listsPage.number + 1})}" 
+               class="btn-primary pagination-btn">Next &raquo;</a>
+        </div>
+    </main>
+
+    <footer th:replace="~{fragments/layout :: footer}"></footer>
+</body>
+</html>

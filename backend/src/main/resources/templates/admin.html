@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <th:block th:replace="~{fragments/layout :: head('Admin Dashboard - ListItUp')}"></th:block>
+    <link rel="stylesheet" th:href="@{/css/admin.css(v=1.1)}"/>
+</head>
+<body>
+
+    <nav th:replace="~{fragments/layout :: navbar}"></nav>
+
+    <main class="animate-in admin-main">
+        <header class="admin-header">
+            <h1>Administration Panel</h1>
+            <p>Manage users, toggle verification badges, assign administrative privileges, or block accounts.</p>
+
+            <div class="admin-nav">
+                <a href="/admin" class="btn-primary btn-interaction--active">Users</a>
+                <a href="/admin/lists" class="btn-secondary">Lists</a>
+                <a href="/admin/reports" class="btn-secondary">Reports</a>
+                <a href="/admin/categories" class="btn-secondary">Categories</a>
+            </div>
+        </header>
+
+        <!-- Search Filters Section -->
+        <div class="admin-search-container">
+            <div class="search-group">
+                <label for="search-username" class="search-label">Username</label>
+                <input type="text" id="search-username" placeholder="Filter by username..." class="search-input" />
+            </div>
+            <div class="search-group">
+                <label for="search-email" class="search-label">Email</label>
+                <input type="text" id="search-email" placeholder="Filter by email..." class="search-input" />
+            </div>
+            <div class="search-group">
+                <label for="filter-role" class="search-label">Role</label>
+                <select id="filter-role" class="search-input select-input">
+                    <option value="">All Roles</option>
+                    <option value="STANDARD">Standard</option>
+                    <option value="VERIFIED">Verified</option>
+                    <option value="ADMIN">Admin</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="admin-table-wrapper">
+            <table class="admin-table">
+            <thead>
+                <tr>
+                    <th>Username</th>
+                    <th>Email</th>
+                    <th>Role</th>
+                    <th>Verification</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr th:each="user : ${users}">
+                    <td th:text="${user.username}" class="td-username">Username</td>
+                    <td th:text="${user.email}" class="td-email">user@email.com</td>
+                    <td>
+                        <form th:action="@{/admin/users/role}" method="post" class="form-inline">
+                            <input type="hidden" name="userId" th:value="${user.userId}"/>
+                            <select name="role" class="admin-select" onchange="this.form.submit()" 
+                                    th:disabled="${user.email == 'alvaropueblaruisanchez@gmail.com'}">
+                                <option value="STANDARD" th:selected="${user.role == 'STANDARD'}">Standard</option>
+                                <option value="VERIFIED" th:selected="${user.role == 'VERIFIED'}">Verified</option>
+                                <option value="ADMIN" th:selected="${user.role == 'ADMIN'}">Admin</option>
+                            </select>
+                        </form>
+                    </td>
+                    <td>
+                        <span th:if="${user.hasBadge}" class="badge-verified">Verified Badge</span>
+                        <span th:unless="${user.hasBadge}" class="td-email verification-none">None</span>
+                    </td>
+                    <td>
+                        <span th:if="${user.isBlocked}" class="badge-blocked">Blocked</span>
+                        <span th:unless="${user.isBlocked}" class="badge-active">Active</span>
+                    </td>
+                    <td>
+                        <div class="td-actions">
+                            <!-- Block/Unblock Form -->
+                            <form th:action="@{/admin/users/toggle-block}" method="post" class="form-inline"
+                                  th:if="${user.email != 'alvaropueblaruisanchez@gmail.com'}">
+                                <input type="hidden" name="userId" th:value="${user.userId}"/>
+                                <button type="submit" class="btn-action" 
+                                        th:classappend="${user.isBlocked} ? 'btn-unblock' : 'btn-block'"
+                                        th:text="${user.isBlocked} ? 'Unblock' : 'Block'">
+                                    Block
+                                </button>
+                            </form>
+                            
+                            <!-- Toggle Badge Form -->
+                            <form th:action="@{/admin/users/toggle-badge}" method="post" class="form-inline">
+                                <input type="hidden" name="userId" th:value="${user.userId}"/>
+                                <button type="submit" class="btn-action btn-badge" 
+                                        th:text="${user.hasBadge} ? 'Remove Badge' : 'Give Badge'">
+                                    Verify
+                                </button>
+                            </form>
+
+                            <!-- Delete User Form -->
+                            <form th:action="@{/admin/users/{id}/delete(id=${user.userId})}" method="post" class="form-inline"
+                                  th:if="${user.email != 'alvaropueblaruisanchez@gmail.com'}"
+                                  onsubmit="return confirm('Are you sure you want to delete this account? All associated lists, comments, likes, and reports will be removed.')">
+                                <button type="submit" class="btn-action btn-danger-action">
+                                    Delete
+                                </button>
+                            </form>
+                        </div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        </div>
+    </main>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const searchUsername = document.getElementById('search-username');
+            const searchEmail = document.getElementById('search-email');
+            const filterRole = document.getElementById('filter-role');
+            const rows = document.querySelectorAll('.admin-table tbody tr');
+
+            function filterUsers() {
+                const usernameQuery = searchUsername.value.toLowerCase().trim();
+                const emailQuery = searchEmail.value.toLowerCase().trim();
+                const roleQuery = filterRole.value.toUpperCase();
+
+                rows.forEach(row => {
+                    const usernameTd = row.querySelector('.td-username');
+                    const emailTd = row.querySelector('.td-email');
+                    
+                    const roleSelect = row.querySelector('select[name="role"]');
+                    const currentRole = roleSelect ? roleSelect.value.toUpperCase() : '';
+
+                    const usernameText = usernameTd ? usernameTd.textContent.toLowerCase() : '';
+                    const emailText = emailTd ? emailTd.textContent.toLowerCase() : '';
+
+                    const usernameMatch = usernameText.includes(usernameQuery);
+                    const emailMatch = emailText.includes(emailQuery);
+                    const roleMatch = !roleQuery || currentRole === roleQuery;
+
+                    if (usernameMatch && emailMatch && roleMatch) {
+                        row.style.display = '';
+                    } else {
+                        row.style.display = 'none';
+                    }
+                });
+            }
+
+            if (searchUsername) searchUsername.addEventListener('input', filterUsers);
+            if (searchEmail) searchEmail.addEventListener('input', filterUsers);
+            if (filterRole) filterRole.addEventListener('change', filterUsers);
+        });
+    </script>
+    <footer th:replace="~{fragments/layout :: footer}"></footer>
+</body>
+</html>

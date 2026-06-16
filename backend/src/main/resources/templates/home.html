@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <th:block th:replace="~{fragments/layout :: head('ListItUp - Curated Social Lists')}"></th:block>
+    <link rel="stylesheet" th:href="@{/css/home.css}"/>
+</head>
+<body>
+
+    <nav th:replace="~{fragments/layout :: navbar}"></nav>
+
+    <main class="animate-in">
+        <!-- Error Alert -->
+        <div th:if="${errorMessage != null or param.error != null}" class="error-alert">
+            <p th:text="${errorMessage != null ? errorMessage : 'Authentication failed. Please try again or use another account.'}"></p>
+        </div>
+        
+        <!-- User Not Found Alert -->
+        <div th:if="${param.userNotFound != null}" class="user-not-found-alert">
+            <p>The user profile you are looking for does not exist or could not be found.</p>
+        </div>
+        <header class="home-header">
+            <h1>Discover the Best of Everything.</h1>
+            <p>
+                Explore hand-curated, trustworthy lists from verified creators and everyday experts. Say goodbye to algorithmic noise.
+            </p>
+        </header>
+
+        <!-- Sort and Category Filters -->
+        <div class="filters-container">
+            <div class="sort-tabs">
+                <a th:href="@{/feed(sort='recent', category=${selectedCategory != 'All' ? selectedCategory : null})}" 
+                   class="sort-tab-link"
+                   th:classappend="${selectedSort == 'recent'} ? 'active-tab' : ''">Recent</a>
+                <a th:href="@{/feed(sort='trending', category=${selectedCategory != 'All' ? selectedCategory : null})}" 
+                   class="sort-tab-link"
+                   th:classappend="${selectedSort == 'trending'} ? 'active-tab' : ''">Trending</a>
+                <a th:href="@{/feed(sort='following', category=${selectedCategory != 'All' ? selectedCategory : null})}" 
+                   class="sort-tab-link"
+                   th:classappend="${selectedSort == 'following'} ? 'active-tab' : ''">Following</a>
+            </div>
+
+            <div class="category-filters">
+                <a th:href="@{/feed(category='All', sort=${selectedSort != 'recent' ? selectedSort : null})}" 
+                   class="filter-pill" 
+                   th:classappend="${selectedCategory == 'All'} ? 'active' : ''">All</a>
+                <a th:each="cat : ${categories}" 
+                   th:href="@{/feed(category=${cat.name}, sort=${selectedSort != 'recent' ? selectedSort : null})}" 
+                   class="filter-pill" 
+                   th:classappend="${selectedCategory == cat.name} ? 'active' : ''"
+                   th:text="${cat.name}">Category</a>
+            </div>
+        </div>
+
+        <section class="grid">
+            <!-- Iterate over lists passed from controller -->
+            <div th:each="list : ${lists}" class="list-card">
+                <div class="card-header-row">
+                    <span class="category-pill" th:text="${list.category.name}">Category</span>
+                    <span class="card-date" th:text="${#temporals.format(list.createdAt, 'dd MMM yyyy')}">Date</span>
+                </div>
+                <img th:if="${list.coverPhoto != null and !list.coverPhoto.isEmpty()}" th:src="${list.coverPhoto}" alt="Cover" class="card-cover-photo"/>
+                <h3>
+                    <a th:href="@{/lists/{id}(id=${list.listId})}" th:text="${list.title}" class="list-card-link">Top 10 Sci-Fi Movies</a>
+                </h3>
+                <p class="card-desc" th:text="${list.description}">
+                    A brief description goes here...
+                </p>
+                <div class="card-footer-row">
+                    <span>
+                        by <a th:href="@{/users/{username}(username=${list.creator.username})}" th:text="${list.creator.username}" class="card-creator-link">creator</a>
+                    </span>
+                    <div class="card-footer-actions">
+                        <span th:text="${list.viewCount + ' views'}">1.2k views</span>
+                        <button class="btn-like-feed" th:data-list-id="${list.listId}"
+                                th:attr="data-authenticated=${currentUser != null}"
+                                th:classappend="${likedListIds != null and #lists.contains(likedListIds, list.listId)} ? 'btn-interaction--active' : ''">
+                            <span th:text="${likedListIds != null and #lists.contains(likedListIds, list.listId)} ? '❤️' : '🤍'">🤍</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Placeholder Card if DB is empty -->
+            <div th:if="${#lists.isEmpty(lists)}" class="empty-grid-msg">
+                <p>No lists found. Be the first to create one!</p>
+            </div>
+        </section>
+    </main>
+
+    <footer th:replace="~{fragments/layout :: footer}"></footer>
+    <script th:src="@{/js/home.js}"></script>
+</body>
+</html>

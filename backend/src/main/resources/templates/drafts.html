@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <th:block th:replace="~{fragments/layout :: head('My Drafts - ListItUp')}"></th:block>
+    <link rel="stylesheet" th:href="@{/css/drafts.css}"/>
+</head>
+<body>
+    <nav th:replace="~{fragments/layout :: navbar}"></nav>
+
+    <main class="animate-in drafts-main">
+        <h1 class="drafts-title">My Drafts</h1>
+
+        <div class="grid" th:if="${not #lists.isEmpty(drafts)}">
+            <div th:each="list : ${drafts}" class="list-card draft-card draft-card-wrapper">
+                <div>
+                    <span class="category-pill" th:text="${list.category.name}">Category</span>
+                    <form th:action="@{/lists/{id}/delete(id=${list.listId})}" method="post" class="draft-delete-form" onsubmit="return confirm('Are you sure you want to remove this draft?');">
+                        <button type="submit" class="btn-primary btn-delete-draft">&times; Remove</button>
+                    </form>
+                </div>
+                <h3><a th:href="@{/lists/{id}/edit(id=${list.listId})}" th:text="${list.title}" class="list-card-link">Title</a></h3>
+                <p class="card-desc" th:text="${list.description}">Desc</p>
+                <div class="card-footer-row">
+                    <span>Last updated</span>
+                    <span th:text="${#temporals.format(list.createdAt, 'dd MMM yyyy')}">Date</span>
+                </div>
+            </div>
+        </div>
+
+        <div th:if="${#lists.isEmpty(drafts)}" class="empty-grid-msg drafts-empty">
+            <p>You have no saved drafts.</p>
+            <a th:href="@{/lists/new}" class="btn-primary">Create a List</a>
+        </div>
+    </main>
+
+    <footer th:replace="~{fragments/layout :: footer}"></footer>
+</body>
+</html>

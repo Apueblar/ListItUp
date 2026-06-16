@@ -1,0 +1,43 @@
+/* =========================================================
+   footer.css — Styles for the global footer
+   ========================================================= */
+
+/* Footer */
+.site-footer {
+    text-align: center;
+    padding: 2rem;
+    margin-top: 4rem;
+    color: var(--text-secondary);
+    border-top: 1px solid var(--glass-border);
+    font-size: 0.9rem;
+}
+
+/* Cookie Consent Banner */
+.cookie-banner {
+    display: none;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    background: var(--glass-bg);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border-top: 1px solid var(--glass-border);
+    padding: 1rem;
+    z-index: 9999;
+    text-align: center;
+}
+
+.cookie-banner-text {
+    margin: 0 0 0.5rem 0;
+    font-size: 0.9rem;
+}
+
+.cookie-banner-link {
+    color: var(--accent-color);
+}
+
+.cookie-banner-btn {
+    padding: 0.4rem 1.5rem;
+    font-size: 0.9rem;
+}

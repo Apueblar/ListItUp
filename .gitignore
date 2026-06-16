@@ -1,0 +1,17 @@
+# Dependencies
+/backend/target/
+
+# Environment secrets
+.env
+
+# IDE
+.idea/
+*.iml
+.vscode/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Docker volumes
+pgdata/
